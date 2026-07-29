@@ -5,10 +5,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { Environment, Text, useGLTF, Float, ContactShadows, SpotLight } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-// Register ScrollTrigger for GSAP
-gsap.registerPlugin(ScrollTrigger);
+// Removed ScrollTrigger
 
 import { Model as IDCard } from '../Kartu';
 
@@ -32,97 +29,105 @@ export function AnimatedIDCardPresentation() {
     gsap.set(text2Ref.current.material, { opacity: 0 });
 
     const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: 'top top',
-        end: '+=3000', // Scroll duration
-        scrub: 1, // Smooth scrubbing
-        pin: true,
-      },
+      repeat: -1,
+      yoyo: false,
     });
 
-    // Sequence 1: Card comes to center
-    tl.to(cardGroupRef.current.position, {
-      y: 0,
-      z: 0,
-      duration: 1,
-      ease: 'power2.out',
-    }, 0);
-    tl.to(cardGroupRef.current.rotation, {
-      x: 0,
-      y: 0,
-      duration: 1,
-      ease: 'power2.out',
-    }, 0);
-
-    // Sequence 2: Card moves right, Text 1 ("ML Engineer") comes from left
+    // Sequence 1: Center to Right (ML Engineer on Left)
     tl.to(cardGroupRef.current.position, {
       x: 3,
-      duration: 1,
+      duration: 1.5,
       ease: 'power2.inOut',
-    }, 1);
+      delay: 1, // Stay in center for 1 second
+    }, "move1");
     tl.to(cardGroupRef.current.rotation, {
       y: -Math.PI / 6,
-      duration: 1,
+      duration: 1.5,
       ease: 'power2.inOut',
-    }, 1);
+    }, "move1");
     
     tl.to(text1Ref.current.position, {
       x: -2,
       z: -2,
-      duration: 1,
+      duration: 1.5,
       ease: 'power2.out',
-    }, 1);
+    }, "move1");
     tl.to(text1Ref.current.material, {
       opacity: 1,
       duration: 0.5,
-    }, 1);
+    }, "move1+=1");
 
-    // Sequence 3: Card moves left, Text 2 ("Data Engineer") comes from right, Text 1 fades
+    // Sequence 2: Back to Center
     tl.to(cardGroupRef.current.position, {
-      x: -3,
-      duration: 1,
+      x: 0,
+      duration: 1.5,
       ease: 'power2.inOut',
-    }, 2.5);
+      delay: 2, // Stay at right for 2 seconds
+    }, "center1");
     tl.to(cardGroupRef.current.rotation, {
-      y: Math.PI / 6,
-      duration: 1,
+      y: 0,
+      duration: 1.5,
       ease: 'power2.inOut',
-    }, 2.5);
+    }, "center1");
 
     tl.to(text1Ref.current.position, {
       x: -5,
       z: -10,
-      duration: 1,
+      duration: 1.5,
       ease: 'power2.in',
-    }, 2.5);
+    }, "center1");
     tl.to(text1Ref.current.material, {
       opacity: 0,
       duration: 0.5,
-    }, 2.5);
+    }, "center1");
+
+    // Sequence 3: Center to Left (Data Engineer on Right)
+    tl.to(cardGroupRef.current.position, {
+      x: -3,
+      duration: 1.5,
+      ease: 'power2.inOut',
+      delay: 1, // Stay in center for 1 second
+    }, "move2");
+    tl.to(cardGroupRef.current.rotation, {
+      y: Math.PI / 6,
+      duration: 1.5,
+      ease: 'power2.inOut',
+    }, "move2");
 
     tl.to(text2Ref.current.position, {
       x: 2,
       z: -2,
-      duration: 1,
+      duration: 1.5,
       ease: 'power2.out',
-    }, 2.5);
+    }, "move2");
     tl.to(text2Ref.current.material, {
       opacity: 1,
       duration: 0.5,
-    }, 2.5);
+    }, "move2+=1");
     
-    // Sequence 4: Back to center for exit
+    // Sequence 4: Back to Center
     tl.to(cardGroupRef.current.position, {
       x: 0,
-      duration: 1,
+      duration: 1.5,
       ease: 'power2.inOut',
-    }, 4);
+      delay: 2, // Stay at left for 2 seconds
+    }, "center2");
     tl.to(cardGroupRef.current.rotation, {
       y: 0,
-      duration: 1,
+      duration: 1.5,
       ease: 'power2.inOut',
-    }, 4);
+    }, "center2");
+
+    tl.to(text2Ref.current.position, {
+      x: 5,
+      z: -10,
+      duration: 1.5,
+      ease: 'power2.in',
+    }, "center2");
+    tl.to(text2Ref.current.material, {
+      opacity: 0,
+      duration: 0.5,
+    }, "center2");
 
     return () => {
       tl.kill();
@@ -192,8 +197,7 @@ export function AnimatedIDCardPresentation() {
       
       {/* Overlay UI elements if any */}
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/50 text-sm tracking-widest uppercase flex flex-col items-center gap-2">
-        <span>Scroll to Explore</span>
-        <div className="w-[1px] h-8 bg-gradient-to-b from-white/50 to-transparent"></div>
+        <span>↓</span>
       </div>
     </div>
   );
