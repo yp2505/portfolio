@@ -6,11 +6,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import AnimatedBackground from '@/components/AnimatedBackground'
 import SnowParticles from '@/components/SnowParticles'
 import Navbar from '@/components/ui/Navbar'
-import Hero from '@/components/sections/Hero'
 import About from '@/components/sections/About'
 import PortfolioShowcase from '@/components/sections/PortfolioShowcase'
 import ContactSection from '@/components/sections/contact/ContactSection'
 import WelcomeScreen from '@/components/WelcomeScreen'
+import { AnimatedIDCardPresentation } from '@/components/sections/AnimatedIDCardPresentation'
 
 import WaveFooter from '@/components/WaveFooter'
 
@@ -75,7 +75,7 @@ export default function Home() {
       {/* Content */}
       <div style={{ position: 'relative', zIndex: 2 }}>
         <Navbar />
-        <Hero showApp={showApp} />
+        <AnimatedIDCardPresentation />
         <About />
         <PortfolioShowcase />
         <ContactSection />
