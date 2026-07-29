@@ -16,7 +16,7 @@ import * as THREE from 'three';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
-// ─── Helper: Generate Crisp Textures for 3D Cards ──────────────────────────────
+// ─── Helper: Generate Crisp, Forward-Reading Textures for 3D Cards ─────────────
 function createCardTexture(type: 'left' | 'right'): THREE.CanvasTexture {
   if (typeof window === 'undefined') return new THREE.CanvasTexture(null as any);
 
@@ -26,23 +26,28 @@ function createCardTexture(type: 'left' | 'right'): THREE.CanvasTexture {
   const ctx = canvas.getContext('2d');
   if (!ctx) return new THREE.CanvasTexture(canvas);
 
+  // Flip X coordinate space so 180-degree GLTF mesh rotation yields right-side-up, forward-reading text
+  ctx.save();
+  ctx.translate(1024, 0);
+  ctx.scale(-1, 1);
+
   // Background gradient
   const bgGrad = ctx.createLinearGradient(0, 0, 0, 1440);
-  bgGrad.addColorStop(0, '#091424');
-  bgGrad.addColorStop(1, '#040912');
+  bgGrad.addColorStop(0, '#091526');
+  bgGrad.addColorStop(1, '#040812');
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, 1024, 1440);
 
-  // Subtle grid pattern
-  ctx.strokeStyle = 'rgba(14, 165, 233, 0.05)';
+  // Subtle grid lines
+  ctx.strokeStyle = 'rgba(14, 165, 233, 0.06)';
   ctx.lineWidth = 2;
-  for (let x = 0; x < 1024; x += 60) {
+  for (let x = 0; x < 1024; x += 64) {
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, 1440);
     ctx.stroke();
   }
-  for (let y = 0; y < 1440; y += 60) {
+  for (let y = 0; y < 1440; y += 64) {
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(1024, y);
@@ -50,115 +55,124 @@ function createCardTexture(type: 'left' | 'right'): THREE.CanvasTexture {
   }
 
   // Outer border & glow frame
-  ctx.strokeStyle = 'rgba(14, 165, 233, 0.35)';
-  ctx.lineWidth = 14;
-  ctx.strokeRect(24, 24, 976, 1392);
+  ctx.strokeStyle = 'rgba(14, 165, 233, 0.4)';
+  ctx.lineWidth = 16;
+  ctx.strokeRect(32, 32, 960, 1376);
 
-  ctx.strokeStyle = 'rgba(56, 189, 248, 0.15)';
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.18)';
   ctx.lineWidth = 4;
-  ctx.strokeRect(44, 44, 936, 1352);
+  ctx.strokeRect(56, 56, 912, 1328);
+
+  const leftMargin = 90;
 
   if (type === 'left') {
     // ── LEFT CARD: GENERAL SPECS ──
-    // Badge
-    ctx.fillStyle = 'rgba(14, 165, 233, 0.15)';
+    // Pill Badge
+    ctx.fillStyle = 'rgba(14, 165, 233, 0.16)';
     ctx.beginPath();
-    ctx.roundRect(80, 110, 480, 72, 36);
+    ctx.roundRect(leftMargin, 110, 470, 68, 34);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.5)';
     ctx.lineWidth = 3;
     ctx.stroke();
 
     ctx.fillStyle = '#38bdf8';
     ctx.beginPath();
-    ctx.arc(122, 146, 10, 0, Math.PI * 2);
+    ctx.arc(leftMargin + 36, 144, 9, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = '#38bdf8';
-    ctx.font = '600 28px "Inter", sans-serif';
-    ctx.fillText('OPEN TO OPPORTUNITIES', 152, 155);
+    ctx.font = '600 26px "Inter", sans-serif';
+    ctx.fillText('OPEN TO OPPORTUNITIES', leftMargin + 62, 153);
 
     // Title
     ctx.fillStyle = '#ffffff';
-    ctx.font = '800 68px "Inter", sans-serif';
-    ctx.fillText('Building Scalable', 80, 310);
+    ctx.font = '800 58px "Inter", sans-serif';
+    ctx.fillText('Building Scalable', leftMargin, 290);
 
-    const grad = ctx.createLinearGradient(80, 0, 750, 0);
+    const grad = ctx.createLinearGradient(leftMargin, 0, 750, 0);
     grad.addColorStop(0, '#38bdf8');
     grad.addColorStop(1, '#0ea5e9');
     ctx.fillStyle = grad;
-    ctx.font = '800 72px "Inter", sans-serif';
-    ctx.fillText('Data & ML Systems', 80, 400);
+    ctx.font = '800 62px "Inter", sans-serif';
+    ctx.fillText('Data & ML Systems', leftMargin, 370);
 
-    // Description text
-    ctx.fillStyle = 'rgba(232, 244, 255, 0.78)';
-    ctx.font = '400 38px "Inter", sans-serif';
-    ctx.fillText('Transforming complex datasets', 80, 560);
-    ctx.fillText('into high-impact machine', 80, 625);
-    ctx.fillText('learning models and robust', 80, 690);
-    ctx.fillText('data engineering pipelines.', 80, 755);
+    // Description text (comfortably wrapped)
+    ctx.fillStyle = 'rgba(232, 244, 255, 0.82)';
+    ctx.font = '400 32px "Inter", sans-serif';
+    ctx.fillText('Transforming complex datasets', leftMargin, 520);
+    ctx.fillText('into high-impact machine', leftMargin, 575);
+    ctx.fillText('learning models and robust', leftMargin, 630);
+    ctx.fillText('data engineering pipelines.', leftMargin, 685);
 
-    ctx.fillStyle = 'rgba(56, 189, 248, 0.55)';
-    ctx.font = 'italic 34px "Inter", sans-serif';
-    ctx.fillText('"Data is the new oil — I help refine it."', 80, 920);
+    // Highlight Quote
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.65)';
+    ctx.font = 'italic 30px "Inter", sans-serif';
+    ctx.fillText('"Data is the new oil — I help refine it."', leftMargin, 840);
 
   } else {
     // ── RIGHT CARD: ROLES & TECH STACK ──
-    // Badge
-    ctx.fillStyle = 'rgba(14, 165, 233, 0.15)';
+    // Pill Badge
+    ctx.fillStyle = 'rgba(14, 165, 233, 0.16)';
     ctx.beginPath();
-    ctx.roundRect(80, 110, 360, 72, 36);
+    ctx.roundRect(leftMargin, 110, 360, 68, 34);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.5)';
     ctx.lineWidth = 3;
     ctx.stroke();
 
     ctx.fillStyle = '#38bdf8';
-    ctx.font = '600 28px "Inter", sans-serif';
-    ctx.fillText('PRIMARY ROLES', 125, 155);
+    ctx.font = '600 26px "Inter", sans-serif';
+    ctx.fillText('PRIMARY ROLES', leftMargin + 40, 153);
 
     // Title
     ctx.fillStyle = '#ffffff';
-    ctx.font = '800 68px "Inter", sans-serif';
-    ctx.fillText('ML Engineer &', 80, 310);
+    ctx.font = '800 58px "Inter", sans-serif';
+    ctx.fillText('ML Engineer &', leftMargin, 290);
 
-    const grad = ctx.createLinearGradient(80, 0, 750, 0);
+    const grad = ctx.createLinearGradient(leftMargin, 0, 750, 0);
     grad.addColorStop(0, '#38bdf8');
     grad.addColorStop(1, '#0ea5e9');
     ctx.fillStyle = grad;
-    ctx.font = '800 72px "Inter", sans-serif';
-    ctx.fillText('Data Engineer', 80, 400);
+    ctx.font = '800 62px "Inter", sans-serif';
+    ctx.fillText('Data Engineer', leftMargin, 370);
 
-    // Skills Badges
+    // Skills Badges Layout
     const skills = ['Python', 'TensorFlow', 'PyTorch', 'Spark', 'SQL', 'scikit-learn'];
-    let startX = 80;
-    let startY = 560;
+    let startX = leftMargin;
+    let startY = 520;
     skills.forEach((skill) => {
-      ctx.font = '600 32px "Inter", sans-serif';
+      ctx.font = '600 28px "Inter", sans-serif';
       const textWidth = ctx.measureText(skill).width;
-      const boxWidth = textWidth + 48;
-      if (startX + boxWidth > 940) {
-        startX = 80;
-        startY += 94;
+      const boxWidth = textWidth + 44;
+      if (startX + boxWidth > 930) {
+        startX = leftMargin;
+        startY += 86;
       }
-      ctx.fillStyle = 'rgba(14, 165, 233, 0.16)';
+      ctx.fillStyle = 'rgba(14, 165, 233, 0.18)';
       ctx.beginPath();
-      ctx.roundRect(startX, startY, boxWidth, 68, 16);
+      ctx.roundRect(startX, startY, boxWidth, 62, 16);
       ctx.fill();
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
       ctx.lineWidth = 3;
       ctx.stroke();
 
       ctx.fillStyle = '#38bdf8';
-      ctx.fillText(skill, startX + 24, startY + 46);
-      startX += boxWidth + 20;
+      ctx.fillText(skill, startX + 22, startY + 42);
+      startX += boxWidth + 18;
     });
+
+    ctx.fillStyle = 'rgba(232, 244, 255, 0.7)';
+    ctx.font = '400 30px "Inter", sans-serif';
+    ctx.fillText('End-to-end ML models & ETL pipelines.', leftMargin, 840);
   }
 
   // Card Branding footer
   ctx.fillStyle = 'rgba(56, 189, 248, 0.6)';
-  ctx.font = '500 30px "JetBrains Mono", monospace';
-  ctx.fillText('yug.dev', 80, 1340);
+  ctx.font = '500 28px "JetBrains Mono", monospace';
+  ctx.fillText('yug.dev', leftMargin, 1320);
+
+  ctx.restore();
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.rotation = Math.PI;
@@ -170,16 +184,16 @@ function createCardTexture(type: 'left' | 'right'): THREE.CanvasTexture {
 // ─── Single Physics 3D ID Card Component ──────────────────────────────────────
 function SinglePhysicsCard({
   xPos,
+  yAnchor = 4,
   texture,
   isMobile,
   scale = 2.2,
-  offset = 0,
 }: {
   xPos: number;
+  yAnchor?: number;
   texture: THREE.Texture;
   isMobile: boolean;
   scale?: number;
-  offset?: number;
 }) {
   const band = useRef<any>(null);
   const fixed = useRef<any>(null);
@@ -267,7 +281,7 @@ function SinglePhysicsCard({
 
   return (
     <>
-      <group position={[xPos, 4, 0]}>
+      <group position={[xPos, yAnchor, 0]}>
         <RigidBody ref={fixed} {...segmentProps} type="fixed" />
         <RigidBody position={[0.5, 0, 0]} ref={j1} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
         <RigidBody position={[1, 0, 0]} ref={j2} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
@@ -348,22 +362,26 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
     }
   }, [photoTexture]);
 
-  // Sequential drop timing for cards: Center -> Left -> Right
+  // Sequential drop timing: Center photo card drops first -> Left -> Right
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(false);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setShowLeft(true), 500);
-    const t2 = setTimeout(() => setShowRight(true), 1000);
+    const t1 = setTimeout(() => setShowLeft(true), 400);
+    const t2 = setTimeout(() => setShowRight(true), 800);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
     };
   }, []);
 
-  // Card spacing & scaling based on device screen size
-  const cardScale = isMobile ? 1.4 : 2.1;
-  const xDistance = isMobile ? 1.8 : 3.5;
+  // Center photo card is larger (2.3) and sits lower (3.6), side cards hang higher (4.3) and smaller (1.9)
+  const centerScale = isMobile ? 1.5 : 2.35;
+  const sideScale = isMobile ? 1.25 : 1.9;
+  const xDistance = isMobile ? 1.75 : 3.4;
+
+  const centerYAnchor = isMobile ? 3.8 : 3.6;
+  const sideYAnchor = isMobile ? 4.3 : 4.4;
 
   return (
     <>
@@ -376,31 +394,34 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
       </Environment>
 
       <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
-        {/* 1. Center Card (Photo ID) */}
+        {/* 1. Center Photo ID Card (Main centerpiece attraction) */}
         <SinglePhysicsCard
           xPos={0}
+          yAnchor={centerYAnchor}
           texture={photoTexture}
           isMobile={isMobile}
-          scale={cardScale}
+          scale={centerScale}
         />
 
-        {/* 2. Left Card (General Specs) - drops after 500ms */}
+        {/* 2. Left Card (General Specs) - hangs slightly higher */}
         {showLeft && (
           <SinglePhysicsCard
             xPos={-xDistance}
+            yAnchor={sideYAnchor}
             texture={leftTexture}
             isMobile={isMobile}
-            scale={cardScale}
+            scale={sideScale}
           />
         )}
 
-        {/* 3. Right Card (Primary Roles & Tech Stack) - drops after 1000ms */}
+        {/* 3. Right Card (Primary Roles) - hangs slightly higher */}
         {showRight && (
           <SinglePhysicsCard
             xPos={xDistance}
+            yAnchor={sideYAnchor}
             texture={rightTexture}
             isMobile={isMobile}
-            scale={cardScale}
+            scale={sideScale}
           />
         )}
       </Physics>
