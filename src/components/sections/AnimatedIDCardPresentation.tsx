@@ -16,64 +16,57 @@ import * as THREE from 'three';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
-// ─── Helper: Generate Centered, Uncut, High-Readability Card Textures ─────────
-function createCardTexture(type: 'left' | 'right'): THREE.CanvasTexture {
+// ─── Helper: Generate Crisp Textures for Horizontal Landscape 3D Cards ─────────
+function createHorizontalCardTexture(type: 'left' | 'right'): THREE.CanvasTexture {
   if (typeof window === 'undefined') return new THREE.CanvasTexture(null as any);
 
   const canvas = window.document.createElement('canvas');
-  canvas.width = 1024;
-  canvas.height = 1440;
+  canvas.width = 1600;
+  canvas.height = 1000;
   const ctx = canvas.getContext('2d');
-  if (!ctx) return new THREE.CanvasTexture(canvas);
-
-  // Flip X coordinate space for 180-degree GLTF mesh UV alignment
-  ctx.save();
-  ctx.translate(1024, 0);
-  ctx.scale(-1, 1);
+  if (!ctx) return new THREE.CanvasTexture(null as any);
 
   // Background
-  const bgGrad = ctx.createLinearGradient(0, 0, 0, 1440);
-  bgGrad.addColorStop(0, '#09162a');
-  bgGrad.addColorStop(0.5, '#050c18');
-  bgGrad.addColorStop(1, '#02050b');
+  const bgGrad = ctx.createLinearGradient(0, 0, 0, 1000);
+  bgGrad.addColorStop(0, '#0a182e');
+  bgGrad.addColorStop(0.5, '#050d1a');
+  bgGrad.addColorStop(1, '#02050d');
   ctx.fillStyle = bgGrad;
-  ctx.fillRect(0, 0, 1024, 1440);
+  ctx.fillRect(0, 0, 1600, 1000);
 
-  // Grid lines
-  ctx.strokeStyle = 'rgba(14, 165, 233, 0.07)';
+  // Grid pattern
+  ctx.strokeStyle = 'rgba(14, 165, 233, 0.06)';
   ctx.lineWidth = 2;
-  for (let x = 0; x < 1024; x += 64) {
+  for (let x = 0; x < 1600; x += 64) {
     ctx.beginPath();
     ctx.moveTo(x, 0);
-    ctx.lineTo(x, 1440);
+    ctx.lineTo(x, 1000);
     ctx.stroke();
   }
-  for (let y = 0; y < 1440; y += 64) {
+  for (let y = 0; y < 1000; y += 64) {
     ctx.beginPath();
     ctx.moveTo(0, y);
-    ctx.lineTo(1024, y);
+    ctx.lineTo(1600, y);
     ctx.stroke();
   }
 
-  // Outer border & neon glow frame
-  ctx.strokeStyle = 'rgba(14, 165, 233, 0.5)';
-  ctx.lineWidth = 20;
-  ctx.strokeRect(30, 30, 964, 1380);
+  // Outer border & glow frame
+  ctx.strokeStyle = 'rgba(14, 165, 233, 0.55)';
+  ctx.lineWidth = 16;
+  ctx.strokeRect(28, 28, 1544, 944);
 
   ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
   ctx.lineWidth = 4;
-  ctx.strokeRect(54, 54, 916, 1332);
+  ctx.strokeRect(48, 48, 1504, 904);
 
-  const centerX = 512;
-  ctx.textAlign = 'center';
+  const leftMargin = 80;
 
   if (type === 'left') {
-    // ── LEFT CARD: GENERAL SPECS ──
-    // Pill Badge
-    const badgeW = 460;
+    // ── LEFT HORIZONTAL CARD: GENERAL SPECS ──
+    // Badge
     ctx.fillStyle = 'rgba(14, 165, 233, 0.18)';
     ctx.beginPath();
-    ctx.roundRect(centerX - badgeW / 2, 110, badgeW, 70, 35);
+    ctx.roundRect(leftMargin, 80, 440, 64, 32);
     ctx.fill();
     ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
     ctx.lineWidth = 3;
@@ -81,143 +74,98 @@ function createCardTexture(type: 'left' | 'right'): THREE.CanvasTexture {
 
     ctx.fillStyle = '#38bdf8';
     ctx.beginPath();
-    ctx.arc(centerX - badgeW / 2 + 36, 145, 9, 0, Math.PI * 2);
+    ctx.arc(leftMargin + 32, 112, 8, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = '#38bdf8';
-    ctx.font = '600 26px "Inter", sans-serif';
-    ctx.fillText('OPEN TO OPPORTUNITIES', centerX + 12, 154);
+    ctx.font = '600 24px "Inter", sans-serif';
+    ctx.fillText('OPEN TO OPPORTUNITIES', leftMargin + 54, 120);
 
     // Main Title
     ctx.fillStyle = '#ffffff';
-    ctx.font = '800 62px "Inter", sans-serif';
-    ctx.fillText('Building Scalable', centerX, 290);
-
-    const grad = ctx.createLinearGradient(centerX - 300, 0, centerX + 300, 0);
-    grad.addColorStop(0, '#38bdf8');
-    grad.addColorStop(1, '#0ea5e9');
-    ctx.fillStyle = grad;
-    ctx.font = '800 66px "Inter", sans-serif';
-    ctx.fillText('Data & ML Systems', centerX, 375);
+    ctx.font = '800 58px "Inter", sans-serif';
+    ctx.fillText('Building Scalable Data & ML Systems', leftMargin, 230);
 
     // Glowing Divider Line
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)';
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(180, 440);
-    ctx.lineTo(844, 440);
+    ctx.moveTo(leftMargin, 280);
+    ctx.lineTo(1520, 280);
     ctx.stroke();
 
     // Description text
     ctx.fillStyle = 'rgba(232, 244, 255, 0.88)';
     ctx.font = '400 36px "Inter", sans-serif';
-    ctx.fillText('Transforming complex datasets', centerX, 550);
-    ctx.fillText('into high-impact ML models', centerX, 615);
-    ctx.fillText('& robust production pipelines.', centerX, 680);
+    ctx.fillText('Transforming complex datasets into high-impact machine learning models', leftMargin, 380);
+    ctx.fillText('and robust, production-ready data engineering pipelines.', leftMargin, 445);
 
-    // Quote
-    ctx.fillStyle = 'rgba(56, 189, 248, 0.7)';
-    ctx.font = 'italic 32px "Inter", sans-serif';
-    ctx.fillText('"Turning raw data into intelligence"', centerX, 840);
+    // Highlight Quote
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.75)';
+    ctx.font = 'italic 34px "Inter", sans-serif';
+    ctx.fillText('"Turning raw data into scalable intelligence."', leftMargin, 580);
 
   } else {
-    // ── RIGHT CARD: ROLES & TECH STACK ──
-    // Pill Badge
-    const badgeW = 340;
+    // ── RIGHT HORIZONTAL CARD: ROLES & TECH STACK ──
+    // Badge
     ctx.fillStyle = 'rgba(14, 165, 233, 0.18)';
     ctx.beginPath();
-    ctx.roundRect(centerX - badgeW / 2, 110, badgeW, 70, 35);
+    ctx.roundRect(leftMargin, 80, 320, 64, 32);
     ctx.fill();
     ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
     ctx.lineWidth = 3;
     ctx.stroke();
 
     ctx.fillStyle = '#38bdf8';
-    ctx.font = '600 26px "Inter", sans-serif';
-    ctx.fillText('PRIMARY ROLES', centerX, 154);
+    ctx.font = '600 24px "Inter", sans-serif';
+    ctx.fillText('PRIMARY ROLES', leftMargin + 40, 120);
 
     // Main Title
     ctx.fillStyle = '#ffffff';
-    ctx.font = '800 62px "Inter", sans-serif';
-    ctx.fillText('ML Engineer &', centerX, 290);
-
-    const grad = ctx.createLinearGradient(centerX - 300, 0, centerX + 300, 0);
-    grad.addColorStop(0, '#38bdf8');
-    grad.addColorStop(1, '#0ea5e9');
-    ctx.fillStyle = grad;
-    ctx.font = '800 66px "Inter", sans-serif';
-    ctx.fillText('Data Engineer', centerX, 375);
+    ctx.font = '800 58px "Inter", sans-serif';
+    ctx.fillText('ML Engineer & Data Engineer', leftMargin, 230);
 
     // Glowing Divider Line
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)';
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(180, 440);
-    ctx.lineTo(844, 440);
+    ctx.moveTo(leftMargin, 280);
+    ctx.lineTo(1520, 280);
     ctx.stroke();
 
-    // Skills Badges (Centered Grid)
-    const row1 = ['Python', 'TensorFlow', 'PyTorch'];
-    const row2 = ['Apache Spark', 'SQL', 'scikit-learn'];
+    // Skills Badges (Single horizontal line)
+    const skills = ['Python', 'TensorFlow', 'PyTorch', 'Spark', 'SQL', 'scikit-learn'];
+    let startX = leftMargin;
+    const y = 370;
 
-    // Row 1
-    let y = 530;
-    ctx.font = '600 30px "Inter", sans-serif';
-    let totalW1 = row1.reduce((sum, s) => sum + ctx.measureText(s).width + 44, 0) + (row1.length - 1) * 20;
-    let startX1 = centerX - totalW1 / 2;
-
-    row1.forEach((skill) => {
+    skills.forEach((skill) => {
+      ctx.font = '600 28px "Inter", sans-serif';
       const tw = ctx.measureText(skill).width;
       const bw = tw + 44;
       ctx.fillStyle = 'rgba(14, 165, 233, 0.2)';
       ctx.beginPath();
-      ctx.roundRect(startX1, y, bw, 64, 16);
+      ctx.roundRect(startX, y, bw, 66, 18);
       ctx.fill();
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.5)';
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.55)';
       ctx.lineWidth = 3;
       ctx.stroke();
 
       ctx.fillStyle = '#38bdf8';
-      ctx.fillText(skill, startX1 + bw / 2, y + 43);
-      startX1 += bw + 20;
+      ctx.fillText(skill, startX + 22, y + 44);
+      startX += bw + 18;
     });
 
-    // Row 2
-    y = 624;
-    let totalW2 = row2.reduce((sum, s) => sum + ctx.measureText(s).width + 44, 0) + (row2.length - 1) * 20;
-    let startX2 = centerX - totalW2 / 2;
-
-    row2.forEach((skill) => {
-      const tw = ctx.measureText(skill).width;
-      const bw = tw + 44;
-      ctx.fillStyle = 'rgba(14, 165, 233, 0.2)';
-      ctx.beginPath();
-      ctx.roundRect(startX2, y, bw, 64, 16);
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.5)';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillText(skill, startX2 + bw / 2, y + 43);
-      startX2 += bw + 20;
-    });
-
-    ctx.fillStyle = 'rgba(232, 244, 255, 0.75)';
-    ctx.font = '400 32px "Inter", sans-serif';
-    ctx.fillText('End-to-end ML & Distributed Data Pipelines', centerX, 840);
+    ctx.fillStyle = 'rgba(232, 244, 255, 0.82)';
+    ctx.font = '400 34px "Inter", sans-serif';
+    ctx.fillText('End-to-End Model Development & Distributed Data Engineering Pipelines.', leftMargin, 580);
   }
 
-  // Footer branding
+  // Card Branding footer
   ctx.fillStyle = 'rgba(56, 189, 248, 0.65)';
-  ctx.font = '500 30px "JetBrains Mono", monospace';
-  ctx.fillText('yug.dev', centerX, 1320);
-
-  ctx.restore();
+  ctx.font = '500 28px "JetBrains Mono", monospace';
+  ctx.fillText('yug.dev', leftMargin, 900);
 
   const texture = new THREE.CanvasTexture(canvas);
-  texture.rotation = Math.PI;
-  texture.center.set(0.5, 0.5);
   texture.needsUpdate = true;
   return texture;
 }
@@ -230,6 +178,7 @@ function SinglePhysicsCard({
   texture,
   isMobile,
   scale = 2.2,
+  isHorizontal = false,
 }: {
   xPos: number;
   targetYAnchor?: number;
@@ -237,6 +186,7 @@ function SinglePhysicsCard({
   texture: THREE.Texture;
   isMobile: boolean;
   scale?: number;
+  isHorizontal?: boolean;
 }) {
   const band = useRef<any>(null);
   const fixed = useRef<any>(null);
@@ -278,7 +228,7 @@ function SinglePhysicsCard({
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1]);
-  useSphericalJoint(j3, card, [[0, 0, 0], [0, 1.45, 0]]);
+  useSphericalJoint(j3, card, [[0, 0, 0], [0, isHorizontal ? 0.9 : 1.45, 0]]);
 
   useEffect(() => {
     if (dropDelay > 0) {
@@ -355,10 +305,10 @@ function SinglePhysicsCard({
           {...segmentProps}
           type={dragged ? 'kinematicPosition' : 'dynamic'}
         >
-          <CuboidCollider args={[0.8, 1.125, 0.01]} />
+          <CuboidCollider args={isHorizontal ? [1.6, 1.0, 0.02] : [0.8, 1.125, 0.01]} />
           <group
             scale={scale}
-            position={[0, -1.2, -0.05]}
+            position={[0, isHorizontal ? -0.8 : -1.2, -0.05]}
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
             onPointerUp={(e: any) => {
@@ -372,18 +322,33 @@ function SinglePhysicsCard({
               drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())));
             }}
           >
-            <mesh geometry={nodes.card.geometry}>
-              <meshPhysicalMaterial
-                {...materials.base}
-                map={texture}
-                clearcoat={1}
-                clearcoatRoughness={0.15}
-                roughness={0.3}
-                metalness={0.1}
-              />
-            </mesh>
-            <mesh geometry={nodes.clip.geometry} material={materials.metal} />
-            <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
+            {isHorizontal ? (
+              // Custom Horizontal Rectangle 3D Card
+              <mesh>
+                <boxGeometry args={[3.2, 2.0, 0.04]} />
+                <meshPhysicalMaterial
+                  map={texture}
+                  clearcoat={1}
+                  clearcoatRoughness={0.15}
+                  roughness={0.25}
+                  metalness={0.1}
+                />
+              </mesh>
+            ) : (
+              // Vertical Photo ID Card
+              <mesh geometry={nodes.card.geometry}>
+                <meshPhysicalMaterial
+                  {...materials.base}
+                  map={texture}
+                  clearcoat={1}
+                  clearcoatRoughness={0.15}
+                  roughness={0.3}
+                  metalness={0.1}
+                />
+              </mesh>
+            )}
+            <mesh geometry={nodes.clip.geometry} material={materials.metal} position={[0, isHorizontal ? 0.35 : 0, 0]} />
+            <mesh geometry={nodes.clamp.geometry} material={materials.metal} position={[0, isHorizontal ? 0.35 : 0, 0]} />
           </group>
         </RigidBody>
       </group>
@@ -412,8 +377,8 @@ function SinglePhysicsCard({
 function SceneContents({ isMobile }: { isMobile: boolean }) {
   const photoTexture = useTexture('/assets/profile_photo.png');
 
-  const leftTexture = useMemo(() => createCardTexture('left'), []);
-  const rightTexture = useMemo(() => createCardTexture('right'), []);
+  const leftHorizontalTexture = useMemo(() => createHorizontalCardTexture('left'), []);
+  const rightHorizontalTexture = useMemo(() => createHorizontalCardTexture('right'), []);
 
   useEffect(() => {
     if (photoTexture) {
@@ -424,10 +389,10 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
     }
   }, [photoTexture]);
 
-  // Center photo card is larger (2.45) and sits lower (3.6), side cards hang higher (4.3) and scale (2.05)
+  // Center photo card is vertical (2.45), side cards are horizontal landscape rectangles (1.15)
   const centerScale = isMobile ? 1.5 : 2.45;
-  const sideScale = isMobile ? 1.25 : 2.05;
-  const xDistance = isMobile ? 1.75 : 3.65;
+  const sideHorizontalScale = isMobile ? 0.8 : 1.15;
+  const xDistance = isMobile ? 1.9 : 4.1;
 
   const centerYAnchor = isMobile ? 3.8 : 3.6;
   const sideYAnchor = isMobile ? 4.3 : 4.35;
@@ -443,7 +408,7 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
       </Environment>
 
       <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
-        {/* 1. Center Photo ID Card (Drops immediately at t=0) */}
+        {/* 1. Center Photo ID Card (Vertical ID Card centerpiece) */}
         <SinglePhysicsCard
           xPos={0}
           targetYAnchor={centerYAnchor}
@@ -451,26 +416,29 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
           texture={photoTexture}
           isMobile={isMobile}
           scale={centerScale}
+          isHorizontal={false}
         />
 
-        {/* 2. Left Card (General Specs) - Drops from ceiling 750ms later */}
+        {/* 2. Left Card (Horizontal Landscape Specs Card) */}
         <SinglePhysicsCard
           xPos={-xDistance}
           targetYAnchor={sideYAnchor}
           dropDelay={750}
-          texture={leftTexture}
+          texture={leftHorizontalTexture}
           isMobile={isMobile}
-          scale={sideScale}
+          scale={sideHorizontalScale}
+          isHorizontal={true}
         />
 
-        {/* 3. Right Card (Primary Roles) - Drops from ceiling 1500ms later */}
+        {/* 3. Right Card (Horizontal Landscape Roles & Skills Card) */}
         <SinglePhysicsCard
           xPos={xDistance}
           targetYAnchor={sideYAnchor}
           dropDelay={1500}
-          texture={rightTexture}
+          texture={rightHorizontalTexture}
           isMobile={isMobile}
-          scale={sideScale}
+          scale={sideHorizontalScale}
+          isHorizontal={true}
         />
       </Physics>
     </>
