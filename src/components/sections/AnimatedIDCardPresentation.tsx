@@ -20,10 +20,10 @@ function SceneContents() {
     gsap.set(cardGroupRef.current.position, { x: 0, y: 0, z: 0 });
     gsap.set(cardGroupRef.current.rotation, { x: 0, y: 0, z: 0 }); 
     
-    gsap.set(text1Ref.current.position, { x: -5, y: 0, z: -10 });
-    gsap.set(text1Ref.current.fillOpacity, { value: 0 }); // Troika uses fillOpacity
+    gsap.set(text1Ref.current.position, { x: 0, y: 0, z: -2 });
+    gsap.set(text1Ref.current.fillOpacity, { value: 0 }); 
 
-    gsap.set(text2Ref.current.position, { x: 5, y: 0, z: -10 });
+    gsap.set(text2Ref.current.position, { x: 0, y: 0, z: -2 });
     gsap.set(text2Ref.current.fillOpacity, { value: 0 });
 
     const tl = gsap.timeline({
@@ -31,101 +31,53 @@ function SceneContents() {
       yoyo: false,
     });
 
-    // Sequence 1: Center to Right (ML Engineer on Left)
-    tl.to(cardGroupRef.current.position, {
-      x: 3,
-      duration: 1.5,
-      ease: 'power2.inOut',
-      delay: 1, // Stay in center for 1 second
-    }, "move1");
-    tl.to(cardGroupRef.current.rotation, {
-      y: -Math.PI / 6,
-      duration: 1.5,
-      ease: 'power2.inOut',
-    }, "move1");
-    
+    // Sequence 1: ML Engineer text slides out to the Left
     tl.to(text1Ref.current.position, {
-      x: -2,
-      z: -2,
+      x: -4,
       duration: 1.5,
       ease: 'power2.out',
-    }, "move1");
+      delay: 1, // Start after 1 second
+    }, "show1");
     tl.to(text1Ref.current, {
       fillOpacity: 1,
       duration: 0.5,
-    }, "move1+=1");
+    }, "show1+=0.5");
 
-    // Sequence 2: Back to Center
-    tl.to(cardGroupRef.current.position, {
+    // Sequence 2: ML Engineer text slides back in
+    tl.to(text1Ref.current.position, {
       x: 0,
       duration: 1.5,
-      ease: 'power2.inOut',
-      delay: 2, // Stay at right for 2 seconds
-    }, "center1");
-    tl.to(cardGroupRef.current.rotation, {
-      y: 0,
-      duration: 1.5,
-      ease: 'power2.inOut',
-    }, "center1");
-
-    tl.to(text1Ref.current.position, {
-      x: -5,
-      z: -10,
-      duration: 1.5,
       ease: 'power2.in',
-    }, "center1");
+      delay: 2, // Stay visible for 2 seconds
+    }, "hide1");
     tl.to(text1Ref.current, {
       fillOpacity: 0,
       duration: 0.5,
-    }, "center1");
+    }, "hide1+=1");
 
-    // Sequence 3: Center to Left (Data Engineer on Right)
-    tl.to(cardGroupRef.current.position, {
-      x: -3,
-      duration: 1.5,
-      ease: 'power2.inOut',
-      delay: 1,
-    }, "move2");
-    tl.to(cardGroupRef.current.rotation, {
-      y: Math.PI / 6,
-      duration: 1.5,
-      ease: 'power2.inOut',
-    }, "move2");
-
+    // Sequence 3: Data Engineer text slides out to the Right
     tl.to(text2Ref.current.position, {
-      x: 2,
-      z: -2,
+      x: 4,
       duration: 1.5,
       ease: 'power2.out',
-    }, "move2");
+      delay: 0.5, // Small pause before showing next
+    }, "show2");
     tl.to(text2Ref.current, {
       fillOpacity: 1,
       duration: 0.5,
-    }, "move2+=1");
+    }, "show2+=0.5");
     
-    // Sequence 4: Back to Center
-    tl.to(cardGroupRef.current.position, {
+    // Sequence 4: Data Engineer text slides back in
+    tl.to(text2Ref.current.position, {
       x: 0,
       duration: 1.5,
-      ease: 'power2.inOut',
-      delay: 2,
-    }, "center2");
-    tl.to(cardGroupRef.current.rotation, {
-      y: 0,
-      duration: 1.5,
-      ease: 'power2.inOut',
-    }, "center2");
-
-    tl.to(text2Ref.current.position, {
-      x: 5,
-      z: -10,
-      duration: 1.5,
       ease: 'power2.in',
-    }, "center2");
+      delay: 2, // Stay visible for 2 seconds
+    }, "hide2");
     tl.to(text2Ref.current, {
       fillOpacity: 0,
       duration: 0.5,
-    }, "center2");
+    }, "hide2+=1");
 
     return () => {
       tl.kill();
@@ -151,7 +103,7 @@ function SceneContents() {
           rotationIntensity={0.2}
           floatIntensity={0.5}
         >
-          <IDCard scale={1.5} />
+          <IDCard scale={2.5} />
         </Float>
       </group>
 
