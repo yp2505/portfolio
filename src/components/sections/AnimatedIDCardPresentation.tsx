@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { Canvas, useThree, useFrame, extend } from '@react-three/fiber';
 import { Environment, Lightformer, useTexture, useGLTF } from '@react-three/drei';
 import {
@@ -13,12 +13,174 @@ import {
 } from '@react-three/rapier';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import * as THREE from 'three';
-import { motion, AnimatePresence } from 'framer-motion';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
-// ─── 3D Physics Card ───────────────────────────────────────────────────────────
-function PhysicsCard({ isMobile }: { isMobile: boolean }) {
+// ─── Helper: Generate Crisp Textures for 3D Cards ──────────────────────────────
+function createCardTexture(type: 'left' | 'right'): THREE.CanvasTexture {
+  if (typeof window === 'undefined') return new THREE.CanvasTexture(null as any);
+
+  const canvas = window.document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 1440;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  // Background gradient
+  const bgGrad = ctx.createLinearGradient(0, 0, 0, 1440);
+  bgGrad.addColorStop(0, '#091424');
+  bgGrad.addColorStop(1, '#040912');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, 1024, 1440);
+
+  // Subtle grid pattern
+  ctx.strokeStyle = 'rgba(14, 165, 233, 0.05)';
+  ctx.lineWidth = 2;
+  for (let x = 0; x < 1024; x += 60) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, 1440);
+    ctx.stroke();
+  }
+  for (let y = 0; y < 1440; y += 60) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(1024, y);
+    ctx.stroke();
+  }
+
+  // Outer border & glow frame
+  ctx.strokeStyle = 'rgba(14, 165, 233, 0.35)';
+  ctx.lineWidth = 14;
+  ctx.strokeRect(24, 24, 976, 1392);
+
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.15)';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(44, 44, 936, 1352);
+
+  if (type === 'left') {
+    // ── LEFT CARD: GENERAL SPECS ──
+    // Badge
+    ctx.fillStyle = 'rgba(14, 165, 233, 0.15)';
+    ctx.beginPath();
+    ctx.roundRect(80, 110, 480, 72, 36);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.arc(122, 146, 10, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = '600 28px "Inter", sans-serif';
+    ctx.fillText('OPEN TO OPPORTUNITIES', 152, 155);
+
+    // Title
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '800 68px "Inter", sans-serif';
+    ctx.fillText('Building Scalable', 80, 310);
+
+    const grad = ctx.createLinearGradient(80, 0, 750, 0);
+    grad.addColorStop(0, '#38bdf8');
+    grad.addColorStop(1, '#0ea5e9');
+    ctx.fillStyle = grad;
+    ctx.font = '800 72px "Inter", sans-serif';
+    ctx.fillText('Data & ML Systems', 80, 400);
+
+    // Description text
+    ctx.fillStyle = 'rgba(232, 244, 255, 0.78)';
+    ctx.font = '400 38px "Inter", sans-serif';
+    ctx.fillText('Transforming complex datasets', 80, 560);
+    ctx.fillText('into high-impact machine', 80, 625);
+    ctx.fillText('learning models and robust', 80, 690);
+    ctx.fillText('data engineering pipelines.', 80, 755);
+
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.55)';
+    ctx.font = 'italic 34px "Inter", sans-serif';
+    ctx.fillText('"Data is the new oil — I help refine it."', 80, 920);
+
+  } else {
+    // ── RIGHT CARD: ROLES & TECH STACK ──
+    // Badge
+    ctx.fillStyle = 'rgba(14, 165, 233, 0.15)';
+    ctx.beginPath();
+    ctx.roundRect(80, 110, 360, 72, 36);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = '600 28px "Inter", sans-serif';
+    ctx.fillText('PRIMARY ROLES', 125, 155);
+
+    // Title
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '800 68px "Inter", sans-serif';
+    ctx.fillText('ML Engineer &', 80, 310);
+
+    const grad = ctx.createLinearGradient(80, 0, 750, 0);
+    grad.addColorStop(0, '#38bdf8');
+    grad.addColorStop(1, '#0ea5e9');
+    ctx.fillStyle = grad;
+    ctx.font = '800 72px "Inter", sans-serif';
+    ctx.fillText('Data Engineer', 80, 400);
+
+    // Skills Badges
+    const skills = ['Python', 'TensorFlow', 'PyTorch', 'Spark', 'SQL', 'scikit-learn'];
+    let startX = 80;
+    let startY = 560;
+    skills.forEach((skill) => {
+      ctx.font = '600 32px "Inter", sans-serif';
+      const textWidth = ctx.measureText(skill).width;
+      const boxWidth = textWidth + 48;
+      if (startX + boxWidth > 940) {
+        startX = 80;
+        startY += 94;
+      }
+      ctx.fillStyle = 'rgba(14, 165, 233, 0.16)';
+      ctx.beginPath();
+      ctx.roundRect(startX, startY, boxWidth, 68, 16);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillText(skill, startX + 24, startY + 46);
+      startX += boxWidth + 20;
+    });
+  }
+
+  // Card Branding footer
+  ctx.fillStyle = 'rgba(56, 189, 248, 0.6)';
+  ctx.font = '500 30px "JetBrains Mono", monospace';
+  ctx.fillText('yug.dev', 80, 1340);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.rotation = Math.PI;
+  texture.center.set(0.5, 0.5);
+  texture.needsUpdate = true;
+  return texture;
+}
+
+// ─── Single Physics 3D ID Card Component ──────────────────────────────────────
+function SinglePhysicsCard({
+  xPos,
+  texture,
+  isMobile,
+  scale = 2.2,
+  offset = 0,
+}: {
+  xPos: number;
+  texture: THREE.Texture;
+  isMobile: boolean;
+  scale?: number;
+  offset?: number;
+}) {
   const band = useRef<any>(null);
   const fixed = useRef<any>(null);
   const j1 = useRef<any>(null);
@@ -41,17 +203,7 @@ function PhysicsCard({ isMobile }: { isMobile: boolean }) {
 
   const { nodes, materials } = useGLTF('/assets/kartu.glb') as any;
   const bandTexture = useTexture('/assets/bandd.png');
-  const cardTexture = useTexture('/assets/profile_photo.png');
   const { width, height } = useThree((state) => state.size);
-
-  useEffect(() => {
-    if (cardTexture) {
-      cardTexture.rotation = Math.PI;
-      cardTexture.center.set(0.5, 0.5);
-      cardTexture.offset.set(-0.2, 0);
-      cardTexture.needsUpdate = true;
-    }
-  }, [cardTexture]);
 
   const [curve] = useState(
     () => new THREE.CatmullRomCurve3([
@@ -113,11 +265,9 @@ function PhysicsCard({ isMobile }: { isMobile: boolean }) {
   curve.curveType = 'chordal';
   bandTexture.wrapS = bandTexture.wrapT = THREE.RepeatWrapping;
 
-  const cardScale = isMobile ? 1.6 : 2.2;
-
   return (
     <>
-      <group position={[0, 4, 0]}>
+      <group position={[xPos, 4, 0]}>
         <RigidBody ref={fixed} {...segmentProps} type="fixed" />
         <RigidBody position={[0.5, 0, 0]} ref={j1} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
         <RigidBody position={[1, 0, 0]} ref={j2} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
@@ -131,7 +281,7 @@ function PhysicsCard({ isMobile }: { isMobile: boolean }) {
         >
           <CuboidCollider args={[0.8, 1.125, 0.01]} />
           <group
-            scale={cardScale}
+            scale={scale}
             position={[0, -1.2, -0.05]}
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
@@ -149,7 +299,7 @@ function PhysicsCard({ isMobile }: { isMobile: boolean }) {
             <mesh geometry={nodes.card.geometry}>
               <meshPhysicalMaterial
                 {...materials.base}
-                map={cardTexture}
+                map={texture}
                 clearcoat={1}
                 clearcoatRoughness={0.15}
                 roughness={0.3}
@@ -182,10 +332,85 @@ function PhysicsCard({ isMobile }: { isMobile: boolean }) {
   );
 }
 
-// ─── Root Component ────────────────────────────────────────────────────────────
+// ─── Scene Container for all 3 Physics Cards ──────────────────────────────────
+function SceneContents({ isMobile }: { isMobile: boolean }) {
+  const photoTexture = useTexture('/assets/profile_photo.png');
+
+  const leftTexture = useMemo(() => createCardTexture('left'), []);
+  const rightTexture = useMemo(() => createCardTexture('right'), []);
+
+  useEffect(() => {
+    if (photoTexture) {
+      photoTexture.rotation = Math.PI;
+      photoTexture.center.set(0.5, 0.5);
+      photoTexture.offset.set(-0.2, 0);
+      photoTexture.needsUpdate = true;
+    }
+  }, [photoTexture]);
+
+  // Sequential drop timing for cards: Center -> Left -> Right
+  const [showLeft, setShowLeft] = useState(false);
+  const [showRight, setShowRight] = useState(false);
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setShowLeft(true), 500);
+    const t2 = setTimeout(() => setShowRight(true), 1000);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, []);
+
+  // Card spacing & scaling based on device screen size
+  const cardScale = isMobile ? 1.4 : 2.1;
+  const xDistance = isMobile ? 1.8 : 3.5;
+
+  return (
+    <>
+      <ambientLight intensity={0.6} />
+      <Environment blur={0.75}>
+        <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
+        <Lightformer intensity={3} color="white" position={[-1, -1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
+        <Lightformer intensity={3} color="white" position={[1, 1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
+        <Lightformer intensity={10} color="white" position={[-10, 0, 14]} rotation={[0, Math.PI / 2, Math.PI / 3]} scale={[100, 10, 1]} />
+      </Environment>
+
+      <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
+        {/* 1. Center Card (Photo ID) */}
+        <SinglePhysicsCard
+          xPos={0}
+          texture={photoTexture}
+          isMobile={isMobile}
+          scale={cardScale}
+        />
+
+        {/* 2. Left Card (General Specs) - drops after 500ms */}
+        {showLeft && (
+          <SinglePhysicsCard
+            xPos={-xDistance}
+            texture={leftTexture}
+            isMobile={isMobile}
+            scale={cardScale}
+          />
+        )}
+
+        {/* 3. Right Card (Primary Roles & Tech Stack) - drops after 1000ms */}
+        {showRight && (
+          <SinglePhysicsCard
+            xPos={xDistance}
+            texture={rightTexture}
+            isMobile={isMobile}
+            scale={cardScale}
+          />
+        )}
+      </Physics>
+    </>
+  );
+}
+
+// ─── Root Exported Component ──────────────────────────────────────────────────
 export function AnimatedIDCardPresentation() {
   const [isMobile, setIsMobile] = useState(false);
-  const [panelState, setPanelState] = useState<'right' | 'left' | 'none'>('right');
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -194,261 +419,28 @@ export function AnimatedIDCardPresentation() {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  // Continuous panel loop: right -> none -> left -> none -> repeat
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPanelState((prev) => {
-        if (prev === 'right') return 'none';
-        if (prev === 'none') return 'left';
-        return 'right';
-      });
-    }, 4500);
-    return () => clearInterval(interval);
-  }, []);
-
-  const skills = ["Python", "TensorFlow", "PyTorch", "Apache Spark", "SQL", "scikit-learn"];
-
   return (
     <section
       id="home"
       style={{
         width: '100%',
-        minHeight: '100vh',
+        height: '100vh',
         position: 'relative',
         overflow: 'hidden',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
       }}
     >
-      {/* 3D Canvas Background */}
-      <div
+      <Canvas
+        gl={{ alpha: true }}
+        camera={{ position: [0, 0, isMobile ? 15 : 13], fov: isMobile ? 32 : 25 }}
         style={{
-          position: 'absolute',
-          inset: 0,
+          background: 'transparent',
           width: '100%',
           height: '100%',
-          zIndex: 1,
           pointerEvents: isMobile ? 'none' : 'auto',
         }}
       >
-        <Canvas
-          gl={{ alpha: true }}
-          camera={{ position: [0, 0, 13], fov: 25 }}
-          style={{ background: 'transparent', width: '100%', height: '100%' }}
-        >
-          <ambientLight intensity={0.6} />
-          <Environment blur={0.75}>
-            <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
-            <Lightformer intensity={3} color="white" position={[-1, -1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
-            <Lightformer intensity={3} color="white" position={[1, 1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
-            <Lightformer intensity={10} color="white" position={[-10, 0, 14]} rotation={[0, Math.PI / 2, Math.PI / 3]} scale={[100, 10, 1]} />
-          </Environment>
-
-          <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
-            <PhysicsCard isMobile={isMobile} />
-          </Physics>
-        </Canvas>
-      </div>
-
-      {/* HTML Motion Panels overlayed around the 3D card */}
-      <div
-        style={{
-          position: 'relative',
-          zIndex: 10,
-          width: '100%',
-          maxWidth: 1200,
-          height: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: isMobile ? '100px 24px 40px' : '0 60px',
-          pointerEvents: 'none',
-        }}
-      >
-        {/* Left Side Panel — revealed on 'left' state */}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
-          <AnimatePresence mode="wait">
-            {panelState === 'left' && (
-              <motion.div
-                initial={{ opacity: 0, x: -80, filter: 'blur(10px)' }}
-                animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
-                exit={{ opacity: 0, x: -80, filter: 'blur(10px)' }}
-                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                style={{
-                  pointerEvents: 'auto',
-                  maxWidth: isMobile ? '100%' : 420,
-                  padding: '24px 28px',
-                  borderRadius: 24,
-                  background: 'rgba(8, 15, 26, 0.75)',
-                  backdropFilter: 'blur(16px)',
-                  border: '1px solid rgba(14, 165, 233, 0.25)',
-                  boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
-                }}
-              >
-                <div
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    fontSize: 11,
-                    fontFamily: 'var(--font-mono), monospace',
-                    color: '#38bdf8',
-                    letterSpacing: '0.15em',
-                    textTransform: 'uppercase',
-                    padding: '4px 12px',
-                    borderRadius: 999,
-                    border: '1px solid rgba(14,165,233,0.3)',
-                    background: 'rgba(14,165,233,0.08)',
-                    marginBottom: 16,
-                  }}
-                >
-                  <span
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: '50%',
-                      background: '#38bdf8',
-                      boxShadow: '0 0 8px #38bdf8',
-                    }}
-                  />
-                  Open to Opportunities
-                </div>
-
-                <h2
-                  style={{
-                    fontSize: isMobile ? 28 : 36,
-                    fontWeight: 800,
-                    lineHeight: 1.1,
-                    color: '#ffffff',
-                    fontFamily: "'Inter', sans-serif",
-                    letterSpacing: '-0.03em',
-                    marginBottom: 12,
-                  }}
-                >
-                  Building Scalable<br />
-                  <span
-                    style={{
-                      background: 'linear-gradient(135deg, #38bdf8, #0ea5e9)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                    }}
-                  >
-                    Data & ML Systems
-                  </span>
-                </h2>
-
-                <p
-                  style={{
-                    fontSize: 14,
-                    color: 'rgba(232,244,255,0.7)',
-                    lineHeight: 1.7,
-                    fontFamily: "'Inter', sans-serif",
-                  }}
-                >
-                  Transforming complex datasets into high-impact machine learning models and robust data engineering pipelines.
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Right Side Panel — revealed on 'right' state */}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-          <AnimatePresence mode="wait">
-            {panelState === 'right' && (
-              <motion.div
-                initial={{ opacity: 0, x: 80, filter: 'blur(10px)' }}
-                animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
-                exit={{ opacity: 0, x: 80, filter: 'blur(10px)' }}
-                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                style={{
-                  pointerEvents: 'auto',
-                  maxWidth: isMobile ? '100%' : 420,
-                  padding: '24px 28px',
-                  borderRadius: 24,
-                  background: 'rgba(8, 15, 26, 0.75)',
-                  backdropFilter: 'blur(16px)',
-                  border: '1px solid rgba(14, 165, 233, 0.25)',
-                  boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
-                  textAlign: 'right',
-                }}
-              >
-                <div
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    fontSize: 11,
-                    fontFamily: 'var(--font-mono), monospace',
-                    color: '#38bdf8',
-                    letterSpacing: '0.15em',
-                    textTransform: 'uppercase',
-                    padding: '4px 12px',
-                    borderRadius: 999,
-                    border: '1px solid rgba(14,165,233,0.3)',
-                    background: 'rgba(14,165,233,0.08)',
-                    marginBottom: 16,
-                  }}
-                >
-                  Primary Roles
-                </div>
-
-                <h2
-                  style={{
-                    fontSize: isMobile ? 28 : 36,
-                    fontWeight: 800,
-                    lineHeight: 1.1,
-                    color: '#ffffff',
-                    fontFamily: "'Inter', sans-serif",
-                    letterSpacing: '-0.03em',
-                    marginBottom: 16,
-                  }}
-                >
-                  ML Engineer &amp;<br />
-                  <span
-                    style={{
-                      background: 'linear-gradient(135deg, #38bdf8, #0ea5e9)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                    }}
-                  >
-                    Data Engineer
-                  </span>
-                </h2>
-
-                {/* Tech Stack Badges */}
-                <div
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 8,
-                    justifyContent: 'flex-end',
-                  }}
-                >
-                  {skills.map((skill) => (
-                    <span
-                      key={skill}
-                      style={{
-                        fontSize: 12,
-                        padding: '5px 12px',
-                        borderRadius: 10,
-                        background: 'rgba(14, 165, 233, 0.12)',
-                        border: '1px solid rgba(14, 165, 233, 0.25)',
-                        color: '#38bdf8',
-                        fontFamily: "var(--font-mono), monospace",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
+        <SceneContents isMobile={isMobile} />
+      </Canvas>
     </section>
   );
 }
