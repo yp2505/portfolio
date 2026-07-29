@@ -338,7 +338,7 @@ export function AnimatedIDCardPresentation() {
   return (
     <div
       id="home"
-      className="w-full h-[100svh] relative overflow-hidden pointer-events-none z-10"
+      className="w-full h-screen relative overflow-hidden pointer-events-none z-10"
     >
       <Canvas
         shadows

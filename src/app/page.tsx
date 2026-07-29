@@ -14,7 +14,10 @@ import dynamic from 'next/dynamic'
 
 const AnimatedIDCardPresentation = dynamic(
   () => import('@/components/sections/AnimatedIDCardPresentation').then((mod) => mod.AnimatedIDCardPresentation),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => <div id="home" className="w-full h-screen relative" />,
+  }
 )
 
 import WaveFooter from '@/components/WaveFooter'
