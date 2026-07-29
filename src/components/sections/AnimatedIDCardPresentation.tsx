@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
-import { Canvas, useThree, useFrame } from '@react-three/fiber';
-import { Environment, Text, Float, SpotLight, Lightformer } from '@react-three/drei';
+import { Canvas, useThree, useFrame, extend } from '@react-three/fiber';
+import { Environment, Text, SpotLight, Lightformer, useTexture, useGLTF } from '@react-three/drei';
 import {
   Physics,
   RigidBody,
@@ -11,26 +11,13 @@ import {
   useRopeJoint,
   useSphericalJoint,
 } from '@react-three/rapier';
-import { extend } from '@react-three/fiber';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import * as THREE from 'three';
 import gsap from 'gsap';
-import { useTexture, useGLTF } from '@react-three/drei';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
-// ─── Camera Rig ───────────────────────────────────────────────────────────────
-// Smoothly lerps the camera to a target X position
-function CameraRig({ targetX }: { targetX: number }) {
-  const { camera } = useThree();
-  useFrame(() => {
-    camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetX, 0.04);
-    camera.lookAt(0, 0, 0);
-  });
-  return null;
-}
-
-// ─── Physics ID Card (reuses the existing band component logic) ───────────────
+// ─── Physics ID Card ───────────────────────────────────────────────────────────
 function PhysicsCard({ isMobile }: { isMobile: boolean }) {
   const band = useRef<any>(null);
   const fixed = useRef<any>(null);
@@ -126,6 +113,8 @@ function PhysicsCard({ isMobile }: { isMobile: boolean }) {
   curve.curveType = 'chordal';
   bandTexture.wrapS = bandTexture.wrapT = THREE.RepeatWrapping;
 
+  const cardScale = isMobile ? 1.6 : 2.2;
+
   return (
     <>
       <group position={[0, 4, 0]}>
@@ -142,7 +131,7 @@ function PhysicsCard({ isMobile }: { isMobile: boolean }) {
         >
           <CuboidCollider args={[0.8, 1.125, 0.01]} />
           <group
-            scale={2.25}
+            scale={cardScale}
             position={[0, -1.2, -0.05]}
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
@@ -193,57 +182,70 @@ function PhysicsCard({ isMobile }: { isMobile: boolean }) {
 
 // ─── Main Scene ────────────────────────────────────────────────────────────────
 function SceneContents({ isMobile }: { isMobile: boolean }) {
-  const targetXRef = useRef(0);
-  const [targetX, setTargetX] = useState(0);
+  const rightTextRef = useRef<THREE.Group>(null);
+  const leftTextRef = useRef<THREE.Group>(null);
 
-  // Camera pan sequence: center → right → center → left → center (loop)
   useEffect(() => {
-    const panDistance = isMobile ? 3 : 6;
+    if (!rightTextRef.current || !leftTextRef.current) return;
+
+    const offscreenX = isMobile ? 12 : 14;
+    const targetX = isMobile ? 0 : 3.4;
+    const targetY = isMobile ? -2.5 : 0.2;
+
+    // Set initial offscreen positions
+    gsap.set(rightTextRef.current.position, { x: offscreenX, y: targetY });
+    gsap.set(leftTextRef.current.position, { x: -offscreenX, y: targetY });
 
     const tl = gsap.timeline({ repeat: -1 });
 
-    tl.to(targetXRef, { current: 0, duration: 0, ease: 'none' });
-    tl.to({}, { duration: 1.5 }); // hold center
-    tl.to(targetXRef, {
-      current: panDistance,
-      duration: 2.5,
-      ease: 'power3.inOut',
-      onUpdate: () => setTargetX(targetXRef.current),
+    // Initial pause while card drops with physics
+    tl.to({}, { duration: 1.5 });
+
+    // 1. Slide in Right Panel (ML & Data Engineer) from the right
+    tl.to(rightTextRef.current.position, {
+      x: targetX,
+      duration: 1.4,
+      ease: 'power3.out',
     });
-    tl.to({}, { duration: 2.5 }); // hold right
-    tl.to(targetXRef, {
-      current: 0,
-      duration: 2,
-      ease: 'power3.inOut',
-      onUpdate: () => setTargetX(targetXRef.current),
-    });
-    tl.to({}, { duration: 1 }); // hold center
-    tl.to(targetXRef, {
-      current: -panDistance,
-      duration: 2.5,
-      ease: 'power3.inOut',
-      onUpdate: () => setTargetX(targetXRef.current),
-    });
-    tl.to({}, { duration: 2.5 }); // hold left
-    tl.to(targetXRef, {
-      current: 0,
-      duration: 2,
-      ease: 'power3.inOut',
-      onUpdate: () => setTargetX(targetXRef.current),
+    tl.to({}, { duration: 3.5 }); // Display duration
+
+    // 2. Slide out Right Panel back to the right
+    tl.to(rightTextRef.current.position, {
+      x: offscreenX,
+      duration: 1.2,
+      ease: 'power3.in',
     });
 
-    return () => { tl.kill(); };
+    tl.to({}, { duration: 0.8 }); // Pause between slides
+
+    // 3. Slide in Left Panel (General Specs) from the left
+    tl.to(leftTextRef.current.position, {
+      x: -targetX,
+      duration: 1.4,
+      ease: 'power3.out',
+    });
+    tl.to({}, { duration: 3.5 }); // Display duration
+
+    // 4. Slide out Left Panel back to the left
+    tl.to(leftTextRef.current.position, {
+      x: -offscreenX,
+      duration: 1.2,
+      ease: 'power3.in',
+    });
+
+    tl.to({}, { duration: 0.8 }); // Pause before loop restarts
+
+    return () => {
+      tl.kill();
+    };
   }, [isMobile]);
 
-  const panDistance = isMobile ? 3 : 6;
-  const textFontSize = isMobile ? 0.5 : 0.9;
-  const labelFontSize = isMobile ? 0.25 : 0.4;
+  const textFontSize = isMobile ? 0.45 : 0.75;
+  const labelFontSize = isMobile ? 0.22 : 0.32;
 
   return (
     <>
-      <CameraRig targetX={targetX} />
-
-      <ambientLight intensity={0.5} />
+      <ambientLight intensity={0.6} />
       <SpotLight position={[0, 10, 5]} angle={0.3} penumbra={1} intensity={2} castShadow shadow-bias={-0.0001} />
       <Environment blur={0.75}>
         <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
@@ -252,22 +254,22 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
         <Lightformer intensity={10} color="white" position={[-10, 0, 14]} rotation={[0, Math.PI / 2, Math.PI / 3]} scale={[100, 10, 1]} />
       </Environment>
 
-      {/* Physics Card always at world center */}
+      {/* Physics Card centered at world origin */}
       <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
         <PhysicsCard isMobile={isMobile} />
       </Physics>
 
-      {/* Right panel — revealed when camera pans RIGHT: ML & Data Roles */}
-      <group position={[panDistance, 0, -1]}>
+      {/* Right panel — slides in to the right of the card: ML & Data Roles */}
+      <group ref={rightTextRef} position={[14, 0.2, -0.5]}>
         <Text
-          fontSize={textFontSize * 1.8}
-          maxWidth={isMobile ? 2.5 : 5}
+          fontSize={textFontSize * 1.5}
+          maxWidth={isMobile ? 3.5 : 5}
           lineHeight={1.1}
-          letterSpacing={-0.03}
-          textAlign="left"
-          anchorX="left"
+          letterSpacing={-0.02}
+          textAlign={isMobile ? 'center' : 'left'}
+          anchorX={isMobile ? 'center' : 'left'}
           anchorY="middle"
-          position={[0, 0.5, 0]}
+          position={[0, 0.4, 0]}
           color="#38bdf8"
           font="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2"
         >
@@ -275,12 +277,12 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
         </Text>
         <Text
           fontSize={labelFontSize}
-          maxWidth={isMobile ? 2.5 : 4.5}
-          lineHeight={1.7}
-          textAlign="left"
-          anchorX="left"
+          maxWidth={isMobile ? 3.5 : 4.5}
+          lineHeight={1.6}
+          textAlign={isMobile ? 'center' : 'left'}
+          anchorX={isMobile ? 'center' : 'left'}
           anchorY="middle"
-          position={[0, -0.7, 0]}
+          position={[0, -0.6, 0]}
           color="#6a8aaa"
           font="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2"
         >
@@ -288,17 +290,17 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
         </Text>
       </group>
 
-      {/* Left panel — revealed when camera pans LEFT: General Specs */}
-      <group position={[-panDistance, 0, -1]}>
+      {/* Left panel — slides in to the left of the card: General Specs */}
+      <group ref={leftTextRef} position={[-14, 0.2, -0.5]}>
         <Text
-          fontSize={textFontSize * 1.8}
-          maxWidth={isMobile ? 2.5 : 5}
+          fontSize={textFontSize * 1.5}
+          maxWidth={isMobile ? 3.5 : 5}
           lineHeight={1.1}
-          letterSpacing={-0.03}
-          textAlign="right"
-          anchorX="right"
+          letterSpacing={-0.02}
+          textAlign={isMobile ? 'center' : 'right'}
+          anchorX={isMobile ? 'center' : 'right'}
           anchorY="middle"
-          position={[0, 0.5, 0]}
+          position={[0, 0.4, 0]}
           color="#0ea5e9"
           font="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2"
         >
@@ -306,12 +308,12 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
         </Text>
         <Text
           fontSize={labelFontSize}
-          maxWidth={isMobile ? 2.5 : 4.5}
-          lineHeight={1.7}
-          textAlign="right"
-          anchorX="right"
+          maxWidth={isMobile ? 3.5 : 4.5}
+          lineHeight={1.6}
+          textAlign={isMobile ? 'center' : 'right'}
+          anchorX={isMobile ? 'center' : 'right'}
           anchorY="middle"
-          position={[0, -0.7, 0]}
+          position={[0, -0.6, 0]}
           color="#6a8aaa"
           font="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2"
         >
