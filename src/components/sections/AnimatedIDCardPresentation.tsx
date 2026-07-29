@@ -338,20 +338,18 @@ export function AnimatedIDCardPresentation() {
   return (
     <div
       id="home"
-      style={{
-        width: '100%',
-        height: '100svh',
-        position: 'relative',
-        overflow: 'hidden',
-        pointerEvents: 'auto',
-        zIndex: 10,
-      }}
+      className="w-full h-[100svh] relative overflow-hidden pointer-events-none z-10"
     >
       <Canvas
         shadows
         gl={{ alpha: true }}
         camera={{ position: [0, 0, 13], fov: 25 }}
-        style={{ background: 'transparent', width: '100%', height: '100%' }}
+        style={{
+          background: 'transparent',
+          width: '100%',
+          height: '100%',
+          pointerEvents: isMobile ? 'none' : 'auto',
+        }}
       >
         <SceneContents isMobile={isMobile} />
       </Canvas>

@@ -10,7 +10,12 @@ import About from '@/components/sections/About'
 import PortfolioShowcase from '@/components/sections/PortfolioShowcase'
 import ContactSection from '@/components/sections/contact/ContactSection'
 import WelcomeScreen from '@/components/WelcomeScreen'
-import { AnimatedIDCardPresentation } from '@/components/sections/AnimatedIDCardPresentation'
+import dynamic from 'next/dynamic'
+
+const AnimatedIDCardPresentation = dynamic(
+  () => import('@/components/sections/AnimatedIDCardPresentation').then((mod) => mod.AnimatedIDCardPresentation),
+  { ssr: false }
+)
 
 import WaveFooter from '@/components/WaveFooter'
 
