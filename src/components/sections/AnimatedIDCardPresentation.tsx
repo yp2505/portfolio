@@ -97,7 +97,7 @@ function createCardTexture(type: 'left' | 'right'): THREE.CanvasTexture {
     ctx.font = '800 62px "Inter", sans-serif';
     ctx.fillText('Data & ML Systems', leftMargin, 370);
 
-    // Description text (comfortably wrapped)
+    // Description text
     ctx.fillStyle = 'rgba(232, 244, 255, 0.82)';
     ctx.font = '400 32px "Inter", sans-serif';
     ctx.fillText('Transforming complex datasets', leftMargin, 520);
@@ -184,13 +184,15 @@ function createCardTexture(type: 'left' | 'right'): THREE.CanvasTexture {
 // ─── Single Physics 3D ID Card Component ──────────────────────────────────────
 function SinglePhysicsCard({
   xPos,
-  yAnchor = 4,
+  targetYAnchor = 4,
+  dropDelay = 0,
   texture,
   isMobile,
   scale = 2.2,
 }: {
   xPos: number;
-  yAnchor?: number;
+  targetYAnchor?: number;
+  dropDelay?: number;
   texture: THREE.Texture;
   isMobile: boolean;
   scale?: number;
@@ -230,11 +232,22 @@ function SinglePhysicsCard({
 
   const [dragged, drag] = useState<any>(false);
   const [hovered, hover] = useState(false);
+  const [isDropped, setIsDropped] = useState(dropDelay === 0);
 
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1]);
   useSphericalJoint(j3, card, [[0, 0, 0], [0, 1.45, 0]]);
+
+  // Timing delay for initial ceiling release
+  useEffect(() => {
+    if (dropDelay > 0) {
+      const timer = setTimeout(() => {
+        setIsDropped(true);
+      }, dropDelay);
+      return () => clearTimeout(timer);
+    }
+  }, [dropDelay]);
 
   useEffect(() => {
     if (hovered && !isMobile) {
@@ -244,6 +257,14 @@ function SinglePhysicsCard({
   }, [hovered, dragged, isMobile]);
 
   useFrame((state, delta) => {
+    // Animate fixed anchor down from ceiling y=12 to targetYAnchor when dropped
+    if (fixed.current) {
+      const currentPos = fixed.current.translation();
+      const targetY = isDropped ? targetYAnchor : 12;
+      const currentY = THREE.MathUtils.lerp(currentPos.y, targetY, isDropped ? 0.08 : 1);
+      fixed.current.setNextKinematicTranslation({ x: xPos, y: currentY, z: 0 });
+    }
+
     if (dragged && card.current && !isMobile) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
       dir.copy(vec).sub(state.camera.position).normalize();
@@ -279,16 +300,19 @@ function SinglePhysicsCard({
   curve.curveType = 'chordal';
   bandTexture.wrapS = bandTexture.wrapT = THREE.RepeatWrapping;
 
+  // Start fixed anchor up high in ceiling (y=12)
+  const initialY = dropDelay === 0 ? targetYAnchor : 12;
+
   return (
     <>
-      <group position={[xPos, yAnchor, 0]}>
-        <RigidBody ref={fixed} {...segmentProps} type="fixed" />
-        <RigidBody position={[0.5, 0, 0]} ref={j1} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
-        <RigidBody position={[1, 0, 0]} ref={j2} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
-        <RigidBody position={[1.5, 0, 0]} ref={j3} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
+      <group position={[xPos, initialY, 0]}>
+        <RigidBody ref={fixed} {...segmentProps} type="kinematicPosition" position={[xPos, initialY, 0]} />
+        <RigidBody position={[xPos + 0.5, initialY, 0]} ref={j1} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
+        <RigidBody position={[xPos + 1.0, initialY, 0]} ref={j2} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
+        <RigidBody position={[xPos + 1.5, initialY, 0]} ref={j3} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
 
         <RigidBody
-          position={[0, 0, 0]}
+          position={[xPos, initialY - 1.5, 0]}
           ref={card}
           {...segmentProps}
           type={dragged ? 'kinematicPosition' : 'dynamic'}
@@ -362,20 +386,7 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
     }
   }, [photoTexture]);
 
-  // Sequential drop timing: Center photo card drops first -> Left -> Right
-  const [showLeft, setShowLeft] = useState(false);
-  const [showRight, setShowRight] = useState(false);
-
-  useEffect(() => {
-    const t1 = setTimeout(() => setShowLeft(true), 400);
-    const t2 = setTimeout(() => setShowRight(true), 800);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
-  }, []);
-
-  // Center photo card is larger (2.3) and sits lower (3.6), side cards hang higher (4.3) and smaller (1.9)
+  // Center photo card is larger (2.35) and sits lower (3.6), side cards hang higher (4.4) and smaller (1.9)
   const centerScale = isMobile ? 1.5 : 2.35;
   const sideScale = isMobile ? 1.25 : 1.9;
   const xDistance = isMobile ? 1.75 : 3.4;
@@ -394,36 +405,35 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
       </Environment>
 
       <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
-        {/* 1. Center Photo ID Card (Main centerpiece attraction) */}
+        {/* 1. Center Photo ID Card (Drops immediately at t=0) */}
         <SinglePhysicsCard
           xPos={0}
-          yAnchor={centerYAnchor}
+          targetYAnchor={centerYAnchor}
+          dropDelay={0}
           texture={photoTexture}
           isMobile={isMobile}
           scale={centerScale}
         />
 
-        {/* 2. Left Card (General Specs) - hangs slightly higher */}
-        {showLeft && (
-          <SinglePhysicsCard
-            xPos={-xDistance}
-            yAnchor={sideYAnchor}
-            texture={leftTexture}
-            isMobile={isMobile}
-            scale={sideScale}
-          />
-        )}
+        {/* 2. Left Card (General Specs) - Drops from ceiling 750ms later */}
+        <SinglePhysicsCard
+          xPos={-xDistance}
+          targetYAnchor={sideYAnchor}
+          dropDelay={750}
+          texture={leftTexture}
+          isMobile={isMobile}
+          scale={sideScale}
+        />
 
-        {/* 3. Right Card (Primary Roles) - hangs slightly higher */}
-        {showRight && (
-          <SinglePhysicsCard
-            xPos={xDistance}
-            yAnchor={sideYAnchor}
-            texture={rightTexture}
-            isMobile={isMobile}
-            scale={sideScale}
-          />
-        )}
+        {/* 3. Right Card (Primary Roles) - Drops from ceiling 1500ms later */}
+        <SinglePhysicsCard
+          xPos={xDistance}
+          targetYAnchor={sideYAnchor}
+          dropDelay={1500}
+          texture={rightTexture}
+          isMobile={isMobile}
+          scale={sideScale}
+        />
       </Physics>
     </>
   );
