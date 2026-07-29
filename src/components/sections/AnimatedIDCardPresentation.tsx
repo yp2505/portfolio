@@ -16,7 +16,7 @@ import * as THREE from 'three';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
-// ─── Helper: Generate Crisp, Medium-Scale Horizontal Card Textures ────────────
+// ─── Helper: Generate Crisp, High-Readability Horizontal Card Textures ─────────
 function createHorizontalCardTexture(type: 'left' | 'right'): THREE.CanvasTexture {
   if (typeof window === 'undefined') return new THREE.CanvasTexture(null as any);
 
@@ -133,7 +133,7 @@ function createHorizontalCardTexture(type: 'left' | 'right'): THREE.CanvasTextur
     ctx.lineTo(1145, 192);
     ctx.stroke();
 
-    // Skills Badges (Single horizontal line)
+    // Skills Badges
     const skills = ['Python', 'TensorFlow', 'PyTorch', 'Spark', 'SQL', 'scikit-learn'];
     let startX = leftMargin;
     const y = 260;
@@ -389,13 +389,16 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
     }
   }, [photoTexture]);
 
-  // Center photo card hangs elevated (4.25), side cards hang lower (3.4) for crown hierarchy
-  const centerScale = isMobile ? 1.6 : 2.45;
-  const sideHorizontalScale = isMobile ? 0.7 : 1.35;
-  const xDistance = isMobile ? 1.85 : 3.45;
+  // Responsive Positioning & Scale Matrix
+  // Desktop: Crown centerpiece photo card (scale 2.45, y 4.25), side cards (scale 1.35, y 3.4)
+  // Mobile: V-shape layout taking full advantage of tall phone screens (Photo Card top-center y 3.8, side cards lower y 1.2)
+  const centerScale = isMobile ? 1.35 : 2.45;
+  const sideHorizontalScale = isMobile ? 0.58 : 1.35;
 
-  const centerYAnchor = isMobile ? 4.2 : 4.25;
-  const sideYAnchor = isMobile ? 3.6 : 3.4;
+  const xDistance = isMobile ? 1.25 : 3.45;
+
+  const centerYAnchor = isMobile ? 3.8 : 4.25;
+  const sideYAnchor = isMobile ? 1.2 : 3.4;
 
   return (
     <>
@@ -408,7 +411,7 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
       </Environment>
 
       <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
-        {/* 1. Center Photo ID Card (Elevated centerpiece attraction, drops at t=0) */}
+        {/* 1. Center Photo ID Card (Top-Center hero on mobile, elevated centerpiece on desktop) */}
         <SinglePhysicsCard
           xPos={0}
           targetYAnchor={centerYAnchor}
@@ -419,7 +422,7 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
           isHorizontal={false}
         />
 
-        {/* 2. Left Card (Hangs lower down on the side) */}
+        {/* 2. Left Card (Hangs in lower left on mobile, lower left on desktop) */}
         <SinglePhysicsCard
           xPos={-xDistance}
           targetYAnchor={sideYAnchor}
@@ -430,7 +433,7 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
           isHorizontal={true}
         />
 
-        {/* 3. Right Card (Hangs lower down on the side) */}
+        {/* 3. Right Card (Hangs in lower right on mobile, lower right on desktop) */}
         <SinglePhysicsCard
           xPos={xDistance}
           targetYAnchor={sideYAnchor}
@@ -468,7 +471,10 @@ export function AnimatedIDCardPresentation() {
     >
       <Canvas
         gl={{ alpha: true }}
-        camera={{ position: [0, 0, isMobile ? 15 : 13], fov: isMobile ? 32 : 25 }}
+        camera={{
+          position: [0, 0, isMobile ? 18 : 13],
+          fov: isMobile ? 44 : 25,
+        }}
         style={{
           background: 'transparent',
           width: '100%',
