@@ -389,13 +389,13 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
     }
   }, [photoTexture]);
 
-  // Center photo card scale 2.45, side landscape cards scale 1.35 (perfect medium size!)
+  // Center photo card hangs elevated (4.25), side cards hang lower (3.4) for crown hierarchy
   const centerScale = isMobile ? 1.6 : 2.45;
   const sideHorizontalScale = isMobile ? 0.7 : 1.35;
   const xDistance = isMobile ? 1.85 : 3.45;
 
-  const centerYAnchor = isMobile ? 3.6 : 3.35;
-  const sideYAnchor = isMobile ? 4.3 : 4.35;
+  const centerYAnchor = isMobile ? 4.2 : 4.25;
+  const sideYAnchor = isMobile ? 3.6 : 3.4;
 
   return (
     <>
@@ -408,7 +408,7 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
       </Environment>
 
       <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
-        {/* 1. Center Photo ID Card (Vertical centerpiece attraction, drops at t=0) */}
+        {/* 1. Center Photo ID Card (Elevated centerpiece attraction, drops at t=0) */}
         <SinglePhysicsCard
           xPos={0}
           targetYAnchor={centerYAnchor}
@@ -419,7 +419,7 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
           isHorizontal={false}
         />
 
-        {/* 2. Left Card (Medium Landscape Specs Card) */}
+        {/* 2. Left Card (Hangs lower down on the side) */}
         <SinglePhysicsCard
           xPos={-xDistance}
           targetYAnchor={sideYAnchor}
@@ -430,7 +430,7 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
           isHorizontal={true}
         />
 
-        {/* 3. Right Card (Medium Landscape Roles & Skills Card) */}
+        {/* 3. Right Card (Hangs lower down on the side) */}
         <SinglePhysicsCard
           xPos={xDistance}
           targetYAnchor={sideYAnchor}
