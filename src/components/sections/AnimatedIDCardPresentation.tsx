@@ -16,7 +16,7 @@ import * as THREE from 'three';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
-// ─── Helper: Generate Compact, Tight Horizontal Card Textures (1200 x 700) ─────
+// ─── Helper: Generate Crisp, Medium-Scale Horizontal Card Textures ────────────
 function createHorizontalCardTexture(type: 'left' | 'right'): THREE.CanvasTexture {
   if (typeof window === 'undefined') return new THREE.CanvasTexture(null as any);
 
@@ -35,7 +35,7 @@ function createHorizontalCardTexture(type: 'left' | 'right'): THREE.CanvasTextur
   ctx.fillRect(0, 0, 1200, 700);
 
   // Grid pattern
-  ctx.strokeStyle = 'rgba(14, 165, 233, 0.05)';
+  ctx.strokeStyle = 'rgba(14, 165, 233, 0.06)';
   ctx.lineWidth = 2;
   for (let x = 0; x < 1200; x += 50) {
     ctx.beginPath();
@@ -51,117 +51,117 @@ function createHorizontalCardTexture(type: 'left' | 'right'): THREE.CanvasTextur
   }
 
   // Outer border & glow frame
-  ctx.strokeStyle = 'rgba(14, 165, 233, 0.5)';
-  ctx.lineWidth = 12;
-  ctx.strokeRect(18, 18, 1164, 664);
+  ctx.strokeStyle = 'rgba(14, 165, 233, 0.55)';
+  ctx.lineWidth = 14;
+  ctx.strokeRect(20, 20, 1160, 660);
 
-  ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
   ctx.lineWidth = 3;
-  ctx.strokeRect(32, 32, 1136, 636);
+  ctx.strokeRect(34, 34, 1132, 632);
 
-  const leftMargin = 60;
+  const leftMargin = 55;
 
   if (type === 'left') {
     // ── LEFT CARD: GENERAL SPECS ──
     // Badge
-    ctx.fillStyle = 'rgba(14, 165, 233, 0.18)';
+    ctx.fillStyle = 'rgba(14, 165, 233, 0.2)';
     ctx.beginPath();
-    ctx.roundRect(leftMargin, 50, 360, 48, 24);
+    ctx.roundRect(leftMargin, 48, 380, 52, 26);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.55)';
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.65)';
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
     ctx.fillStyle = '#38bdf8';
     ctx.beginPath();
-    ctx.arc(leftMargin + 26, 74, 6, 0, Math.PI * 2);
+    ctx.arc(leftMargin + 28, 74, 7, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = '#38bdf8';
-    ctx.font = '600 20px "Inter", sans-serif';
-    ctx.fillText('OPEN TO OPPORTUNITIES', leftMargin + 44, 81);
+    ctx.font = '600 22px "Inter", sans-serif';
+    ctx.fillText('OPEN TO OPPORTUNITIES', leftMargin + 48, 81);
 
     // Title
     ctx.fillStyle = '#ffffff';
-    ctx.font = '800 44px "Inter", sans-serif';
-    ctx.fillText('Building Scalable Data & ML Systems', leftMargin, 150);
+    ctx.font = '800 50px "Inter", sans-serif';
+    ctx.fillText('Building Scalable Data & ML Systems', leftMargin, 155);
 
     // Divider
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.moveTo(leftMargin, 185);
-    ctx.lineTo(1140, 185);
+    ctx.moveTo(leftMargin, 192);
+    ctx.lineTo(1145, 192);
     ctx.stroke();
 
-    // Description text (compact spacing)
-    ctx.fillStyle = 'rgba(232, 244, 255, 0.88)';
-    ctx.font = '400 28px "Inter", sans-serif';
-    ctx.fillText('Transforming complex datasets into high-impact machine learning models', leftMargin, 250);
-    ctx.fillText('and robust, production-ready data engineering pipelines.', leftMargin, 295);
+    // Description text
+    ctx.fillStyle = 'rgba(232, 244, 255, 0.9)';
+    ctx.font = '500 30px "Inter", sans-serif';
+    ctx.fillText('Transforming complex datasets into high-impact machine learning models', leftMargin, 262);
+    ctx.fillText('and robust, production-ready data engineering pipelines.', leftMargin, 312);
 
     // Highlight Quote
-    ctx.fillStyle = 'rgba(56, 189, 248, 0.75)';
-    ctx.font = 'italic 26px "Inter", sans-serif';
-    ctx.fillText('"Turning raw data into scalable intelligence."', leftMargin, 400);
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.8)';
+    ctx.font = 'italic 28px "Inter", sans-serif';
+    ctx.fillText('"Turning raw data into scalable intelligence."', leftMargin, 415);
 
   } else {
     // ── RIGHT CARD: ROLES & TECH STACK ──
     // Badge
-    ctx.fillStyle = 'rgba(14, 165, 233, 0.18)';
+    ctx.fillStyle = 'rgba(14, 165, 233, 0.2)';
     ctx.beginPath();
-    ctx.roundRect(leftMargin, 50, 260, 48, 24);
+    ctx.roundRect(leftMargin, 48, 280, 52, 26);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.55)';
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.65)';
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
     ctx.fillStyle = '#38bdf8';
-    ctx.font = '600 20px "Inter", sans-serif';
-    ctx.fillText('PRIMARY ROLES', leftMargin + 32, 81);
+    ctx.font = '600 22px "Inter", sans-serif';
+    ctx.fillText('PRIMARY ROLES', leftMargin + 34, 81);
 
     // Title
     ctx.fillStyle = '#ffffff';
-    ctx.font = '800 44px "Inter", sans-serif';
-    ctx.fillText('ML Engineer & Data Engineer', leftMargin, 150);
+    ctx.font = '800 50px "Inter", sans-serif';
+    ctx.fillText('ML Engineer & Data Engineer', leftMargin, 155);
 
     // Divider
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.moveTo(leftMargin, 185);
-    ctx.lineTo(1140, 185);
+    ctx.moveTo(leftMargin, 192);
+    ctx.lineTo(1145, 192);
     ctx.stroke();
 
-    // Skills Badges (Compact horizontal row)
+    // Skills Badges (Single horizontal line)
     const skills = ['Python', 'TensorFlow', 'PyTorch', 'Spark', 'SQL', 'scikit-learn'];
     let startX = leftMargin;
-    const y = 250;
+    const y = 260;
 
     skills.forEach((skill) => {
-      ctx.font = '600 24px "Inter", sans-serif';
+      ctx.font = '600 26px "Inter", sans-serif';
       const tw = ctx.measureText(skill).width;
-      const bw = tw + 36;
-      ctx.fillStyle = 'rgba(14, 165, 233, 0.2)';
+      const bw = tw + 40;
+      ctx.fillStyle = 'rgba(14, 165, 233, 0.22)';
       ctx.beginPath();
-      ctx.roundRect(startX, y, bw, 52, 14);
+      ctx.roundRect(startX, y, bw, 56, 16);
       ctx.fill();
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.5)';
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
       ctx.lineWidth = 2.5;
       ctx.stroke();
 
       ctx.fillStyle = '#38bdf8';
-      ctx.fillText(skill, startX + 18, y + 35);
-      startX += bw + 14;
+      ctx.fillText(skill, startX + 20, y + 38);
+      startX += bw + 16;
     });
 
-    ctx.fillStyle = 'rgba(232, 244, 255, 0.82)';
-    ctx.font = '400 26px "Inter", sans-serif';
-    ctx.fillText('End-to-End Model Architecture & Distributed ETL Pipelines.', leftMargin, 400);
+    ctx.fillStyle = 'rgba(232, 244, 255, 0.85)';
+    ctx.font = '500 28px "Inter", sans-serif';
+    ctx.fillText('End-to-End Model Architecture & Distributed ETL Pipelines.', leftMargin, 415);
   }
 
   // Footer
-  ctx.fillStyle = 'rgba(56, 189, 248, 0.65)';
+  ctx.fillStyle = 'rgba(56, 189, 248, 0.7)';
   ctx.font = '500 24px "JetBrains Mono", monospace';
   ctx.fillText('yug.dev', leftMargin, 630);
 
@@ -228,7 +228,7 @@ function SinglePhysicsCard({
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1]);
-  useSphericalJoint(j3, card, [[0, 0, 0], [0, isHorizontal ? 0.6 : 1.45, 0]]);
+  useSphericalJoint(j3, card, [[0, 0, 0], [0, isHorizontal ? 0.72 : 1.45, 0]]);
 
   useEffect(() => {
     if (dropDelay > 0) {
@@ -305,10 +305,10 @@ function SinglePhysicsCard({
           {...segmentProps}
           type={dragged ? 'kinematicPosition' : 'dynamic'}
         >
-          <CuboidCollider args={isHorizontal ? [1.1, 0.625, 0.02] : [0.8, 1.125, 0.01]} />
+          <CuboidCollider args={isHorizontal ? [1.25, 0.72, 0.02] : [0.8, 1.125, 0.01]} />
           <group
             scale={scale}
-            position={[0, isHorizontal ? -0.6 : -1.2, -0.05]}
+            position={[0, isHorizontal ? -0.7 : -1.2, -0.05]}
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
             onPointerUp={(e: any) => {
@@ -323,9 +323,9 @@ function SinglePhysicsCard({
             }}
           >
             {isHorizontal ? (
-              // Sleek, Compact Landscape 3D Card (2.2 x 1.25)
+              // Medium Landscape 3D Card (2.5 x 1.45)
               <mesh>
-                <boxGeometry args={[2.2, 1.25, 0.04]} />
+                <boxGeometry args={[2.5, 1.45, 0.04]} />
                 <meshPhysicalMaterial
                   map={texture}
                   clearcoat={1}
@@ -347,8 +347,8 @@ function SinglePhysicsCard({
                 />
               </mesh>
             )}
-            <mesh geometry={nodes.clip.geometry} material={materials.metal} position={[0, isHorizontal ? 0.2 : 0, 0]} />
-            <mesh geometry={nodes.clamp.geometry} material={materials.metal} position={[0, isHorizontal ? 0.2 : 0, 0]} />
+            <mesh geometry={nodes.clip.geometry} material={materials.metal} position={[0, isHorizontal ? 0.25 : 0, 0]} />
+            <mesh geometry={nodes.clamp.geometry} material={materials.metal} position={[0, isHorizontal ? 0.25 : 0, 0]} />
           </group>
         </RigidBody>
       </group>
@@ -389,10 +389,10 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
     }
   }, [photoTexture]);
 
-  // Center photo card is HUGE centerpiece (2.65), side cards are sleek compact landscape (0.88)
-  const centerScale = isMobile ? 1.6 : 2.65;
-  const sideHorizontalScale = isMobile ? 0.6 : 0.88;
-  const xDistance = isMobile ? 1.8 : 3.65;
+  // Center photo card scale 2.45, side landscape cards scale 1.35 (perfect medium size!)
+  const centerScale = isMobile ? 1.6 : 2.45;
+  const sideHorizontalScale = isMobile ? 0.7 : 1.35;
+  const xDistance = isMobile ? 1.85 : 3.45;
 
   const centerYAnchor = isMobile ? 3.6 : 3.35;
   const sideYAnchor = isMobile ? 4.3 : 4.35;
@@ -408,7 +408,7 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
       </Environment>
 
       <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
-        {/* 1. Center Photo ID Card (HUGE centerpiece attraction, drops at t=0) */}
+        {/* 1. Center Photo ID Card (Vertical centerpiece attraction, drops at t=0) */}
         <SinglePhysicsCard
           xPos={0}
           targetYAnchor={centerYAnchor}
@@ -419,7 +419,7 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
           isHorizontal={false}
         />
 
-        {/* 2. Left Card (Compact Sleek Landscape Specs Card) */}
+        {/* 2. Left Card (Medium Landscape Specs Card) */}
         <SinglePhysicsCard
           xPos={-xDistance}
           targetYAnchor={sideYAnchor}
@@ -430,7 +430,7 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
           isHorizontal={true}
         />
 
-        {/* 3. Right Card (Compact Sleek Landscape Roles & Skills Card) */}
+        {/* 3. Right Card (Medium Landscape Roles & Skills Card) */}
         <SinglePhysicsCard
           xPos={xDistance}
           targetYAnchor={sideYAnchor}
