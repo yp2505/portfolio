@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, useState } from 'react';
 import { Canvas, useThree, useFrame, extend } from '@react-three/fiber';
-import { Environment, Text, SpotLight, Lightformer, useTexture, useGLTF } from '@react-three/drei';
+import { Environment, Lightformer, useTexture, useGLTF } from '@react-three/drei';
 import {
   Physics,
   RigidBody,
@@ -13,11 +13,11 @@ import {
 } from '@react-three/rapier';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import * as THREE from 'three';
-import gsap from 'gsap';
+import { motion, AnimatePresence } from 'framer-motion';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
-// ─── Physics ID Card ───────────────────────────────────────────────────────────
+// ─── 3D Physics Card ───────────────────────────────────────────────────────────
 function PhysicsCard({ isMobile }: { isMobile: boolean }) {
   const band = useRef<any>(null);
   const fixed = useRef<any>(null);
@@ -71,14 +71,14 @@ function PhysicsCard({ isMobile }: { isMobile: boolean }) {
   useSphericalJoint(j3, card, [[0, 0, 0], [0, 1.45, 0]]);
 
   useEffect(() => {
-    if (hovered) {
+    if (hovered && !isMobile) {
       document.body.style.cursor = dragged ? 'grabbing' : 'grab';
       return () => { document.body.style.cursor = 'auto'; };
     }
-  }, [hovered, dragged]);
+  }, [hovered, dragged, isMobile]);
 
   useFrame((state, delta) => {
-    if (dragged && card.current) {
+    if (dragged && card.current && !isMobile) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
       dir.copy(vec).sub(state.camera.position).normalize();
       vec.add(dir.multiplyScalar(state.camera.position.length()));
@@ -136,10 +136,12 @@ function PhysicsCard({ isMobile }: { isMobile: boolean }) {
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
             onPointerUp={(e: any) => {
+              if (isMobile) return;
               e.target.releasePointerCapture(e.pointerId);
               drag(false);
             }}
             onPointerDown={(e: any) => {
+              if (isMobile) return;
               e.target.setPointerCapture(e.pointerId);
               drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())));
             }}
@@ -180,153 +182,10 @@ function PhysicsCard({ isMobile }: { isMobile: boolean }) {
   );
 }
 
-// ─── Main Scene ────────────────────────────────────────────────────────────────
-function SceneContents({ isMobile }: { isMobile: boolean }) {
-  const rightTextRef = useRef<THREE.Group>(null);
-  const leftTextRef = useRef<THREE.Group>(null);
-
-  useEffect(() => {
-    if (!rightTextRef.current || !leftTextRef.current) return;
-
-    const offscreenX = isMobile ? 12 : 14;
-    const targetX = isMobile ? 0 : 3.4;
-    const targetY = isMobile ? -2.5 : 0.2;
-
-    // Set initial offscreen positions
-    gsap.set(rightTextRef.current.position, { x: offscreenX, y: targetY });
-    gsap.set(leftTextRef.current.position, { x: -offscreenX, y: targetY });
-
-    const tl = gsap.timeline({ repeat: -1 });
-
-    // Initial pause while card drops with physics
-    tl.to({}, { duration: 1.5 });
-
-    // 1. Slide in Right Panel (ML & Data Engineer) from the right
-    tl.to(rightTextRef.current.position, {
-      x: targetX,
-      duration: 1.4,
-      ease: 'power3.out',
-    });
-    tl.to({}, { duration: 3.5 }); // Display duration
-
-    // 2. Slide out Right Panel back to the right
-    tl.to(rightTextRef.current.position, {
-      x: offscreenX,
-      duration: 1.2,
-      ease: 'power3.in',
-    });
-
-    tl.to({}, { duration: 0.8 }); // Pause between slides
-
-    // 3. Slide in Left Panel (General Specs) from the left
-    tl.to(leftTextRef.current.position, {
-      x: -targetX,
-      duration: 1.4,
-      ease: 'power3.out',
-    });
-    tl.to({}, { duration: 3.5 }); // Display duration
-
-    // 4. Slide out Left Panel back to the left
-    tl.to(leftTextRef.current.position, {
-      x: -offscreenX,
-      duration: 1.2,
-      ease: 'power3.in',
-    });
-
-    tl.to({}, { duration: 0.8 }); // Pause before loop restarts
-
-    return () => {
-      tl.kill();
-    };
-  }, [isMobile]);
-
-  const textFontSize = isMobile ? 0.45 : 0.75;
-  const labelFontSize = isMobile ? 0.22 : 0.32;
-
-  return (
-    <>
-      <ambientLight intensity={0.6} />
-      <SpotLight position={[0, 10, 5]} angle={0.3} penumbra={1} intensity={2} castShadow shadow-bias={-0.0001} />
-      <Environment blur={0.75}>
-        <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
-        <Lightformer intensity={3} color="white" position={[-1, -1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
-        <Lightformer intensity={3} color="white" position={[1, 1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
-        <Lightformer intensity={10} color="white" position={[-10, 0, 14]} rotation={[0, Math.PI / 2, Math.PI / 3]} scale={[100, 10, 1]} />
-      </Environment>
-
-      {/* Physics Card centered at world origin */}
-      <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
-        <PhysicsCard isMobile={isMobile} />
-      </Physics>
-
-      {/* Right panel — slides in to the right of the card: ML & Data Roles */}
-      <group ref={rightTextRef} position={[14, 0.2, -0.5]}>
-        <Text
-          fontSize={textFontSize * 1.5}
-          maxWidth={isMobile ? 3.5 : 5}
-          lineHeight={1.1}
-          letterSpacing={-0.02}
-          textAlign={isMobile ? 'center' : 'left'}
-          anchorX={isMobile ? 'center' : 'left'}
-          anchorY="middle"
-          position={[0, 0.4, 0]}
-          color="#38bdf8"
-          font="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2"
-        >
-          {`ML Engineer\n& Data Engineer.`}
-        </Text>
-        <Text
-          fontSize={labelFontSize}
-          maxWidth={isMobile ? 3.5 : 4.5}
-          lineHeight={1.6}
-          textAlign={isMobile ? 'center' : 'left'}
-          anchorX={isMobile ? 'center' : 'left'}
-          anchorY="middle"
-          position={[0, -0.6, 0]}
-          color="#6a8aaa"
-          font="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2"
-        >
-          {`Python · TensorFlow · PyTorch\nApache Spark · SQL · scikit-learn`}
-        </Text>
-      </group>
-
-      {/* Left panel — slides in to the left of the card: General Specs */}
-      <group ref={leftTextRef} position={[-14, 0.2, -0.5]}>
-        <Text
-          fontSize={textFontSize * 1.5}
-          maxWidth={isMobile ? 3.5 : 5}
-          lineHeight={1.1}
-          letterSpacing={-0.02}
-          textAlign={isMobile ? 'center' : 'right'}
-          anchorX={isMobile ? 'center' : 'right'}
-          anchorY="middle"
-          position={[0, 0.4, 0]}
-          color="#0ea5e9"
-          font="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2"
-        >
-          {`Open to\nOpportunities.`}
-        </Text>
-        <Text
-          fontSize={labelFontSize}
-          maxWidth={isMobile ? 3.5 : 4.5}
-          lineHeight={1.6}
-          textAlign={isMobile ? 'center' : 'right'}
-          anchorX={isMobile ? 'center' : 'right'}
-          anchorY="middle"
-          position={[0, -0.6, 0]}
-          color="#6a8aaa"
-          font="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2"
-        >
-          {`Building intelligent data pipelines\nand ML systems that turn raw data\ninto real-world impact.`}
-        </Text>
-      </group>
-    </>
-  );
-}
-
 // ─── Root Component ────────────────────────────────────────────────────────────
 export function AnimatedIDCardPresentation() {
   const [isMobile, setIsMobile] = useState(false);
+  const [panelState, setPanelState] = useState<'right' | 'left' | 'none'>('right');
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -335,24 +194,261 @@ export function AnimatedIDCardPresentation() {
     return () => window.removeEventListener('resize', check);
   }, []);
 
+  // Continuous panel loop: right -> none -> left -> none -> repeat
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPanelState((prev) => {
+        if (prev === 'right') return 'none';
+        if (prev === 'none') return 'left';
+        return 'right';
+      });
+    }, 4500);
+    return () => clearInterval(interval);
+  }, []);
+
+  const skills = ["Python", "TensorFlow", "PyTorch", "Apache Spark", "SQL", "scikit-learn"];
+
   return (
-    <div
+    <section
       id="home"
-      className="w-full h-screen relative overflow-hidden pointer-events-none z-10"
+      style={{
+        width: '100%',
+        minHeight: '100vh',
+        position: 'relative',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
-      <Canvas
-        shadows
-        gl={{ alpha: true }}
-        camera={{ position: [0, 0, 13], fov: 25 }}
+      {/* 3D Canvas Background */}
+      <div
         style={{
-          background: 'transparent',
+          position: 'absolute',
+          inset: 0,
           width: '100%',
           height: '100%',
+          zIndex: 1,
           pointerEvents: isMobile ? 'none' : 'auto',
         }}
       >
-        <SceneContents isMobile={isMobile} />
-      </Canvas>
-    </div>
+        <Canvas
+          gl={{ alpha: true }}
+          camera={{ position: [0, 0, 13], fov: 25 }}
+          style={{ background: 'transparent', width: '100%', height: '100%' }}
+        >
+          <ambientLight intensity={0.6} />
+          <Environment blur={0.75}>
+            <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
+            <Lightformer intensity={3} color="white" position={[-1, -1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
+            <Lightformer intensity={3} color="white" position={[1, 1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
+            <Lightformer intensity={10} color="white" position={[-10, 0, 14]} rotation={[0, Math.PI / 2, Math.PI / 3]} scale={[100, 10, 1]} />
+          </Environment>
+
+          <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
+            <PhysicsCard isMobile={isMobile} />
+          </Physics>
+        </Canvas>
+      </div>
+
+      {/* HTML Motion Panels overlayed around the 3D card */}
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 10,
+          width: '100%',
+          maxWidth: 1200,
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: isMobile ? '100px 24px 40px' : '0 60px',
+          pointerEvents: 'none',
+        }}
+      >
+        {/* Left Side Panel — revealed on 'left' state */}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
+          <AnimatePresence mode="wait">
+            {panelState === 'left' && (
+              <motion.div
+                initial={{ opacity: 0, x: -80, filter: 'blur(10px)' }}
+                animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, x: -80, filter: 'blur(10px)' }}
+                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                style={{
+                  pointerEvents: 'auto',
+                  maxWidth: isMobile ? '100%' : 420,
+                  padding: '24px 28px',
+                  borderRadius: 24,
+                  background: 'rgba(8, 15, 26, 0.75)',
+                  backdropFilter: 'blur(16px)',
+                  border: '1px solid rgba(14, 165, 233, 0.25)',
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+                }}
+              >
+                <div
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    fontSize: 11,
+                    fontFamily: 'var(--font-mono), monospace',
+                    color: '#38bdf8',
+                    letterSpacing: '0.15em',
+                    textTransform: 'uppercase',
+                    padding: '4px 12px',
+                    borderRadius: 999,
+                    border: '1px solid rgba(14,165,233,0.3)',
+                    background: 'rgba(14,165,233,0.08)',
+                    marginBottom: 16,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: '50%',
+                      background: '#38bdf8',
+                      boxShadow: '0 0 8px #38bdf8',
+                    }}
+                  />
+                  Open to Opportunities
+                </div>
+
+                <h2
+                  style={{
+                    fontSize: isMobile ? 28 : 36,
+                    fontWeight: 800,
+                    lineHeight: 1.1,
+                    color: '#ffffff',
+                    fontFamily: "'Inter', sans-serif",
+                    letterSpacing: '-0.03em',
+                    marginBottom: 12,
+                  }}
+                >
+                  Building Scalable<br />
+                  <span
+                    style={{
+                      background: 'linear-gradient(135deg, #38bdf8, #0ea5e9)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                    }}
+                  >
+                    Data & ML Systems
+                  </span>
+                </h2>
+
+                <p
+                  style={{
+                    fontSize: 14,
+                    color: 'rgba(232,244,255,0.7)',
+                    lineHeight: 1.7,
+                    fontFamily: "'Inter', sans-serif",
+                  }}
+                >
+                  Transforming complex datasets into high-impact machine learning models and robust data engineering pipelines.
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Right Side Panel — revealed on 'right' state */}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+          <AnimatePresence mode="wait">
+            {panelState === 'right' && (
+              <motion.div
+                initial={{ opacity: 0, x: 80, filter: 'blur(10px)' }}
+                animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, x: 80, filter: 'blur(10px)' }}
+                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                style={{
+                  pointerEvents: 'auto',
+                  maxWidth: isMobile ? '100%' : 420,
+                  padding: '24px 28px',
+                  borderRadius: 24,
+                  background: 'rgba(8, 15, 26, 0.75)',
+                  backdropFilter: 'blur(16px)',
+                  border: '1px solid rgba(14, 165, 233, 0.25)',
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+                  textAlign: 'right',
+                }}
+              >
+                <div
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    fontSize: 11,
+                    fontFamily: 'var(--font-mono), monospace',
+                    color: '#38bdf8',
+                    letterSpacing: '0.15em',
+                    textTransform: 'uppercase',
+                    padding: '4px 12px',
+                    borderRadius: 999,
+                    border: '1px solid rgba(14,165,233,0.3)',
+                    background: 'rgba(14,165,233,0.08)',
+                    marginBottom: 16,
+                  }}
+                >
+                  Primary Roles
+                </div>
+
+                <h2
+                  style={{
+                    fontSize: isMobile ? 28 : 36,
+                    fontWeight: 800,
+                    lineHeight: 1.1,
+                    color: '#ffffff',
+                    fontFamily: "'Inter', sans-serif",
+                    letterSpacing: '-0.03em',
+                    marginBottom: 16,
+                  }}
+                >
+                  ML Engineer &amp;<br />
+                  <span
+                    style={{
+                      background: 'linear-gradient(135deg, #38bdf8, #0ea5e9)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                    }}
+                  >
+                    Data Engineer
+                  </span>
+                </h2>
+
+                {/* Tech Stack Badges */}
+                <div
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 8,
+                    justifyContent: 'flex-end',
+                  }}
+                >
+                  {skills.map((skill) => (
+                    <span
+                      key={skill}
+                      style={{
+                        fontSize: 12,
+                        padding: '5px 12px',
+                        borderRadius: 10,
+                        background: 'rgba(14, 165, 233, 0.12)',
+                        border: '1px solid rgba(14, 165, 233, 0.25)',
+                        color: '#38bdf8',
+                        fontFamily: "var(--font-mono), monospace",
+                        fontWeight: 500,
+                      }}
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    </section>
   );
 }
