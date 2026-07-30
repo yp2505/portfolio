@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { Canvas, useThree, useFrame, extend } from '@react-three/fiber';
-import { Environment, Lightformer, useTexture, useGLTF } from '@react-three/drei';
+import { Environment, Lightformer, useTexture, useGLTF, PerspectiveCamera } from '@react-three/drei';
 import {
   Physics,
   RigidBody,
@@ -179,6 +179,7 @@ function SinglePhysicsCard({
   isMobile,
   scale = 2.2,
   isHorizontal = false,
+  ropeLength = 3,
 }: {
   xPos: number;
   targetYAnchor?: number;
@@ -187,6 +188,7 @@ function SinglePhysicsCard({
   isMobile: boolean;
   scale?: number;
   isHorizontal?: boolean;
+  ropeLength?: number;
 }) {
   const band = useRef<any>(null);
   const fixed = useRef<any>(null);
@@ -225,10 +227,11 @@ function SinglePhysicsCard({
   const [hovered, hover] = useState(false);
   const [isDropped, setIsDropped] = useState(dropDelay === 0);
 
-  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
-  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
-  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1]);
-  useSphericalJoint(j3, card, [[0, 0, 0], [0, isHorizontal ? 0.72 : 1.45, 0]]);
+  const seg = ropeLength / 3;
+  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], seg]);
+  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], seg]);
+  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], seg]);
+  useSphericalJoint(j3, card, [[0, 0, 0], [0, isHorizontal ? 0.72 * scale : 1.45 * scale, 0]]);
 
   useEffect(() => {
     if (dropDelay > 0) {
@@ -295,17 +298,17 @@ function SinglePhysicsCard({
     <>
       <group position={[xPos, initialY, 0]}>
         <RigidBody ref={fixed} {...segmentProps} type="kinematicPosition" position={[xPos, initialY, 0]} />
-        <RigidBody position={[xPos + 0.5, initialY, 0]} ref={j1} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
-        <RigidBody position={[xPos + 1.0, initialY, 0]} ref={j2} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
-        <RigidBody position={[xPos + 1.5, initialY, 0]} ref={j3} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
+        <RigidBody position={[xPos + 0.2, initialY - seg, 0]} ref={j1} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
+        <RigidBody position={[xPos + 0.4, initialY - seg * 2, 0]} ref={j2} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
+        <RigidBody position={[xPos + 0.6, initialY - seg * 3, 0]} ref={j3} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
 
         <RigidBody
-          position={[xPos, initialY - 1.5, 0]}
+          position={[xPos, initialY - ropeLength - (isHorizontal ? 0.72 * scale : 1.45 * scale), 0]}
           ref={card}
           {...segmentProps}
           type={dragged ? 'kinematicPosition' : 'dynamic'}
         >
-          <CuboidCollider args={isHorizontal ? [1.25, 0.72, 0.02] : [0.8, 1.125, 0.01]} />
+          <CuboidCollider args={isHorizontal ? [1.25 * scale, 0.72 * scale, 0.02 * scale] : [0.8 * scale, 1.125 * scale, 0.01 * scale]} />
           <group
             scale={scale}
             position={[0, isHorizontal ? -0.7 : -1.2, -0.05]}
@@ -390,15 +393,25 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
   }, [photoTexture]);
 
   // Responsive Positioning & Scale Matrix
-  // Desktop: Crown centerpiece photo card (scale 2.45, y 4.25), side cards (scale 1.35, y 3.4)
-  // Mobile: V-shape layout taking full advantage of tall phone screens (Photo Card top-center y 3.8, side cards lower y 1.2)
-  const centerScale = isMobile ? 1.35 : 2.45;
-  const sideHorizontalScale = isMobile ? 0.58 : 1.35;
+  const mobileScale = 4.0;
+  const desktopCenterScale = 2.45;
+  const desktopSideScale = 1.35;
+  const desktopRope = 3;
 
-  const xDistance = isMobile ? 1.25 : 3.45;
+  const centerScale = isMobile ? mobileScale : desktopCenterScale;
+  const sideHorizontalScale = isMobile ? mobileScale : desktopSideScale;
 
-  const centerYAnchor = isMobile ? 3.8 : 4.25;
-  const sideYAnchor = isMobile ? 1.2 : 3.4;
+  const xDistanceLeft = isMobile ? 0 : -3.45;
+  const xDistanceRight = isMobile ? 0 : 3.45;
+
+  const mobileAnchor = 12.0; 
+  const centerYAnchor = isMobile ? mobileAnchor : 4.25;
+  const leftYAnchor = isMobile ? mobileAnchor : 3.4;
+  const rightYAnchor = isMobile ? mobileAnchor : 3.4;
+
+  const centerRope = isMobile ? 3.0 : desktopRope;
+  const leftRope = isMobile ? 10.0 : desktopRope;
+  const rightRope = isMobile ? 16.5 : desktopRope;
 
   return (
     <>
@@ -415,6 +428,7 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
         <SinglePhysicsCard
           xPos={0}
           targetYAnchor={centerYAnchor}
+          ropeLength={centerRope}
           dropDelay={0}
           texture={photoTexture}
           isMobile={isMobile}
@@ -424,8 +438,9 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
 
         {/* 2. Left Card (Hangs in lower left on mobile, lower left on desktop) */}
         <SinglePhysicsCard
-          xPos={-xDistance}
-          targetYAnchor={sideYAnchor}
+          xPos={xDistanceLeft}
+          targetYAnchor={leftYAnchor}
+          ropeLength={leftRope}
           dropDelay={750}
           texture={leftHorizontalTexture}
           isMobile={isMobile}
@@ -435,8 +450,9 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
 
         {/* 3. Right Card (Hangs in lower right on mobile, lower right on desktop) */}
         <SinglePhysicsCard
-          xPos={xDistance}
-          targetYAnchor={sideYAnchor}
+          xPos={xDistanceRight}
+          targetYAnchor={rightYAnchor}
+          ropeLength={rightRope}
           dropDelay={1500}
           texture={rightHorizontalTexture}
           isMobile={isMobile}
@@ -471,10 +487,6 @@ export function AnimatedIDCardPresentation() {
     >
       <Canvas
         gl={{ alpha: true }}
-        camera={{
-          position: [0, 0, isMobile ? 18 : 13],
-          fov: isMobile ? 44 : 25,
-        }}
         style={{
           background: 'transparent',
           width: '100%',
@@ -482,6 +494,7 @@ export function AnimatedIDCardPresentation() {
           pointerEvents: isMobile ? 'none' : 'auto',
         }}
       >
+        <PerspectiveCamera makeDefault position={[0, 0, isMobile ? 22 : 13]} fov={isMobile ? 48 : 25} />
         <SceneContents isMobile={isMobile} />
       </Canvas>
     </section>

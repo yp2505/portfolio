@@ -271,25 +271,25 @@ export default function About() {
           </motion.div>
 
           {/* Right: Profile Photo */}
-          {!isMobile && (
-            <motion.div
-              variants={slideLeft}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: false }}
+          <motion.div
+            variants={slideLeft}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: false }}
+            style={{
+              width: isMobile ? "100%" : "40%",
+              display: "flex",
+              justifyContent: isMobile ? "center" : "flex-end",
+              flexShrink: 0,
+              marginTop: isMobile ? 48 : 0,
+            }}
+          >
+            <div
               style={{
-                width: "40%",
-                display: "flex",
-                justifyContent: "flex-end",
-                flexShrink: 0,
+                position: "relative",
+                transform: isMobile ? "none" : "translateX(-40px)",
               }}
             >
-              <div
-                style={{
-                  position: "relative",
-                  transform: "translateX(-40px)",
-                }}
-              >
                 {/* Glow ring */}
                 <div
                   style={{
@@ -324,7 +324,6 @@ export default function About() {
                 </div>
               </div>
             </motion.div>
-          )}
         </div>
 
         {/* Highlights Cards */}
