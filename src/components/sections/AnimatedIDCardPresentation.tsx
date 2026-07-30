@@ -229,6 +229,7 @@ function SinglePhysicsCard({
   const [hovered, hover] = useState(false);
   const [isDropped, setIsDropped] = useState(dropDelay === 0);
 
+  const initialY = dropDelay === 0 ? targetYAnchor : 12;
   const seg = isMobile ? ropeLength / 3 : 1;
   const jointY = isMobile ? (isHorizontal ? 0.72 * scale : 1.45 * scale) : (isHorizontal ? 0.72 : 1.45);
   const cardInitialY = isMobile ? initialY - ropeLength - jointY : initialY - 1.5;
@@ -299,8 +300,6 @@ function SinglePhysicsCard({
 
   curve.curveType = 'chordal';
   bandTexture.wrapS = bandTexture.wrapT = THREE.RepeatWrapping;
-
-  const initialY = dropDelay === 0 ? targetYAnchor : 12;
 
   return (
     <>
