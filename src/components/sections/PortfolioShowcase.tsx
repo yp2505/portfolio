@@ -101,7 +101,7 @@ export default function PortfolioShowcase() {
               backdropFilter: 'blur(20px)',
             }}
           >
-            {['projects', 'certificates', 'techstack'].map((tab) => (
+            {['projects', 'certificates'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => {
@@ -110,7 +110,7 @@ export default function PortfolioShowcase() {
                 }}
                 style={tabStyle(tab)}
               >
-                {tab === 'projects' ? 'Projects' : tab === 'certificates' ? 'Certificates' : 'Tech Stack'}
+                {tab === 'projects' ? 'Projects' : 'Certificates'}
               </button>
             ))}
           </div>
@@ -261,58 +261,83 @@ export default function PortfolioShowcase() {
               </div>
             )}
 
-            {/* TECH STACK */}
-            {activeTab === 'techstack' && (
-              <div className="min-h-[360px] flex justify-center">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5 max-w-5xl w-full">
-                  {!loading && techStacks?.map((item, index) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, scale: 0.85, y: 20 }}
-                      whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: index * 0.03 }}
-                      whileHover={{ y: -6, scale: 1.05 }}
-                      style={{
-                        borderRadius: 20,
-                        border: '1px solid rgba(14,165,233,0.15)',
-                        background: 'rgba(8,15,26,0.8)',
-                        backdropFilter: 'blur(10px)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 10,
-                        height: 110,
-                        padding: '12px 8px',
-                        cursor: 'default',
-                        transition: 'border-color 0.3s ease',
-                        position: 'relative',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <div style={{ position: 'absolute', width: 60, height: 60, borderRadius: '50%', background: 'rgba(14,165,233,0.15)', filter: 'blur(16px)', opacity: 0, transition: 'opacity 0.3s ease' }} className="group-hover:opacity-100" />
-                        {item.logo_url ? (
-                          <img
-                            src={item.logo_url}
-                            alt={item.name}
-                            style={{ width: 40, height: 40, objectFit: 'contain', position: 'relative', zIndex: 1 }}
-                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-                          />
-                        ) : (
-                          <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(14,165,233,0.1)' }} />
-                        )}
-                      </div>
-                      <p style={{ fontSize: 11, color: 'rgba(232,244,255,0.7)', textAlign: 'center', lineHeight: 1.3, fontFamily: "'Inter', sans-serif", fontWeight: 500 }}>
-                        {item.name}
-                      </p>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </motion.div>
         </AnimatePresence>
+
+        {/* STANDALONE TECH STACK SECTION */}
+        <div className="mt-32">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-12"
+          >
+            <h2
+              className="text-2xl md:text-4xl font-bold mb-4"
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                background: 'linear-gradient(135deg, #e8f4ff 0%, #38bdf8 50%, #0ea5e9 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              My Tech Stack
+            </h2>
+            <p
+              className="max-w-2xl mx-auto text-sm md:text-base"
+              style={{ color: 'var(--text-secondary)', fontFamily: "'Inter', sans-serif" }}
+            >
+              The tools, languages, and frameworks I use to build scalable data pipelines and intelligent machine learning models.
+            </p>
+          </motion.div>
+
+          <div className="flex justify-center">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5 max-w-5xl w-full">
+              {!loading && techStacks?.map((item, index) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, scale: 0.85, y: 20 }}
+                  whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.03 }}
+                  whileHover={{ y: -6, scale: 1.05 }}
+                  style={{
+                    borderRadius: 20,
+                    border: '1px solid rgba(14,165,233,0.15)',
+                    background: 'rgba(8,15,26,0.8)',
+                    backdropFilter: 'blur(10px)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 10,
+                    height: 110,
+                    padding: '12px 8px',
+                    cursor: 'default',
+                    transition: 'border-color 0.3s ease',
+                    position: 'relative',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ position: 'absolute', width: 60, height: 60, borderRadius: '50%', background: 'rgba(14,165,233,0.15)', filter: 'blur(16px)', opacity: 0, transition: 'opacity 0.3s ease' }} className="group-hover:opacity-100" />
+                    {item.logo_url ? (
+                      <img
+                        src={item.logo_url}
+                        alt={item.name}
+                        style={{ width: 40, height: 40, objectFit: 'contain', position: 'relative', zIndex: 1 }}
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                      />
+                    ) : (
+                      <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(14,165,233,0.1)' }} />
+                    )}
+                  </div>
+                  <p style={{ fontSize: 11, color: 'rgba(232,244,255,0.7)', textAlign: 'center', lineHeight: 1.3, fontFamily: "'Inter', sans-serif", fontWeight: 500 }}>
+                    {item.name}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
       </section>
     </>
   )

@@ -180,6 +180,7 @@ function SinglePhysicsCard({
   scale = 2.2,
   isHorizontal = false,
   ropeLength = 3,
+  zPos = 0,
 }: {
   xPos: number;
   targetYAnchor?: number;
@@ -189,6 +190,7 @@ function SinglePhysicsCard({
   scale?: number;
   isHorizontal?: boolean;
   ropeLength?: number;
+  zPos?: number;
 }) {
   const band = useRef<any>(null);
   const fixed = useRef<any>(null);
@@ -254,7 +256,7 @@ function SinglePhysicsCard({
       const currentPos = fixed.current.translation();
       const targetY = isDropped ? targetYAnchor : 12;
       const currentY = THREE.MathUtils.lerp(currentPos.y, targetY, isDropped ? 0.08 : 1);
-      fixed.current.setNextKinematicTranslation({ x: xPos, y: currentY, z: 0 });
+      fixed.current.setNextKinematicTranslation({ x: xPos, y: currentY, z: zPos });
     }
 
     if (dragged && card.current && !isMobile) {
@@ -296,14 +298,14 @@ function SinglePhysicsCard({
 
   return (
     <>
-      <group position={[xPos, initialY, 0]}>
-        <RigidBody ref={fixed} {...segmentProps} type="kinematicPosition" position={[xPos, initialY, 0]} />
-        <RigidBody position={[xPos + 0.2, initialY - seg, 0]} ref={j1} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
-        <RigidBody position={[xPos + 0.4, initialY - seg * 2, 0]} ref={j2} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
-        <RigidBody position={[xPos + 0.6, initialY - seg * 3, 0]} ref={j3} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
+      <group position={[xPos, initialY, zPos]}>
+        <RigidBody ref={fixed} {...segmentProps} type="kinematicPosition" position={[xPos, initialY, zPos]} />
+        <RigidBody position={[xPos + 0.2, initialY - seg, zPos]} ref={j1} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
+        <RigidBody position={[xPos + 0.4, initialY - seg * 2, zPos]} ref={j2} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
+        <RigidBody position={[xPos + 0.6, initialY - seg * 3, zPos]} ref={j3} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
 
         <RigidBody
-          position={[xPos, initialY - ropeLength - (isHorizontal ? 0.72 * scale : 1.45 * scale), 0]}
+          position={[xPos, initialY - ropeLength - (isHorizontal ? 0.72 * scale : 1.45 * scale), zPos]}
           ref={card}
           {...segmentProps}
           type={dragged ? 'kinematicPosition' : 'dynamic'}
@@ -364,7 +366,6 @@ function SinglePhysicsCard({
           transparent
           opacity={0.9}
           color="white"
-          depthTest={false}
           resolution={[width, height]}
           useMap
           map={bandTexture}
@@ -393,7 +394,7 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
   }, [photoTexture]);
 
   // Responsive Positioning & Scale Matrix
-  const mobileScale = 4.0;
+  const mobileScale = 3.2;
   const desktopCenterScale = 2.45;
   const desktopSideScale = 1.35;
   const desktopRope = 3;
@@ -409,9 +410,13 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
   const leftYAnchor = isMobile ? mobileAnchor : 3.4;
   const rightYAnchor = isMobile ? mobileAnchor : 3.4;
 
-  const centerRope = isMobile ? 3.0 : desktopRope;
-  const leftRope = isMobile ? 10.0 : desktopRope;
-  const rightRope = isMobile ? 16.5 : desktopRope;
+  const centerRope = isMobile ? 2.5 : desktopRope;
+  const leftRope = isMobile ? 9.5 : desktopRope;
+  const rightRope = isMobile ? 15.5 : desktopRope;
+
+  const centerZ = isMobile ? 0 : 0;
+  const leftZ = isMobile ? -1.0 : 0;
+  const rightZ = isMobile ? -2.0 : 0;
 
   return (
     <>
@@ -429,6 +434,7 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
           xPos={0}
           targetYAnchor={centerYAnchor}
           ropeLength={centerRope}
+          zPos={centerZ}
           dropDelay={0}
           texture={photoTexture}
           isMobile={isMobile}
@@ -441,6 +447,7 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
           xPos={xDistanceLeft}
           targetYAnchor={leftYAnchor}
           ropeLength={leftRope}
+          zPos={leftZ}
           dropDelay={750}
           texture={leftHorizontalTexture}
           isMobile={isMobile}
@@ -453,6 +460,7 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
           xPos={xDistanceRight}
           targetYAnchor={rightYAnchor}
           ropeLength={rightRope}
+          zPos={rightZ}
           dropDelay={1500}
           texture={rightHorizontalTexture}
           isMobile={isMobile}

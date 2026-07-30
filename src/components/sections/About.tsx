@@ -106,8 +106,8 @@ export default function About() {
               </span>
             </motion.div>
 
-            {/* Name */}
-            <motion.div variants={fadeUp}>
+            {/* Name & Mobile Photo */}
+            <motion.div variants={fadeUp} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
               <div
                 style={{
                   fontSize: isMobile ? 36 : "clamp(36px, 5.5vw, 52px)",
@@ -128,6 +128,47 @@ export default function About() {
                   Patel.
                 </div>
               </div>
+
+              {/* Mobile Profile Photo (Beside name) */}
+              {isMobile && (
+                <div
+                  style={{
+                    position: "relative",
+                    flexShrink: 0,
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: -3,
+                      borderRadius: "50%",
+                      background: "conic-gradient(from 0deg, #0ea5e9, #06b6d4, #38bdf8, #0369a1, #0ea5e9)",
+                      animation: "spin 6s linear infinite",
+                      opacity: 0.6,
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "relative",
+                      padding: 3,
+                      borderRadius: "50%",
+                      background: "var(--bg-primary)",
+                    }}
+                  >
+                    <img
+                      src="/assets/yug.png"
+                      alt="Yug Patel"
+                      style={{
+                        width: 95,
+                        height: 95,
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        display: "block",
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
             </motion.div>
 
             {/* Description */}
@@ -270,26 +311,26 @@ export default function About() {
             </motion.div>
           </motion.div>
 
-          {/* Right: Profile Photo */}
-          <motion.div
-            variants={slideLeft}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: false }}
-            style={{
-              width: isMobile ? "100%" : "40%",
-              display: "flex",
-              justifyContent: isMobile ? "center" : "flex-end",
-              flexShrink: 0,
-              marginTop: isMobile ? 48 : 0,
-            }}
-          >
-            <div
+          {/* Right: Profile Photo (Desktop only) */}
+          {!isMobile && (
+            <motion.div
+              variants={slideLeft}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: false }}
               style={{
-                position: "relative",
-                transform: isMobile ? "none" : "translateX(-40px)",
+                width: "40%",
+                display: "flex",
+                justifyContent: "flex-end",
+                flexShrink: 0,
               }}
             >
+              <div
+                style={{
+                  position: "relative",
+                  transform: "translateX(-40px)",
+                }}
+              >
                 {/* Glow ring */}
                 <div
                   style={{
@@ -324,6 +365,7 @@ export default function About() {
                 </div>
               </div>
             </motion.div>
+          )}
         </div>
 
         {/* Highlights Cards */}
