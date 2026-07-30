@@ -229,11 +229,17 @@ function SinglePhysicsCard({
   const [hovered, hover] = useState(false);
   const [isDropped, setIsDropped] = useState(dropDelay === 0);
 
-  const seg = ropeLength / 3;
+  const seg = isMobile ? ropeLength / 3 : 1;
+  const jointY = isMobile ? (isHorizontal ? 0.72 * scale : 1.45 * scale) : (isHorizontal ? 0.72 : 1.45);
+  const cardInitialY = isMobile ? initialY - ropeLength - jointY : initialY - 1.5;
+  const colliderArgs = isMobile
+    ? (isHorizontal ? [1.25 * scale, 0.72 * scale, 0.02 * scale] : [0.8 * scale, 1.125 * scale, 0.01 * scale])
+    : (isHorizontal ? [1.25, 0.72, 0.02] : [0.8, 1.125, 0.01]);
+
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], seg]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], seg]);
   useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], seg]);
-  useSphericalJoint(j3, card, [[0, 0, 0], [0, isHorizontal ? 0.72 * scale : 1.45 * scale, 0]]);
+  useSphericalJoint(j3, card, [[0, 0, 0], [0, jointY, 0]]);
 
   useEffect(() => {
     if (dropDelay > 0) {
@@ -305,12 +311,12 @@ function SinglePhysicsCard({
         <RigidBody position={[xPos + 0.6, initialY - seg * 3, zPos]} ref={j3} {...segmentProps}><BallCollider args={[0.1]} /></RigidBody>
 
         <RigidBody
-          position={[xPos, initialY - ropeLength - (isHorizontal ? 0.72 * scale : 1.45 * scale), zPos]}
+          position={[xPos, cardInitialY, zPos]}
           ref={card}
           {...segmentProps}
           type={dragged ? 'kinematicPosition' : 'dynamic'}
         >
-          <CuboidCollider args={isHorizontal ? [1.25 * scale, 0.72 * scale, 0.02 * scale] : [0.8 * scale, 1.125 * scale, 0.01 * scale]} />
+          <CuboidCollider args={colliderArgs as any} />
           <group
             scale={scale}
             position={[0, isHorizontal ? -0.7 : -1.2, -0.05]}
