@@ -259,7 +259,7 @@ function SinglePhysicsCard({
       fixed.current.setNextKinematicTranslation({ x: xPos, y: currentY, z: zPos });
     }
 
-    if (dragged && card.current && !isMobile) {
+    if (dragged && card.current) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
       dir.copy(vec).sub(state.camera.position).normalize();
       vec.add(dir.multiplyScalar(state.camera.position.length()));
@@ -317,12 +317,10 @@ function SinglePhysicsCard({
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
             onPointerUp={(e: any) => {
-              if (isMobile) return;
               e.target.releasePointerCapture(e.pointerId);
               drag(false);
             }}
             onPointerDown={(e: any) => {
-              if (isMobile) return;
               e.target.setPointerCapture(e.pointerId);
               drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())));
             }}
@@ -495,7 +493,8 @@ export function AnimatedIDCardPresentation() {
           background: 'transparent',
           width: '100%',
           height: '100%',
-          pointerEvents: isMobile ? 'none' : 'auto',
+          pointerEvents: 'auto',
+          touchAction: 'pan-y',
         }}
       >
         <PerspectiveCamera makeDefault position={[0, 0, isMobile ? 15 : 13]} fov={isMobile ? 32 : 25} />
