@@ -395,24 +395,24 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
 
   // Responsive Positioning & Scale Matrix
   const desktopRope = 3;
-  const centerScale = isMobile ? 1.9 : 2.45;
-  const sideHorizontalScale = isMobile ? 1.4 : 1.35;
+  const centerScale = isMobile ? 1.6 : 2.45;
+  const sideHorizontalScale = isMobile ? 1.25 : 1.35;
 
-  const xDistanceLeft = isMobile ? -1.65 : -3.45;
-  const xDistanceRight = isMobile ? 1.65 : 3.45;
+  const xDistanceLeft = isMobile ? -1.4 : -3.45;
+  const xDistanceRight = isMobile ? 1.4 : 3.45;
 
   const mobileAnchor = 10.0; 
   const centerYAnchor = isMobile ? mobileAnchor : 4.25;
   const leftYAnchor = isMobile ? mobileAnchor : 3.4;
   const rightYAnchor = isMobile ? mobileAnchor : 3.4;
 
-  const centerRope = isMobile ? 4.5 : desktopRope;
-  const leftRope = isMobile ? 6.8 : desktopRope;
-  const rightRope = isMobile ? 6.8 : desktopRope;
+  const centerRope = isMobile ? 5.88 : desktopRope;
+  const rightRope = isMobile ? 9.6 : desktopRope;
+  const leftRope = isMobile ? 11.7 : desktopRope;
 
   const centerZ = isMobile ? 0 : 0;
-  const leftZ = isMobile ? -0.5 : 0;
-  const rightZ = isMobile ? -0.5 : 0;
+  const leftZ = isMobile ? -0.2 : 0;
+  const rightZ = isMobile ? -0.2 : 0;
 
   return (
     <>
