@@ -260,7 +260,7 @@ export default function PortfolioShowcase() {
                 </motion.div>
               </div>
             )}
-
+          </motion.div>
         </AnimatePresence>
 
         {/* STANDALONE TECH STACK SECTION */}
