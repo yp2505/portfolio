@@ -17,13 +17,14 @@ export default function ContactSection() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         viewport={{ once: false, amount: 0.3 }}
-        className="text-center mb-12 sm:mb-14 lg:mb-16"
+        style={{ textAlign: 'center', marginBottom: 48 }}
       >
         <motion.h1
           animate={{ y: [0, -8, 0] }}
           transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4"
           style={{
+            textAlign: 'center',
             fontFamily: "'Inter', sans-serif",
             letterSpacing: '-0.03em',
             background: 'linear-gradient(135deg, #e8f4ff 0%, #38bdf8 50%, #0ea5e9 100%)',
@@ -37,8 +38,15 @@ export default function ContactSection() {
         <motion.p
           animate={{ y: [0, -4, 0] }}
           transition={{ duration: 4.4, repeat: Infinity, ease: 'easeInOut' }}
-          className="text-sm sm:text-base max-w-xl sm:max-w-2xl mx-auto leading-relaxed"
-          style={{ fontFamily: "'Inter', sans-serif", color: 'var(--text-secondary)' }}
+          className="text-sm sm:text-base px-4"
+          style={{
+            textAlign: 'center',
+            margin: '0 auto',
+            maxWidth: 600,
+            fontFamily: "'Inter', sans-serif",
+            color: 'var(--text-secondary)',
+            lineHeight: 1.6,
+          }}
         >
           Interested in ML collaborations, data projects, or just want to connect?
           Let&apos;s talk.
