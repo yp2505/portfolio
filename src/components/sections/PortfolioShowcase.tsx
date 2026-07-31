@@ -46,7 +46,7 @@ export default function PortfolioShowcase() {
           initial={{ opacity: 0, y: 45 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9 }}
-          className="text-center mb-10"
+          style={{ textAlign: 'center', marginBottom: 48 }}
         >
           <motion.span
             initial={{ opacity: 0, y: 20 }}
@@ -54,12 +54,12 @@ export default function PortfolioShowcase() {
             transition={{ duration: 0.7 }}
             style={{
               display: 'inline-block',
-              marginBottom: 14,
+              marginBottom: 16,
               fontSize: 11,
               color: '#38bdf8',
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
-              padding: '5px 14px',
+              padding: '6px 16px',
               borderRadius: 999,
               border: '1px solid rgba(14,165,233,0.3)',
               background: 'rgba(14,165,233,0.06)',
@@ -70,8 +70,9 @@ export default function PortfolioShowcase() {
           </motion.span>
 
           <h1
-            className="text-3xl md:text-5xl font-extrabold mb-3"
+            className="text-3xl md:text-5xl font-extrabold mb-4"
             style={{
+              textAlign: 'center',
               letterSpacing: '-0.03em',
               fontFamily: "'Inter', sans-serif",
               background: 'linear-gradient(135deg, #e8f4ff 0%, #38bdf8 50%, #0ea5e9 100%)',
@@ -83,22 +84,34 @@ export default function PortfolioShowcase() {
           </h1>
 
           <p
-            className="max-w-xl mx-auto text-sm md:text-base"
-            style={{ color: 'var(--text-secondary)', fontFamily: "'Inter', sans-serif" }}
+            className="text-sm md:text-base px-4"
+            style={{
+              textAlign: 'center',
+              margin: '0 auto',
+              maxWidth: 580,
+              color: 'var(--text-secondary)',
+              fontFamily: "'Inter', sans-serif",
+              lineHeight: 1.6,
+            }}
           >
             Explore my ML projects, technical stack, and upcoming certifications.
           </p>
         </motion.div>
 
         {/* Tabs */}
-        <div className="flex justify-center mb-10">
+        <div className="flex justify-center mb-12" style={{ display: 'flex', justifyContent: 'center' }}>
           <div
-            className="w-full max-w-3xl p-2 flex gap-2"
+            className="w-full max-w-md p-1.5 flex gap-2"
             style={{
+              display: 'flex',
+              width: '100%',
+              maxWidth: 420,
+              padding: 6,
               borderRadius: 999,
               border: '1px solid rgba(14,165,233,0.2)',
               background: 'rgba(14,165,233,0.03)',
               backdropFilter: 'blur(20px)',
+              margin: '0 auto',
             }}
           >
             {['projects', 'certificates'].map((tab) => (
@@ -264,16 +277,17 @@ export default function PortfolioShowcase() {
         </AnimatePresence>
 
         {/* STANDALONE TECH STACK SECTION */}
-        <div className="mt-32">
+        <div style={{ marginTop: 120 }}>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-center mb-12"
+            style={{ textAlign: 'center', marginBottom: 48 }}
           >
             <h2
               className="text-2xl md:text-4xl font-bold mb-4"
               style={{
+                textAlign: 'center',
                 fontFamily: "'Inter', sans-serif",
                 background: 'linear-gradient(135deg, #e8f4ff 0%, #38bdf8 50%, #0ea5e9 100%)',
                 WebkitBackgroundClip: 'text',
@@ -283,8 +297,15 @@ export default function PortfolioShowcase() {
               My Tech Stack
             </h2>
             <p
-              className="max-w-2xl mx-auto text-sm md:text-base"
-              style={{ color: 'var(--text-secondary)', fontFamily: "'Inter', sans-serif" }}
+              className="text-sm md:text-base px-4"
+              style={{
+                textAlign: 'center',
+                margin: '0 auto',
+                maxWidth: 620,
+                color: 'var(--text-secondary)',
+                fontFamily: "'Inter', sans-serif",
+                lineHeight: 1.6,
+              }}
             >
               The tools, languages, and frameworks I use to build scalable data pipelines and intelligent machine learning models.
             </p>
