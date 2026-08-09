@@ -205,7 +205,7 @@ export default function About() {
                 fontFamily: "'Inter', sans-serif",
               }}
             >
-              "Data is the new oil — I help refine it."
+              &quot;Data is the new oil — I help refine it.&quot;
             </motion.div>
 
             {/* Buttons */}
@@ -389,9 +389,12 @@ export default function About() {
               style={{
                 position: "relative",
                 padding: "20px 22px",
-                borderRadius: 18,
-                border: "1px solid rgba(14,165,233,0.18)",
-                background: "rgba(8,15,26,0.8)",
+                borderRadius: 16,
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                background: 'rgba(20, 20, 20, 0.4)',
+                backdropFilter: 'blur(40px)',
+                WebkitBackdropFilter: 'blur(40px)',
+                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
                 cursor: "default",
                 overflow: "hidden",
               }}

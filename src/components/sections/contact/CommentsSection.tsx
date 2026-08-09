@@ -67,10 +67,12 @@ export default function CommentsSection() {
       transition={{ duration: 0.8, ease: smoothEase }}
       viewport={{ once: false, amount: 0.2 }}
       style={{
-        borderRadius: 28,
-        border: '1px solid rgba(14,165,233,0.2)',
-        background: 'rgba(14,165,233,0.03)',
-        backdropFilter: 'blur(20px)',
+        borderRadius: 16,
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        background: 'rgba(20, 20, 20, 0.4)',
+        backdropFilter: 'blur(40px)',
+        WebkitBackdropFilter: 'blur(40px)',
+        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
         padding: '24px',
         height: '100%',
       }}

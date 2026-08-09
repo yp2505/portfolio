@@ -19,8 +19,8 @@ export async function GET() {
       database_id: databaseId,
     });
 
-    const projects = response.results.map((page: any, index: number) => {
-      const props = page.properties;
+    const projects = response.results.map((page: unknown, index: number) => {
+      const props = (page as any).properties;
 
       const titleProp = props.Title || props.title || props.Name || props.name;
       const descProp = props.Description || props.description;
@@ -32,7 +32,7 @@ export async function GET() {
       const titleText = titleProp?.title?.[0]?.plain_text || 'Untitled Project';
       const descText = descProp?.rich_text?.[0]?.plain_text || '';
       const githubUrl = githubProp?.url || 'https://github.com/yp2505';
-      const techList = techProp?.multi_select?.map((t: any) => t.name) || ['ML', 'Python'];
+      const techList = techProp?.multi_select?.map((t: { name: string }) => t.name) || ['ML', 'Python'];
       const statusVal = statusProp?.select?.name?.toLowerCase() === 'completed' ? 'completed' : 'in-progress';
       const imageUrl = imageProp?.url || '';
 

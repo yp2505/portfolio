@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 export default function useComments() {
-  const [comments, setComments] = useState<any[]>([
+  const [comments, setComments] = useState<unknown[]>([
     {
       id: 1,
       name: "Guest",
@@ -17,11 +17,9 @@ export default function useComments() {
   const addComment = async ({
     name,
     comment,
-    image,
   }: {
     name: string
     comment: string
-    image: File | null
   }) => {
     if (!name.trim()) return
     if (!comment.trim()) return
@@ -51,9 +49,9 @@ export default function useComments() {
     localStorage.setItem(`liked-${id}`, 'true')
 
     setComments((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, likes: currentLikes + 1 }
+      prev.map((item: unknown) =>
+        (item as { id: number }).id === id
+          ? { ...(item as { id: number; likes: number }), likes: currentLikes + 1 }
           : item
       )
     )

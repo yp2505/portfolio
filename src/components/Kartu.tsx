@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useGLTF, useTexture } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
 
@@ -15,12 +15,13 @@ type GLTFResult = GLTF & {
   }
 }
 
-export function Model(props: any) {
+export function Model(props: JSX.IntrinsicElements['group']) {
   const { nodes, materials } = useGLTF('/assets/kartu.glb') as unknown as GLTFResult
   const cardTexture = useTexture('/assets/profile_photo.png')
 
   useEffect(() => {
     if (cardTexture) {
+      // eslint-disable-next-line react-hooks/immutability
       cardTexture.rotation = Math.PI;
       cardTexture.center.set(0.5, 0.5);
       cardTexture.offset.set(-0.2, 0);

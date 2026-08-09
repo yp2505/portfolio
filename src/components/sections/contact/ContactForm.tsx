@@ -1,8 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Send, User, Mail, MessageSquare, ArrowUpRight } from 'lucide-react'
-import { FaLinkedinIn, FaInstagram, FaGithub, FaTwitter } from 'react-icons/fa'
+import { FaLinkedinIn, FaGithub, FaTwitter } from 'react-icons/fa'
 
 const smoothEase: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
@@ -25,6 +26,25 @@ const socialLinks = [
 ]
 
 export default function ContactForm() {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [message, setMessage] = useState('')
+
+  const handleSend = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!name || !email || !message) {
+      alert("Please fill in all fields.")
+      return
+    }
+    
+    // Note: Update 'yp2505@gmail.com' to your actual email address
+    const recipient = 'thehackhub07@gmail.com'
+    const subject = `Portfolio Contact from ${name}`
+    const body = `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
+    
+    window.location.href = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -40 }}
@@ -32,10 +52,12 @@ export default function ContactForm() {
       transition={{ duration: 0.8, ease: smoothEase }}
       viewport={{ once: false, amount: 0.2 }}
       style={{
-        borderRadius: 24,
-        border: '1px solid rgba(14,165,233,0.2)',
-        background: 'rgba(8,15,26,0.85)',
-        backdropFilter: 'blur(20px)',
+        borderRadius: 16,
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        background: 'rgba(20, 20, 20, 0.4)',
+        backdropFilter: 'blur(40px)',
+        WebkitBackdropFilter: 'blur(40px)',
+        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
         padding: '24px',
         display: 'flex',
         flexDirection: 'column',
@@ -58,11 +80,14 @@ export default function ContactForm() {
       </div>
 
       {/* Form fields */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+      <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
         <div style={{ position: 'relative' }}>
           <User size={14} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'rgba(56,189,248,0.45)' }} />
           <input
             placeholder="Your Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
             style={{ ...inputStyle, paddingLeft: 40 }}
             onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(14,165,233,0.55)')}
             onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(14,165,233,0.22)')}
@@ -73,6 +98,9 @@ export default function ContactForm() {
           <input
             placeholder="Your Email"
             type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
             style={{ ...inputStyle, paddingLeft: 40 }}
             onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(14,165,233,0.55)')}
             onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(14,165,233,0.22)')}
@@ -83,6 +111,9 @@ export default function ContactForm() {
           <textarea
             rows={5}
             placeholder="Your Message"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            required
             style={{ ...inputStyle, paddingLeft: 40, resize: 'none' }}
             onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(14,165,233,0.55)')}
             onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(14,165,233,0.22)')}
@@ -90,6 +121,7 @@ export default function ContactForm() {
         </div>
 
         <motion.button
+          type="submit"
           whileHover={{ scale: 1.03, y: -2 }}
           whileTap={{ scale: 0.97 }}
           style={{
@@ -113,7 +145,7 @@ export default function ContactForm() {
           <Send size={14} />
           Send Message
         </motion.button>
-      </div>
+      </form>
 
       {/* Social */}
       <div style={{ borderTop: '1px solid rgba(14,165,233,0.12)', paddingTop: 18, marginTop: 22 }}>

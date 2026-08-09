@@ -24,7 +24,7 @@ export default function Hero({ showApp }: HeroProps) {
 
   useEffect(() => {
     const heroPlayed = sessionStorage.getItem("heroPlayed");
-    if (heroPlayed === "true") { setStartAnim(true); return; }
+    if (heroPlayed === "true") { setTimeout(() => setStartAnim(true), 0); return; }
     const delay = 3600;
     const t1 = setTimeout(() => setStartAnim(true), delay);
     const t2 = setTimeout(() => sessionStorage.setItem("heroPlayed", "true"), delay + 1500);
@@ -39,7 +39,7 @@ export default function Hero({ showApp }: HeroProps) {
         display: "flex",
         alignItems: "center",
         justifyContent: isMobile ? "center" : "space-between",
-        flexDirection: "row",
+        flexDirection: isMobile ? "column" : "row",
         position: "relative",
         overflow: "hidden",
         padding: isMobile ? "80px 24px 40px" : "0 clamp(24px, 6vw, 120px)",

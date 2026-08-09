@@ -9,16 +9,18 @@ const inter = Inter({
 });
 
 const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-mono",
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Yug Patel — Frontend Developer",
-  description: "Portfolio of Yug Patel — Frontend Developer crafting clean, modern, and responsive digital experiences.",
-  keywords: ["Yug Patel", "Frontend Developer", "React", "Next.js", "Portfolio"],
+  title: "Yug Patel | AI Developer",
+  description: "Portfolio of Yug Patel, an AI & ML Developer",
 };
+
+import BackgroundWrapper from "@/components/BackgroundWrapper";
+import TopMenu from "@/components/ui/TopMenu";
 
 export default function RootLayout({
   children,
@@ -26,13 +28,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`dark ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
-      suppressHydrationWarning
-    >
-      <body className="min-h-full flex flex-col bg-[#050508] text-white" suppressHydrationWarning>
-        {children}
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-black text-white overflow-x-hidden`}
+      >
+        <BackgroundWrapper />
+        
+        <div className="relative z-10 w-full min-h-screen">
+          <TopMenu />
+          <main className="w-full min-h-screen pt-7">
+            {children}
+          </main>
+        </div>
       </body>
     </html>
   );

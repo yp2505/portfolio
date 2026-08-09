@@ -3,38 +3,20 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-import AnimatedBackground from '@/components/AnimatedBackground'
-import SnowParticles from '@/components/SnowParticles'
-import Navbar from '@/components/ui/Navbar'
-import About from '@/components/sections/About'
-import PortfolioShowcase from '@/components/sections/PortfolioShowcase'
-import ContactSection from '@/components/sections/contact/ContactSection'
 import WelcomeScreen from '@/components/WelcomeScreen'
-import dynamic from 'next/dynamic'
-
-const AnimatedIDCardPresentation = dynamic(
-  () => import('@/components/sections/AnimatedIDCardPresentation').then((mod) => mod.AnimatedIDCardPresentation),
-  {
-    ssr: false,
-    loading: () => <div id="home" className="w-full h-screen relative" />,
-  }
-)
-
-import WaveFooter from '@/components/WaveFooter'
-
+import MacDock from '@/components/ui/MacDock'
+import DesktopIcons from '@/components/ui/DesktopIcons'
 import { hasPlayedIntro, setIntroPlayed } from '@/lib/introState'
 
 export default function Home() {
-  const [showWelcome, setShowWelcome] = useState(false)
-  const [showApp, setShowApp] = useState(true)
+  const [showWelcome, setShowWelcome] = useState(true)
 
   useEffect(() => {
     const currentHash = window.location.hash
     const pathname = window.location.pathname
 
     if (currentHash === '#portfolio') {
-      setShowWelcome(false)
-      setShowApp(true)
+      setTimeout(() => setShowWelcome(false), 0)
       return
     }
 
@@ -59,35 +41,22 @@ export default function Home() {
 
     if (!hasPlayedIntro()) {
       setShowWelcome(true)
-      setShowApp(false)
-
-      const timer = setTimeout(() => {
-        setShowWelcome(false)
-        setShowApp(true)
-        setIntroPlayed()
-      }, 2800)
-
-      return () => clearTimeout(timer)
     } else {
       setShowWelcome(false)
-      setShowApp(true)
     }
   }, [])
 
-  return (
-    <main style={{ position: 'relative', overflow: 'hidden' }}>
-      {/* Background layers */}
-      <AnimatedBackground />
-      <SnowParticles />
+  const handleUnlock = () => {
+    setShowWelcome(false)
+    setIntroPlayed()
+  }
 
-      {/* Content */}
-      <div style={{ position: 'relative', zIndex: 2 }}>
-        <Navbar />
-        <AnimatedIDCardPresentation />
-        <About />
-        <PortfolioShowcase />
-        <ContactSection />
-        <WaveFooter />
+  return (
+    <>
+      {/* Content - Empty for home page as it just shows the wallpaper and desktop UI */}
+      <div style={{ position: 'fixed', inset: 0 }}>
+        <DesktopIcons />
+        <MacDock />
       </div>
 
       {/* Welcome screen */}
@@ -99,16 +68,16 @@ export default function Home() {
             exit={{ y: '-100%' }}
             onAnimationStart={(definition) => {
               if (definition === 'exit') {
-                setShowApp(true)
+                // handle exit if needed
               }
             }}
             transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
             style={{ position: 'fixed', inset: 0, zIndex: 9999 }}
           >
-            <WelcomeScreen />
+            <WelcomeScreen onUnlock={handleUnlock} />
           </motion.div>
         )}
       </AnimatePresence>
-    </main>
+    </>
   )
 }

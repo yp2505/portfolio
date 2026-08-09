@@ -1,0 +1,33 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <!-- Rounded white background with shadow -->
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+  <rect x="24" y="24" width="208" height="208" rx="52" fill="#ffffff" filter="url(#shadow)"/>
+  
+  <g transform="translate(128, 128)">
+    <g style="mix-blend-mode: multiply;">
+      <!-- 8 Petals representing Apple Photos -->
+      <!-- Top -->
+      <ellipse cx="0" cy="-48" rx="28" ry="46" fill="#F4B400" transform="rotate(0)" />
+      <!-- Top Right -->
+      <ellipse cx="0" cy="-48" rx="28" ry="46" fill="#0F9D58" transform="rotate(45)" />
+      <!-- Right -->
+      <ellipse cx="0" cy="-48" rx="28" ry="46" fill="#00A1F1" transform="rotate(90)" />
+      <!-- Bottom Right -->
+      <ellipse cx="0" cy="-48" rx="28" ry="46" fill="#3B5998" transform="rotate(135)" />
+      <!-- Bottom -->
+      <ellipse cx="0" cy="-48" rx="28" ry="46" fill="#8E44AD" transform="rotate(180)" />
+      <!-- Bottom Left -->
+      <ellipse cx="0" cy="-48" rx="28" ry="46" fill="#E91E63" transform="rotate(225)" />
+      <!-- Left -->
+      <ellipse cx="0" cy="-48" rx="28" ry="46" fill="#DB4437" transform="rotate(270)" />
+      <!-- Top Left -->
+      <ellipse cx="0" cy="-48" rx="28" ry="46" fill="#FF7043" transform="rotate(315)" />
+    </g>
+    <!-- Center white dot -->
+    <circle cx="0" cy="0" r="10" fill="#ffffff" />
+  </g>
+</svg>

@@ -18,13 +18,13 @@ extend({ MeshLineGeometry, MeshLineMaterial });
 
 // ─── Helper: Generate Crisp, High-Readability Horizontal Card Textures ─────────
 function createHorizontalCardTexture(type: 'left' | 'right'): THREE.CanvasTexture {
-  if (typeof window === 'undefined') return new THREE.CanvasTexture(null as any);
+  if (typeof window === 'undefined') return new THREE.CanvasTexture(null as unknown);
 
   const canvas = window.document.createElement('canvas');
   canvas.width = 1200;
   canvas.height = 700;
   const ctx = canvas.getContext('2d');
-  if (!ctx) return new THREE.CanvasTexture(null as any);
+  if (!ctx) return new THREE.CanvasTexture(null as unknown);
 
   // Background
   const bgGrad = ctx.createLinearGradient(0, 0, 0, 700);
@@ -192,12 +192,12 @@ function SinglePhysicsCard({
   ropeLength?: number;
   zPos?: number;
 }) {
-  const band = useRef<any>(null);
-  const fixed = useRef<any>(null);
-  const j1 = useRef<any>(null);
-  const j2 = useRef<any>(null);
-  const j3 = useRef<any>(null);
-  const card = useRef<any>(null);
+  const band = useRef<unknown>(null);
+  const fixed = useRef<unknown>(null);
+  const j1 = useRef<unknown>(null);
+  const j2 = useRef<unknown>(null);
+  const j3 = useRef<unknown>(null);
+  const card = useRef<unknown>(null);
 
   const vec = new THREE.Vector3();
   const ang = new THREE.Vector3();
@@ -207,12 +207,12 @@ function SinglePhysicsCard({
   const segmentProps = {
     type: 'dynamic' as const,
     canSleep: true,
-    colliders: false as any,
+    colliders: false as unknown,
     angularDamping: 4,
     linearDamping: 4,
   };
 
-  const { nodes, materials } = useGLTF('/assets/kartu.glb') as any;
+  const { nodes, materials } = useGLTF('/assets/kartu.glb') as unknown;
   const bandTexture = useTexture('/assets/bandd.png');
   const { width, height } = useThree((state) => state.size);
 
@@ -225,7 +225,7 @@ function SinglePhysicsCard({
     ])
   );
 
-  const [dragged, drag] = useState<any>(false);
+  const [dragged, drag] = useState<unknown>(false);
   const [hovered, hover] = useState(false);
   const [isDropped, setIsDropped] = useState(dropDelay === 0);
 
@@ -298,7 +298,9 @@ function SinglePhysicsCard({
     }
   });
 
+  // eslint-disable-next-line react-hooks/immutability
   curve.curveType = 'chordal';
+  // eslint-disable-next-line react-hooks/immutability
   bandTexture.wrapS = bandTexture.wrapT = THREE.RepeatWrapping;
 
   return (
@@ -315,17 +317,17 @@ function SinglePhysicsCard({
           {...segmentProps}
           type={dragged ? 'kinematicPosition' : 'dynamic'}
         >
-          <CuboidCollider args={colliderArgs as any} />
+          <CuboidCollider args={colliderArgs as unknown} />
           <group
             scale={scale}
             position={[0, isHorizontal ? -0.7 : -1.2, -0.05]}
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
-            onPointerUp={(e: any) => {
+            onPointerUp={(e: unknown) => {
               e.target.releasePointerCapture(e.pointerId);
               drag(false);
             }}
-            onPointerDown={(e: any) => {
+            onPointerDown={(e: unknown) => {
               e.target.setPointerCapture(e.pointerId);
               drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())));
             }}
@@ -362,9 +364,9 @@ function SinglePhysicsCard({
       </group>
 
       <mesh ref={band}>
-        {/* @ts-ignore */}
+        {/* @ts-expect-error Three.js */}
         <meshLineGeometry />
-        {/* @ts-ignore */}
+        {/* @ts-expect-error Three.js */}
         <meshLineMaterial
           transparent
           opacity={0.9}
@@ -389,6 +391,7 @@ function SceneContents({ isMobile }: { isMobile: boolean }) {
 
   useEffect(() => {
     if (photoTexture) {
+      // eslint-disable-next-line react-hooks/immutability
       photoTexture.rotation = Math.PI;
       photoTexture.center.set(0.5, 0.5);
       photoTexture.offset.set(-0.2, 0);

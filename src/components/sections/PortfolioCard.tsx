@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowUpRight, Clock, GitBranch } from 'lucide-react'
+import { ArrowUpRight, Clock } from 'lucide-react'
 import { FaGithub } from 'react-icons/fa'
 
 type Props = {
@@ -37,10 +37,12 @@ export default function PortfolioCard({
       whileHover={{ y: -6 }}
       style={{
         position: 'relative',
-        borderRadius: 22,
-        border: '1px solid rgba(14,165,233,0.18)',
-        background: 'rgba(8,15,26,0.85)',
-        backdropFilter: 'blur(12px)',
+        borderRadius: 16,
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        background: 'rgba(20, 20, 20, 0.4)',
+        backdropFilter: 'blur(40px)',
+        WebkitBackdropFilter: 'blur(40px)',
+        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
         padding: '20px',
         display: 'flex',
         flexDirection: 'column',

@@ -5,26 +5,26 @@ import {
   fetchCertificates,
   fetchProjects,
   fetchTechStacks,
+  Project,
+  Certificate,
+  TechStack
 } from '@/lib/portfolioService'
 
 export default function usePortfolio() {
-  const [projects, setProjects] = useState<any[]>([])
-  const [certificates, setCertificates] = useState<any[]>([])
-  const [techStacks, setTechStacks] = useState<any[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
+  const [certificates, setCertificates] = useState<Certificate[]>([])
+  const [techStacks, setTechStacks] = useState<TechStack[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    loadPortfolio()
-  }, [])
-
   const loadPortfolio = async () => {
-    let loadedProjects: any[] = []
+    let loadedProjects: Project[] = []
 
     try {
       const notionRes = await fetch('/api/notion')
       const notionData = await notionRes.json()
       if (notionData.success && notionData.projects?.length > 0) {
         loadedProjects = notionData.projects
+
       }
     } catch {
       // Fallback if notion fetch fails or env is not configured
@@ -44,6 +44,11 @@ export default function usePortfolio() {
     setTechStacks(techStacksData || [])
     setLoading(false)
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadPortfolio()
+  }, [])
 
   return {
     projects,

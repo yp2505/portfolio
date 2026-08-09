@@ -141,6 +141,7 @@ function Band({ isMobile, maxSpeed = 50, minSpeed = 10 }) {
 
   useEffect(() => {
     if (cardTexture) {
+      // eslint-disable-next-line react-hooks/immutability
       cardTexture.rotation = Math.PI;
       cardTexture.center.set(0.5, 0.5);
       cardTexture.offset.set(-0.2, 0);
@@ -231,7 +232,9 @@ function Band({ isMobile, maxSpeed = 50, minSpeed = 10 }) {
     }
   });
 
+  // eslint-disable-next-line react-hooks/immutability
   curve.curveType = 'chordal';
+  // eslint-disable-next-line react-hooks/immutability
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
   return (

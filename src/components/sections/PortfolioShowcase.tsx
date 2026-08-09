@@ -2,14 +2,14 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, ChevronUp, Award, Lock, Sparkles, FolderGit2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, Award, Lock } from 'lucide-react'
 import usePortfolio from '@/hooks/usePortfolio'
 import PortfolioCard from './PortfolioCard'
 
 const smoothEase: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
 export default function PortfolioShowcase() {
-  const { projects, certificates, techStacks, loading } = usePortfolio()
+  const { projects, techStacks, loading } = usePortfolio()
   const [activeTab, setActiveTab] = useState('projects')
   const [showAllProjects, setShowAllProjects] = useState(false)
 
@@ -38,8 +38,8 @@ export default function PortfolioShowcase() {
     <>
       <section
         id="portfolio"
-        style={{ marginBottom: 140, paddingBottom: 80 }}
-        className="w-full max-w-[1450px] mx-auto px-6 md:px-12 lg:px-20 pt-28 text-white"
+        style={{ marginBottom: 140, paddingBottom: 80, paddingTop: 120 }}
+        className="w-full max-w-[1450px] mx-auto px-6 md:px-12 lg:px-20 text-white"
       >
         {/* Header */}
         <motion.div
@@ -208,10 +208,12 @@ export default function PortfolioShowcase() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ duration: 0.5 }}
                   style={{
-                    borderRadius: 24,
-                    border: '1px solid rgba(14,165,233,0.2)',
-                    background: 'rgba(8,15,26,0.85)',
-                    backdropFilter: 'blur(16px)',
+                    borderRadius: 16,
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: 'rgba(20, 20, 20, 0.4)',
+                    backdropFilter: 'blur(40px)',
+                    WebkitBackdropFilter: 'blur(40px)',
+                    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
                     padding: '48px 32px',
                     maxWidth: 600,
                     width: '100%',
@@ -321,10 +323,11 @@ export default function PortfolioShowcase() {
                   transition={{ duration: 0.4, delay: index * 0.03 }}
                   whileHover={{ y: -6, scale: 1.05 }}
                   style={{
-                    borderRadius: 20,
-                    border: '1px solid rgba(14,165,233,0.15)',
-                    background: 'rgba(8,15,26,0.8)',
-                    backdropFilter: 'blur(10px)',
+                    borderRadius: 16,
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: 'rgba(20, 20, 20, 0.4)',
+                    backdropFilter: 'blur(40px)',
+                    WebkitBackdropFilter: 'blur(40px)',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
