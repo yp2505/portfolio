@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { useEffect } from 'react'
+import { useEffect, ComponentProps } from 'react'
 import { useGLTF, useTexture } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
 
@@ -15,7 +15,8 @@ type GLTFResult = GLTF & {
   }
 }
 
-export function Model(props: JSX.IntrinsicElements['group']) {
+// FIX: Changed JSX.IntrinsicElements['group'] to ComponentProps<'group'>
+export function Model(props: ComponentProps<'group'>) {
   const { nodes, materials } = useGLTF('/assets/kartu.glb') as unknown as GLTFResult
   const cardTexture = useTexture('/assets/profile_photo.png')
 
