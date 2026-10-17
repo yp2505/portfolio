@@ -3,11 +3,13 @@
 import { useIsDevice } from '@/lib/useIsDevice'
 import MobilePillNav from './MobilePillNav'
 import MobileBackButton from './MobileBackButton'
+import MobileStatusBar from './MobileStatusBar'
 
 /**
- * Renders MobilePillNav + MobileBackButton only on real mobile devices.
- * This component lives in the root layout so the pill nav and back button
- * persist across ALL pages (About, Projects, Contact, etc.).
+ * Renders all mobile-only chrome on every page:
+ *  - MobileStatusBar  — yug.dev (left) + live clock (right), like iOS status bar
+ *  - MobilePillNav    — centered pill with current page name
+ *  - MobileBackButton — ← Home pill on sub-pages
  */
 export default function MobilePillNavWrapper() {
   const { isMobile, isReady } = useIsDevice()
@@ -16,6 +18,7 @@ export default function MobilePillNavWrapper() {
 
   return (
     <>
+      <MobileStatusBar />
       <MobilePillNav />
       <MobileBackButton />
     </>

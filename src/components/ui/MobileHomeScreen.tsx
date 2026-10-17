@@ -29,9 +29,9 @@ export default function MobileHomeScreen() {
         zIndex: 10,
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        // padding accounts for pill nav at top + dock at bottom
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+        // below iOS status bar + pill nav
         paddingTop: 'calc(env(safe-area-inset-top, 0px) + 80px)',
         paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 110px)',
         paddingLeft: 20,
@@ -43,7 +43,7 @@ export default function MobileHomeScreen() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.65, ease: EASE_OUT, delay: 0.1 }}
-        style={{ textAlign: 'center', marginBottom: 40 }}
+        style={{ marginBottom: 24, paddingLeft: 4 }}
       >
         <p style={{
           fontSize: '0.72rem',
@@ -76,7 +76,6 @@ export default function MobileHomeScreen() {
           gridTemplateColumns: 'repeat(4, 1fr)',
           gap: '24px 12px',
           width: '100%',
-          maxWidth: 360,
         }}
       >
         {mobileIcons.map((item, i) => (
