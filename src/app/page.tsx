@@ -38,12 +38,13 @@ function DesktopWelcomeHero() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.35 }}
         style={{
-          fontSize: '0.85rem',
-          fontWeight: 500,
+          fontSize: '0.95rem',
+          fontWeight: 600,
           letterSpacing: '0.18em',
           textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.45)',
+          color: 'rgba(15, 23, 42, 0.88)',
           marginBottom: 14,
+          textShadow: '0 1px 2px rgba(255, 255, 255, 0.4)',
         }}
       >
         Welcome to my portfolio

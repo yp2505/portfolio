@@ -13,7 +13,7 @@ export default function PortfolioShowcase() {
   const [activeTab, setActiveTab] = useState('projects')
   const [showAllProjects, setShowAllProjects] = useState(false)
 
-  const displayedProjects = showAllProjects ? projects : projects.slice(0, 3)
+  const displayedProjects = showAllProjects ? projects : projects.slice(0, 6)
 
   const tabStyle = (tab: string): React.CSSProperties => ({
     flex: 1,
@@ -170,7 +170,7 @@ export default function PortfolioShowcase() {
                   </AnimatePresence>
                 </motion.div>
 
-                {!loading && projects.length > 3 && (
+                {!loading && projects.length > 6 && (
                   <div className="flex justify-center">
                     <motion.button
                       whileHover={{ scale: 1.04 }}

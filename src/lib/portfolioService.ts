@@ -28,21 +28,39 @@ export const fetchProjects = async (): Promise<Project[]> => {
   return [
     {
       id: 1,
+      title: "SpaceTech: Satellite Swarm Intelligence",
+      description: "Autonomous satellite swarm management platform and real-time flight software (ARTEMIS) combining orbital mechanics and multi-agent reinforcement learning (MAPPO/PPO).",
+      image_url: "",
+      github_url: "https://github.com/yp2505/spacetech",
+      tech: ["Python", "PyTorch", "Multi-Agent RL", "Orbital Mechanics", "Flight Software"],
+      status: "completed",
+    },
+    {
+      id: 2,
+      title: "Chorus: Video Intelligence Platform",
+      description: "Universal multimodal video intelligence platform with a 17-step pipeline for ingestion (YouTube, RTSP, local), perceptual hash deduplication, and quality gate verification.",
+      image_url: "",
+      github_url: "https://github.com/d-khush06/Chorus",
+      tech: ["Python", "PyTorch", "Video Intelligence", "yt-dlp", "RTSP Streams"],
+      status: "completed",
+    },
+    {
+      id: 3,
+      title: "Hey Vaani: Edge AI Keyword Spotting",
+      description: "On-device wake-word detection running TFLite Micro on ESP32 microcontroller with live streaming Automatic Speech Recognition (Faster-Whisper) and Next.js web dashboard.",
+      image_url: "",
+      github_url: "https://github.com/yp2505/Edge-Ai-Sih2026",
+      tech: ["Edge AI", "ESP32", "TFLite Micro", "Faster-Whisper", "Python", "Next.js"],
+      status: "completed",
+    },
+    {
+      id: 4,
       title: "Griot AI Platform",
       description: "Agentic AI orchestration platform for executing automated workflows, tools, and intelligent multi-agent tasks.",
       image_url: "",
       github_url: "https://github.com/yp2505/Groit-AI",
       tech: ["Python", "FastAPI", "React", "AI Agents", "TypeScript"],
       status: "completed",
-    },
-    {
-      id: 2,
-      title: "Working on new ML & Data Projects...",
-      description: "Currently building intelligent machine learning systems and scalable data engineering pipelines. New projects arriving soon.",
-      image_url: "",
-      github_url: "https://github.com/yp2505",
-      tech: ["Machine Learning", "Data Engineering", "Python"],
-      status: "in-progress",
     },
   ];
 };
