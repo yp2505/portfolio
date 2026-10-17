@@ -38,38 +38,7 @@ export default function MobileHomeScreen() {
         paddingRight: 20,
       }}
     >
-      {/* Welcome greeting — centered */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.65, ease: EASE_OUT, delay: 0.1 }}
-        style={{ marginBottom: 24, paddingLeft: 4 }}
-      >
-        <p style={{
-          fontSize: '0.72rem',
-          fontWeight: 500,
-          letterSpacing: '0.18em',
-          textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.4)',
-          marginBottom: 10,
-          fontFamily: "'Inter', system-ui, sans-serif",
-        }}>
-          Welcome to my portfolio
-        </p>
-        <h1 style={{
-          fontSize: 'clamp(2rem, 8vw, 2.8rem)',
-          fontWeight: 700,
-          letterSpacing: '-0.035em',
-          lineHeight: 1.05,
-          color: 'white',
-          fontFamily: "'Inter', system-ui, sans-serif",
-          textShadow: '0 2px 20px rgba(0,0,0,0.5)',
-        }}>
-          Yug Patel
-        </h1>
-      </motion.div>
-
-      {/* Icon grid — 4 columns, bigger icons */}
+      {/* Top: Folder icons starting from top-left */}
       <div
         style={{
           display: 'grid',
@@ -87,7 +56,7 @@ export default function MobileHomeScreen() {
             <motion.div
               initial={{ opacity: 0, scale: 0.8, y: 16 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.42, ease: EASE_OUT, delay: 0.2 + i * 0.07 }}
+              transition={{ duration: 0.42, ease: EASE_OUT, delay: 0.15 + i * 0.06 }}
               whileTap={{ scale: 0.86, transition: { type: 'spring', bounce: 0, duration: 0.22 } }}
               style={{
                 display: 'flex',
@@ -147,6 +116,57 @@ export default function MobileHomeScreen() {
             </motion.div>
           </Link>
         ))}
+      </div>
+
+      {/* Center: Welcome greeting centered in the screen */}
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          width: '100%',
+          pointerEvents: 'none',
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.65, ease: EASE_OUT, delay: 0.1 }}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+          }}
+        >
+          <p style={{
+            fontSize: '0.75rem',
+            fontWeight: 500,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            color: 'rgba(255,255,255,0.45)',
+            marginBottom: 10,
+            fontFamily: "'Inter', system-ui, sans-serif",
+            textAlign: 'center',
+          }}>
+            Welcome to my portfolio
+          </p>
+          <h1 style={{
+            fontSize: 'clamp(2.2rem, 9vw, 3rem)',
+            fontWeight: 700,
+            letterSpacing: '-0.035em',
+            lineHeight: 1.05,
+            color: 'white',
+            fontFamily: "'Inter', system-ui, sans-serif",
+            textShadow: '0 2px 20px rgba(0,0,0,0.5)',
+            textAlign: 'center',
+          }}>
+            Yug Patel
+          </h1>
+        </motion.div>
       </div>
 
       {/* MacDock at the bottom — same as desktop */}

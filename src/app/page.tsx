@@ -6,9 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import WelcomeScreen from '@/components/WelcomeScreen'
 import MacDock from '@/components/ui/MacDock'
 import DesktopIcons from '@/components/ui/DesktopIcons'
-import MobilePillNav from '@/components/ui/MobilePillNav'
 import MobileHomeScreen from '@/components/ui/MobileHomeScreen'
-import MobileBackButton from '@/components/ui/MobileBackButton'
 import { hasPlayedIntro, setIntroPlayed } from '@/lib/introState'
 import { useIsDevice } from '@/lib/useIsDevice'
 
@@ -136,16 +134,9 @@ export default function Home() {
     <>
       {isMobile ? (
         /* ─── iOS Mobile UI ─── */
-        <>
-          {/* Pill nav — top center, always visible on mobile */}
-          <MobilePillNav />
-          {/* Back button — appears on sub-pages, below pill */}
-          <MobileBackButton />
-          {/* iOS home screen content (shown after unlock) */}
-          <AnimatePresence>
-            {!showWelcome && <MobileHomeScreen />}
-          </AnimatePresence>
-        </>
+        <AnimatePresence>
+          {!showWelcome && <MobileHomeScreen />}
+        </AnimatePresence>
       ) : (
         /* ─── macOS Desktop UI ─── */
         <div style={{ position: 'fixed', inset: 0 }}>
