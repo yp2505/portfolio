@@ -143,15 +143,15 @@ export default function MobileHomeScreen() {
           }}
         >
           <p style={{
-            fontSize: '0.92rem',
-            fontWeight: 600,
-            letterSpacing: '0.16em',
-            textTransform: 'uppercase',
-            color: '#0f172a',
-            marginBottom: 10,
-            fontFamily: "'Inter', system-ui, sans-serif",
+            fontSize: 'clamp(1.8rem, 7.5vw, 2.8rem)',
+            fontWeight: 700,
+            color: 'white',
+            fontFamily: "var(--font-dancing), 'Dancing Script', cursive",
             textAlign: 'center',
-            textShadow: '0 1px 2px rgba(255, 255, 255, 0.4)',
+            marginBottom: 8,
+            textShadow: '0 2px 16px rgba(0,0,0,0.45), 0 0 40px rgba(0,0,0,0.2)',
+            lineHeight: 1.15,
+            letterSpacing: '0.01em',
           }}>
             Welcome to my portfolio
           </p>

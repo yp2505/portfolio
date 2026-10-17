@@ -38,13 +38,14 @@ function DesktopWelcomeHero() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.35 }}
         style={{
-          fontSize: '0.95rem',
-          fontWeight: 600,
-          letterSpacing: '0.18em',
-          textTransform: 'uppercase',
-          color: 'rgba(15, 23, 42, 0.88)',
+          fontSize: 'clamp(1.6rem, 3vw, 2.5rem)',
+          fontWeight: 700,
+          color: 'white',
+          fontFamily: "var(--font-dancing), 'Dancing Script', cursive",
           marginBottom: 14,
-          textShadow: '0 1px 2px rgba(255, 255, 255, 0.4)',
+          letterSpacing: '0.01em',
+          lineHeight: 1.2,
+          textShadow: '0 2px 20px rgba(0,0,0,0.35)',
         }}
       >
         Welcome to my portfolio

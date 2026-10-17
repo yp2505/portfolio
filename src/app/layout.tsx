@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Dancing_Script } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/lib/themeContext";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -11,6 +12,13 @@ const inter = Inter({
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const dancingScript = Dancing_Script({
+  variable: "--font-dancing",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -45,8 +53,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-black text-white overflow-x-hidden`}
+        className={`${inter.variable} ${jetbrainsMono.variable} ${dancingScript.variable} antialiased bg-black text-white overflow-x-hidden`}
       >
+        <ThemeProvider>
         <BackgroundWrapper />
 
         <div className="relative z-10 w-full min-h-screen">
@@ -60,6 +69,7 @@ export default function RootLayout({
             {children}
           </main>
         </div>
+        </ThemeProvider>
       </body>
     </html>
   );
