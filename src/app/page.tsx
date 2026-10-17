@@ -6,11 +6,14 @@ import { motion, AnimatePresence } from 'framer-motion'
 import WelcomeScreen from '@/components/WelcomeScreen'
 import MacDock from '@/components/ui/MacDock'
 import DesktopIcons from '@/components/ui/DesktopIcons'
+import MobilePillNav from '@/components/ui/MobilePillNav'
+import MobileHomeScreen from '@/components/ui/MobileHomeScreen'
 import { hasPlayedIntro, setIntroPlayed } from '@/lib/introState'
+import { useIsDevice } from '@/lib/useIsDevice'
 
 const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1]
 
-function WelcomeHero() {
+function DesktopWelcomeHero() {
   return (
     <motion.div
       key="hero"
@@ -83,14 +86,7 @@ function WelcomeHero() {
 
 export default function Home() {
   const [showWelcome, setShowWelcome] = useState(true)
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768)
-    check()
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
-  }, [])
+  const { isMobile, isReady } = useIsDevice()
 
   useEffect(() => {
     const currentHash = window.location.hash
@@ -132,18 +128,34 @@ export default function Home() {
     setIntroPlayed()
   }
 
+  // Don't flash wrong UI before device detection finishes
+  if (!isReady) return null
+
   return (
     <>
-      {/* Desktop icons + dock — shown on ALL screen sizes */}
-      <div style={{ position: 'fixed', inset: 0 }}>
-        <DesktopIcons />
-        <MacDock />
-        <AnimatePresence>
-          {!showWelcome && <WelcomeHero />}
-        </AnimatePresence>
-      </div>
+      {isMobile ? (
+        /* ─── iOS Mobile UI ─── */
+        <>
+          {/* Pill nav — top center, always visible on mobile */}
+          <MobilePillNav />
 
-      {/* Welcome / lock screen */}
+          {/* iOS home screen content (shown after unlock) */}
+          <AnimatePresence>
+            {!showWelcome && <MobileHomeScreen />}
+          </AnimatePresence>
+        </>
+      ) : (
+        /* ─── macOS Desktop UI ─── */
+        <div style={{ position: 'fixed', inset: 0 }}>
+          <DesktopIcons />
+          <MacDock />
+          <AnimatePresence>
+            {!showWelcome && <DesktopWelcomeHero />}
+          </AnimatePresence>
+        </div>
+      )}
+
+      {/* Lock screen — shown on BOTH, adapts to device */}
       <AnimatePresence>
         {showWelcome && (
           <motion.div
