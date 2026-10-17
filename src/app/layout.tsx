@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -19,8 +19,23 @@ export const metadata: Metadata = {
   description: "Portfolio of Yug Patel, an AI & ML Developer",
 };
 
+// mobile-native skill: theme-color per color scheme
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // viewport-fit=cover: paint edge-to-edge under notch/Dynamic Island
+  viewportFit: "cover",
+  // interactive-widget: keyboard shrinks layout on Android Chrome
+  interactiveWidget: "resizes-content",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#020408" },
+    { media: "(prefers-color-scheme: dark)", color: "#020408" },
+  ],
+};
+
 import BackgroundWrapper from "@/components/BackgroundWrapper";
 import TopMenu from "@/components/ui/TopMenu";
+import MobilePillNav from "@/components/ui/MobilePillNav";
 
 export default function RootLayout({
   children,
@@ -33,9 +48,14 @@ export default function RootLayout({
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-black text-white overflow-x-hidden`}
       >
         <BackgroundWrapper />
-        
+
         <div className="relative z-10 w-full min-h-screen">
+          {/* TopMenu — desktop only (hidden on mobile via CSS) */}
           <TopMenu />
+
+          {/* Mobile pill nav — mobile only (hidden on desktop via CSS) */}
+          <MobilePillNav />
+
           <main className="w-full min-h-screen pt-7">
             {children}
           </main>

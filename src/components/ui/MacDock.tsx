@@ -50,9 +50,10 @@ export default function MacDock() {
 
   return (
     <div
+      data-mac-dock="true"
       style={{
         position: 'fixed',
-        bottom: isMobile ? 16 : 24,
+        bottom: 24,
         left: '50%',
         transform: 'translateX(-50%)',
         zIndex: 100,
@@ -62,10 +63,12 @@ export default function MacDock() {
         padding: dockPadding,
         borderRadius: baseRadius,
         backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
+        backdropFilter: 'blur(24px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(24px) saturate(180%)',
         border: '1px solid rgba(255, 255, 255, 0.15)',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
+        // Safe area on desktop — bottom padding
+        paddingBottom: `calc(${dockPadding.split(' ')[0]} + env(safe-area-inset-bottom, 0px))`,
       }}
     >
       {navItems.map((item, index) => {
@@ -92,7 +95,7 @@ export default function MacDock() {
                   onHoverEnd={() => setHoveredIndex(null)}
                   whileTap={{ scale: 0.9 }}
                   animate={{ scale, y }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
                   style={{
                     position: 'relative',
                     display: 'flex',
@@ -170,7 +173,7 @@ export default function MacDock() {
                   onHoverEnd={() => setHoveredIndex(null)}
                   whileTap={{ scale: 0.9 }}
                   animate={{ scale, y }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
                   style={{
                     position: 'relative',
                     display: 'flex',

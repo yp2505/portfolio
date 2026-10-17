@@ -3,7 +3,7 @@
 @import "tailwindcss";
 
 :root {
-  /* Core palette - Black + Blue */
+  /* Core palette */
   --bg-primary: #020408;
   --bg-secondary: #050c14;
   --bg-card: #080f1a;
@@ -23,6 +23,11 @@
   --accent-cyan: #06b6d4;
   --accent-glow: rgba(14, 165, 233, 0.25);
   --accent-subtle: rgba(14, 165, 233, 0.08);
+
+  /* Animation curves — animate skill tokens */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 * {
@@ -31,39 +36,70 @@
   box-sizing: border-box;
 }
 
+/* ── mobile-native skill: baseline ─────────────────────────── */
 html {
   scroll-behavior: smooth;
   scrollbar-width: none;
+
+  /* Kill tap highlight flash (mobile-native §2) */
+  -webkit-tap-highlight-color: transparent;
+
+  /* No font inflation in landscape */
+  -webkit-text-size-adjust: 100%;
+
+  /* Prevent pull-to-refresh hijacking scroll (mobile-native §6) */
+  overscroll-behavior: none;
 }
 
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   -ms-overflow-style: none;
 }
 
+/* Inputs: prevent iOS zoom (mobile-native §4) */
+input, textarea, select {
+  font-size: 16px; /* minimum to prevent iOS auto-zoom */
+  caret-color: var(--accent-light);
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Controls: tap feeling native (mobile-native §5, §8) */
+button, a, [role="button"], .tappable {
+  touch-action: manipulation;  /* remove 300ms delay */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
 * {
   caret-color: transparent;
   user-select: none;
+  -webkit-user-select: none;
 }
 
-/* Hide scrollbar */
-::-webkit-scrollbar {
-  width: 0px;
-  height: 0px;
-}
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: transparent; }
-
-/* Allow text input caret */
+/* Allow text selection in inputs */
 input, textarea {
   caret-color: var(--accent-light);
   user-select: text;
+  -webkit-user-select: text;
 }
+
+/* ── Hover — only on devices that support it (mobile-native §1) */
+@media (hover: hover) and (pointer: fine) {
+  /* All :hover rules should live inside here. */
+}
+
+/* ── Scrollbar hide ──────────────────────────────────────────── */
+::-webkit-scrollbar { width: 0px; height: 0px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: transparent; }
 
 /* Custom scroll for comment area */
 .custom-scroll {
@@ -76,11 +112,13 @@ input, textarea {
   background: rgba(14, 165, 233, 0.3);
   border-radius: 999px;
 }
-.custom-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(14, 165, 233, 0.5);
+@media (hover: hover) and (pointer: fine) {
+  .custom-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(14, 165, 233, 0.5);
+  }
 }
 
-/* Gradient text utility */
+/* ── Gradient text ──────────────────────────────────────────── */
 .gradient-text {
   background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 50%, #06b6d4 100%);
   -webkit-background-clip: text;
@@ -88,7 +126,7 @@ input, textarea {
   background-clip: text;
 }
 
-/* Snow canvas - always behind */
+/* ── Snow canvas ────────────────────────────────────────────── */
 #snow-canvas {
   position: fixed;
   top: 0;
@@ -97,4 +135,60 @@ input, textarea {
   height: 100%;
   pointer-events: none;
   z-index: 0;
+}
+
+/* ── Mobile pill nav: only visible on mobile ──────────────────
+   Desktop dock and top menu stay; pill replaces them on mobile  */
+.mobile-only { display: none; }
+.desktop-only { display: flex; }
+
+@media (max-width: 767px) {
+  .mobile-only  { display: flex; }
+  .desktop-only { display: none !important; }
+}
+
+/* ── Mac dock: hide on mobile (replaced by pill nav) ────────── */
+@media (max-width: 767px) {
+  [data-mac-dock="true"]    { display: none !important; }
+  [data-desktop-icons="true"] { display: none !important; }
+  [data-top-menu="true"]    { display: none !important; }
+}
+
+/* ── Apple-level active press (animate skill: button recipe) ── */
+button:active,
+a:active,
+[role="button"]:active {
+  transform: scale(0.97);
+  transition: transform 100ms var(--ease-out);
+}
+
+/* ── Reduced motion fallback (animate skill §7) ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Apple display type scale (apple-design §15) ────────────── */
+.display-xl {
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  font-optical-sizing: auto;
+}
+
+.display-lg {
+  font-size: clamp(1.8rem, 5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.07;
+  letter-spacing: -0.025em;
+}
+
+.body-text {
+  font-size: 1rem;
+  line-height: 1.6;
+  letter-spacing: 0em;
 }

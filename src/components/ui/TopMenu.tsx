@@ -52,27 +52,28 @@ export default function TopMenu() {
   return (
     <>
       <div
+        data-top-menu="true"
         style={{
           position: 'fixed',
           top: 0,
           left: 0,
           width: '100%',
-          height: isMobile ? 36 : 28,
+          height: 28,
           backgroundColor: 'rgba(0, 0, 0, 0.2)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: isMobile ? '0 20px' : '0 16px',
+          padding: '0 16px',
           color: 'white',
-          fontSize: isMobile ? 14 : 13,
+          fontSize: 13,
           fontWeight: 500,
           zIndex: 100,
           boxShadow: '0 1px 0 rgba(255, 255, 255, 0.1)',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', width: isMobile ? 80 : 'auto' }} ref={menuRef}>
+        <div style={{ display: 'flex', alignItems: 'center', width: 'auto' }} ref={menuRef}>
           {isMobile ? (
             <div style={{ position: 'relative' }}>
               <div onClick={() => setMenuOpen(!menuOpen)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>

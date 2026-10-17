@@ -26,6 +26,7 @@ export default function DesktopIcons() {
 
   return (
     <div
+      data-desktop-icons="true"
       style={isMobile ? {
         position: 'absolute',
         top: 80, // slightly lower to clear status bar
