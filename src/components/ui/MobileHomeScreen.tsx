@@ -3,42 +3,16 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { FileText } from 'lucide-react'
+import MacDock from './MacDock'
 
 const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1]
 
-const iosApps = [
-  {
-    label: 'About Me',
-    href: '/about',
-    icon: null,
-    folderSrc: '/assets/icons/mac/folder.svg',
-    bg: 'linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%)',
-    isFolder: true,
-  },
-  {
-    label: 'Projects',
-    href: '/portfolio',
-    icon: null,
-    folderSrc: '/assets/icons/mac/folder.svg',
-    bg: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)',
-    isFolder: true,
-  },
-  {
-    label: 'Contact',
-    href: '/contact',
-    icon: null,
-    folderSrc: '/assets/icons/mac/folder.svg',
-    bg: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
-    isFolder: true,
-  },
-  {
-    label: 'Resume',
-    href: '#',
-    icon: 'resume',
-    folderSrc: null,
-    bg: 'linear-gradient(135deg, #dc2626 0%, #f87171 100%)',
-    isFolder: false,
-  },
+// Same icons/links as DesktopIcons
+const mobileIcons = [
+  { label: 'Yug_Resume.pdf', href: '#', isFile: true },
+  { label: 'About Me',        href: '/about',    isFile: false },
+  { label: 'Projects',        href: '/portfolio', isFile: false },
+  { label: 'Contact',         href: '/contact',  isFile: false },
 ]
 
 export default function MobileHomeScreen() {
@@ -55,24 +29,23 @@ export default function MobileHomeScreen() {
         zIndex: 10,
         display: 'flex',
         flexDirection: 'column',
-        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 72px)', // below pill nav
-        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 20px)',
+        // Leave room for pill nav at top + safe area
+        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 68px)',
+        // Leave room for MacDock + safe area at bottom
+        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 100px)',
         paddingLeft: 20,
         paddingRight: 20,
       }}
     >
-      {/* Welcome greeting */}
+      {/* Welcome greeting — same style as desktop hero */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: EASE_OUT, delay: 0.1 }}
-        style={{
-          marginBottom: 32,
-          paddingLeft: 4,
-        }}
+        style={{ marginBottom: 28, paddingLeft: 4 }}
       >
         <p style={{
-          fontSize: '0.78rem',
+          fontSize: '0.75rem',
           fontWeight: 500,
           letterSpacing: '0.15em',
           textTransform: 'uppercase',
@@ -93,45 +66,32 @@ export default function MobileHomeScreen() {
         }}>
           Yug Patel
         </h1>
-        <p style={{
-          marginTop: 6,
-          fontSize: '0.9rem',
-          color: 'rgba(255,255,255,0.45)',
-          fontFamily: "'Inter', system-ui, sans-serif",
-          fontWeight: 400,
-        }}>
-          AI &amp; ML Developer
-        </p>
       </motion.div>
 
-      {/* iOS app grid — 4 columns */}
+      {/* Desktop-identical icon grid — 4 columns */}
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '20px 8px',
+          gap: '20px 10px',
         }}
       >
-        {iosApps.map((app, i) => (
+        {mobileIcons.map((item, i) => (
           <Link
-            key={app.label}
-            href={app.href}
+            key={item.label}
+            href={item.href}
             style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center' }}
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              initial={{ opacity: 0, scale: 0.85, y: 16 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{
-                duration: 0.45,
-                ease: EASE_OUT,
-                delay: 0.15 + i * 0.07,
-              }}
-              whileTap={{ scale: 0.88 }}
+              transition={{ duration: 0.4, ease: EASE_OUT, delay: 0.18 + i * 0.07 }}
+              whileTap={{ scale: 0.88, transition: { type: 'spring', bounce: 0, duration: 0.25 } }}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: 7,
+                gap: 6,
                 cursor: 'pointer',
                 touchAction: 'manipulation',
                 userSelect: 'none',
@@ -140,77 +100,55 @@ export default function MobileHomeScreen() {
                 maxWidth: 76,
               }}
             >
-              {/* App icon */}
+              {/* Icon container — same glass style as DesktopIcons */}
               <div
                 style={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: 14, // iOS icon corner radius
-                  background: app.bg,
+                  width: 54,
+                  height: 54,
+                  borderRadius: item.isFile ? 0 : 12,
+                  backgroundColor: item.isFile ? 'transparent' : 'rgba(255,255,255,0.05)',
+                  border: item.isFile ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                  boxShadow: item.isFile ? 'none' : '0 4px 12px rgba(0,0,0,0.2)',
+                  backdropFilter: item.isFile ? 'none' : 'blur(10px)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.35)',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  overflow: 'hidden',
-                  position: 'relative',
                 }}
               >
-                {/* Shine overlay */}
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: '50%',
-                  background: 'linear-gradient(180deg, rgba(255,255,255,0.18) 0%, transparent 100%)',
-                  borderRadius: '14px 14px 0 0',
-                  pointerEvents: 'none',
-                }} />
-                {app.isFolder ? (
-                  <img
-                    src={app.folderSrc!}
-                    alt={app.label}
-                    style={{ width: 36, height: 36, objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
-                  />
+                {item.isFile ? (
+                  <FileText size={40} color="white" strokeWidth={1.5} />
                 ) : (
-                  <FileText size={32} color="white" strokeWidth={1.5} />
+                  <img
+                    src="/assets/icons/mac/folder.svg"
+                    alt={item.label}
+                    style={{ width: 40, height: 40, objectFit: 'contain' }}
+                  />
                 )}
               </div>
 
-              {/* Label */}
+              {/* Label — same style as DesktopIcons */}
               <span style={{
                 color: 'white',
                 fontSize: 10,
+                fontFamily: "'Inter', sans-serif",
                 fontWeight: 500,
-                fontFamily: "'Inter', system-ui, sans-serif",
                 textAlign: 'center',
-                textShadow: '0 1px 4px rgba(0,0,0,0.9)',
-                lineHeight: 1.2,
+                textShadow: '0 1px 3px rgba(0,0,0,0.8)',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 maxWidth: '100%',
                 letterSpacing: '-0.01em',
               }}>
-                {app.label}
+                {item.label}
               </span>
             </motion.div>
           </Link>
         ))}
       </div>
 
-      {/* Home indicator */}
-      <div style={{
-        position: 'absolute',
-        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: 134,
-        height: 5,
-        borderRadius: 999,
-        backgroundColor: 'rgba(255,255,255,0.25)',
-      }} />
+      {/* Same MacDock as desktop — positioned at bottom */}
+      <MacDock />
     </motion.div>
   )
 }
