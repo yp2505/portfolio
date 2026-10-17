@@ -35,7 +35,6 @@ export const viewport: Viewport = {
 
 import BackgroundWrapper from "@/components/BackgroundWrapper";
 import TopMenu from "@/components/ui/TopMenu";
-import MobilePillNav from "@/components/ui/MobilePillNav";
 
 export default function RootLayout({
   children,
@@ -50,11 +49,8 @@ export default function RootLayout({
         <BackgroundWrapper />
 
         <div className="relative z-10 w-full min-h-screen">
-          {/* TopMenu — desktop only (hidden on mobile via CSS) */}
+          {/* TopMenu — hidden on mobile via CSS */}
           <TopMenu />
-
-          {/* Mobile pill nav — mobile only (hidden on desktop via CSS) */}
-          <MobilePillNav />
 
           <main className="w-full min-h-screen pt-7">
             {children}

@@ -6,16 +6,17 @@ import { motion, AnimatePresence } from 'framer-motion'
 import WelcomeScreen from '@/components/WelcomeScreen'
 import MacDock from '@/components/ui/MacDock'
 import DesktopIcons from '@/components/ui/DesktopIcons'
-import MobileHomeScreen from '@/components/ui/MobileHomeScreen'
 import { hasPlayedIntro, setIntroPlayed } from '@/lib/introState'
 
 const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1]
 
-function DesktopWelcomeHero() {
+function WelcomeHero() {
   return (
     <motion.div
+      key="hero"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
       transition={{ duration: 0.9, ease: EASE_OUT, delay: 0.2 }}
       style={{
         position: 'fixed',
@@ -35,12 +36,12 @@ function DesktopWelcomeHero() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.35 }}
         style={{
-          fontSize: '0.9rem',
+          fontSize: '0.85rem',
           fontWeight: 500,
           letterSpacing: '0.18em',
           textTransform: 'uppercase',
           color: 'rgba(255,255,255,0.45)',
-          marginBottom: 16,
+          marginBottom: 14,
         }}
       >
         Welcome to my portfolio
@@ -50,7 +51,7 @@ function DesktopWelcomeHero() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: EASE_OUT, delay: 0.5 }}
         style={{
-          fontSize: 'clamp(2.8rem, 5vw, 4.5rem)',
+          fontSize: 'clamp(2.4rem, 5vw, 4.5rem)',
           fontWeight: 700,
           letterSpacing: '-0.035em',
           lineHeight: 1.05,
@@ -67,14 +68,14 @@ function DesktopWelcomeHero() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.75 }}
         style={{
-          marginTop: 14,
-          fontSize: '1.05rem',
+          marginTop: 12,
+          fontSize: '1rem',
           fontWeight: 400,
           color: 'rgba(255,255,255,0.38)',
           letterSpacing: '0.02em',
         }}
       >
-        AI & ML Developer
+        AI &amp; ML Developer
       </motion.p>
     </motion.div>
   )
@@ -133,26 +134,16 @@ export default function Home() {
 
   return (
     <>
-      {/* Desktop content */}
-      {!isMobile && (
-        <div style={{ position: 'fixed', inset: 0 }}>
-          <DesktopIcons />
-          <MacDock />
-          {/* Show welcome hero text only after lock screen dismissed */}
-          <AnimatePresence>
-            {!showWelcome && <DesktopWelcomeHero />}
-          </AnimatePresence>
-        </div>
-      )}
-
-      {/* Mobile: iOS home screen (shown after unlock) */}
-      {isMobile && (
+      {/* Desktop icons + dock — shown on ALL screen sizes */}
+      <div style={{ position: 'fixed', inset: 0 }}>
+        <DesktopIcons />
+        <MacDock />
         <AnimatePresence>
-          {!showWelcome && <MobileHomeScreen />}
+          {!showWelcome && <WelcomeHero />}
         </AnimatePresence>
-      )}
+      </div>
 
-      {/* Welcome screen — shown on BOTH mobile and desktop */}
+      {/* Welcome / lock screen */}
       <AnimatePresence>
         {showWelcome && (
           <motion.div

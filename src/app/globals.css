@@ -147,10 +147,9 @@ input, textarea {
   .desktop-only { display: none !important; }
 }
 
-/* ── Mac dock: hide on mobile (replaced by pill nav) ────────── */
+/* ── Top menu: hide on mobile (too small, no room) ────────── */
 @media (max-width: 767px) {
-  [data-mac-dock="true"]    { display: none !important; }
-  [data-top-menu="true"]    { display: none !important; }
+  [data-top-menu="true"] { display: none !important; }
 }
 
 /* ── Apple-level active press (animate skill: button recipe) ── */
