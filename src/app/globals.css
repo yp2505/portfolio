@@ -150,7 +150,6 @@ input, textarea {
 /* ── Mac dock: hide on mobile (replaced by pill nav) ────────── */
 @media (max-width: 767px) {
   [data-mac-dock="true"]    { display: none !important; }
-  [data-desktop-icons="true"] { display: none !important; }
   [data-top-menu="true"]    { display: none !important; }
 }
 

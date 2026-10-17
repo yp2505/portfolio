@@ -5,15 +5,15 @@ import { useEffect, useState, useRef } from 'react'
 
 interface WelcomeScreenProps {
   onUnlock?: () => void
+  isMobile?: boolean
 }
 
 // Apple ease-out from animate skill
 const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1]
 
-export default function WelcomeScreen({ onUnlock }: WelcomeScreenProps) {
+export default function WelcomeScreen({ onUnlock, isMobile = false }: WelcomeScreenProps) {
   const [dateStr, setDateStr] = useState('')
   const [timeStr, setTimeStr] = useState('')
-  const [isMobile, setIsMobile] = useState(false)
 
   // Drag motion value for swipe-up gesture (mobile)
   const dragY = useMotionValue(0)
@@ -23,7 +23,6 @@ export default function WelcomeScreen({ onUnlock }: WelcomeScreenProps) {
 
   // Opacity fades as user swipes up
   const screenOpacity = useTransform(dragY, [-200, 0], [0, 1])
-  const slideHintOpacity = useTransform(dragY, [-60, 0], [0, 1])
 
   useEffect(() => {
     const updateTime = () => {
@@ -33,28 +32,20 @@ export default function WelcomeScreen({ onUnlock }: WelcomeScreenProps) {
     }
     updateTime()
     const timer = setInterval(updateTime, 1000)
-
-    const check = () => setIsMobile(window.innerWidth < 768)
-    check()
-    window.addEventListener('resize', check)
-
-    return () => {
-      clearInterval(timer)
-      window.removeEventListener('resize', check)
-    }
+    return () => clearInterval(timer)
   }, [])
 
-  // Desktop: keyboard & scroll
+  // Desktop: keyboard & scroll — always active on desktop
   useEffect(() => {
     if (isMobile) return
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter') onUnlock?.()
+      onUnlock?.()
     }
     const handleWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaY) > 10) onUnlock?.()
+      if (Math.abs(e.deltaY) > 5) onUnlock?.()
     }
     window.addEventListener('keydown', handleKeyDown)
-    window.addEventListener('wheel', handleWheel)
+    window.addEventListener('wheel', handleWheel, { passive: true })
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
       window.removeEventListener('wheel', handleWheel)
@@ -63,19 +54,18 @@ export default function WelcomeScreen({ onUnlock }: WelcomeScreenProps) {
 
   // Mobile swipe-up
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (!isMobile) return
     dragStartY.current = e.touches[0].clientY
     dragStartTime.current = Date.now()
     isDragging.current = true
   }
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isMobile || !isDragging.current) return
+    if (!isDragging.current) return
     const delta = e.touches[0].clientY - dragStartY.current
     // only allow upward drag (negative delta)
     if (delta < 0) dragY.set(Math.max(delta, -300))
   }
   const handleTouchEnd = () => {
-    if (!isMobile || !isDragging.current) return
+    if (!isDragging.current) return
     isDragging.current = false
     const elapsed = Date.now() - dragStartTime.current
     const velocity = Math.abs(dragY.get()) / elapsed   // px/ms
@@ -116,7 +106,7 @@ export default function WelcomeScreen({ onUnlock }: WelcomeScreenProps) {
         inset: 0,
         zIndex: 9999,
         cursor: isMobile ? 'default' : 'pointer',
-        touchAction: 'none',
+        touchAction: isMobile ? 'none' : 'auto',
         // Safe area for notch/island
         paddingTop: 'env(safe-area-inset-top)',
         paddingBottom: 'env(safe-area-inset-bottom)',
@@ -142,7 +132,7 @@ export default function WelcomeScreen({ onUnlock }: WelcomeScreenProps) {
         transition={{ duration: 0.9, ease: EASE_OUT }}
         style={{
           position: 'absolute',
-          top: isMobile ? '18%' : '14%',
+          top: isMobile ? '15%' : '14%',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -235,16 +225,15 @@ export default function WelcomeScreen({ onUnlock }: WelcomeScreenProps) {
         </div>
       </motion.div>
 
-      {/* Swipe hint — mobile only */}
+      {/* Mobile: Swipe hint */}
       {isMobile && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.2, duration: 1.4, repeat: Infinity, repeatType: 'reverse' }}
+          transition={{ delay: 1.2, duration: 0.8 }}
           style={{
-            opacity: slideHintOpacity as unknown as number,
             position: 'absolute',
-            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 32px)',
+            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 28px)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -258,16 +247,21 @@ export default function WelcomeScreen({ onUnlock }: WelcomeScreenProps) {
             WebkitUserSelect: 'none',
           }}
         >
-          {/* Swipe arrow */}
+          {/* Swipe arrow — bouncing */}
           <motion.div
-            animate={{ y: [-3, 3, -3] }}
+            animate={{ y: [-4, 4, -4] }}
             transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-            style={{ fontSize: '1.1rem', opacity: 0.7 }}
+            style={{ fontSize: '1.2rem', opacity: 0.7 }}
           >
             ↑
           </motion.div>
-          <span>Swipe up to enter</span>
-          {/* Home indicator line */}
+          <motion.span
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            Swipe up to enter
+          </motion.span>
+          {/* Home indicator bar */}
           <div
             style={{
               width: 134,
@@ -284,19 +278,20 @@ export default function WelcomeScreen({ onUnlock }: WelcomeScreenProps) {
       {!isMobile && (
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 1.5, repeat: Infinity, repeatType: 'reverse' }}
+          animate={{ opacity: [0, 0.7, 0] }}
+          transition={{ delay: 1, duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
           style={{
             position: 'absolute',
             bottom: '10%',
             color: 'rgba(255,255,255,0.6)',
-            fontSize: '0.95rem',
+            fontSize: '0.9rem',
             fontWeight: 500,
             letterSpacing: '0.05em',
             fontFamily: "'Inter', system-ui, sans-serif",
+            pointerEvents: 'none',
           }}
         >
-          Press Enter or scroll to unlock
+          Press any key, click, or scroll to continue
         </motion.div>
       )}
     </motion.div>
