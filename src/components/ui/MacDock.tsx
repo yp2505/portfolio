@@ -42,11 +42,11 @@ export default function MacDock() {
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  const dockPadding = isMobile ? '8px 12px' : '12px 16px'
-  const dockGap = isMobile ? 8 : 12
-  const iconSize = isMobile ? 40 : 48
-  const baseRadius = isMobile ? 18 : 24
-  const iconRadius = isMobile ? 10 : 14
+  const dockPadding = isMobile ? '10px 14px' : '14px 18px'
+  const dockGap = isMobile ? 10 : 14
+  const iconSize = isMobile ? 52 : 58
+  const baseRadius = isMobile ? 22 : 28
+  const iconRadius = isMobile ? 12 : 16
 
   return (
     <div

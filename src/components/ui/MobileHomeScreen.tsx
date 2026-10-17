@@ -9,10 +9,10 @@ const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1]
 
 // Same icons/links as DesktopIcons
 const mobileIcons = [
-  { label: 'Yug_Resume.pdf', href: '#', isFile: true },
-  { label: 'About Me',        href: '/about',    isFile: false },
-  { label: 'Projects',        href: '/portfolio', isFile: false },
-  { label: 'Contact',         href: '/contact',  isFile: false },
+  { label: 'Yug_Resume.pdf', href: '#',          isFile: true },
+  { label: 'About Me',       href: '/about',     isFile: false },
+  { label: 'Projects',       href: '/portfolio', isFile: false },
+  { label: 'Contact',        href: '/contact',   isFile: false },
 ]
 
 export default function MobileHomeScreen() {
@@ -29,51 +29,54 @@ export default function MobileHomeScreen() {
         zIndex: 10,
         display: 'flex',
         flexDirection: 'column',
-        // Leave room for pill nav at top + safe area
-        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 68px)',
-        // Leave room for MacDock + safe area at bottom
-        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 100px)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        // padding accounts for pill nav at top + dock at bottom
+        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 80px)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 110px)',
         paddingLeft: 20,
         paddingRight: 20,
       }}
     >
-      {/* Welcome greeting — same style as desktop hero */}
+      {/* Welcome greeting — centered */}
       <motion.div
-        initial={{ opacity: 0, y: 12 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: EASE_OUT, delay: 0.1 }}
-        style={{ marginBottom: 28, paddingLeft: 4 }}
+        transition={{ duration: 0.65, ease: EASE_OUT, delay: 0.1 }}
+        style={{ textAlign: 'center', marginBottom: 40 }}
       >
         <p style={{
-          fontSize: '0.75rem',
+          fontSize: '0.72rem',
           fontWeight: 500,
-          letterSpacing: '0.15em',
+          letterSpacing: '0.18em',
           textTransform: 'uppercase',
           color: 'rgba(255,255,255,0.4)',
-          marginBottom: 6,
+          marginBottom: 10,
           fontFamily: "'Inter', system-ui, sans-serif",
         }}>
           Welcome to my portfolio
         </p>
         <h1 style={{
-          fontSize: 'clamp(1.8rem, 7vw, 2.4rem)',
+          fontSize: 'clamp(2rem, 8vw, 2.8rem)',
           fontWeight: 700,
-          letterSpacing: '-0.03em',
-          lineHeight: 1.1,
+          letterSpacing: '-0.035em',
+          lineHeight: 1.05,
           color: 'white',
           fontFamily: "'Inter', system-ui, sans-serif",
-          textShadow: '0 2px 16px rgba(0,0,0,0.4)',
+          textShadow: '0 2px 20px rgba(0,0,0,0.5)',
         }}>
           Yug Patel
         </h1>
       </motion.div>
 
-      {/* Desktop-identical icon grid — 4 columns */}
+      {/* Icon grid — 4 columns, bigger icons */}
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '20px 10px',
+          gap: '24px 12px',
+          width: '100%',
+          maxWidth: 360,
         }}
       >
         {mobileIcons.map((item, i) => (
@@ -83,15 +86,15 @@ export default function MobileHomeScreen() {
             style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center' }}
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.85, y: 16 }}
+              initial={{ opacity: 0, scale: 0.8, y: 16 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: EASE_OUT, delay: 0.18 + i * 0.07 }}
-              whileTap={{ scale: 0.88, transition: { type: 'spring', bounce: 0, duration: 0.25 } }}
+              transition={{ duration: 0.42, ease: EASE_OUT, delay: 0.2 + i * 0.07 }}
+              whileTap={{ scale: 0.86, transition: { type: 'spring', bounce: 0, duration: 0.22 } }}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: 6,
+                gap: 7,
                 cursor: 'pointer',
                 touchAction: 'manipulation',
                 userSelect: 'none',
@@ -100,15 +103,15 @@ export default function MobileHomeScreen() {
                 maxWidth: 76,
               }}
             >
-              {/* Icon container — same glass style as DesktopIcons */}
+              {/* Icon — same glass style as desktop, bigger */}
               <div
                 style={{
-                  width: 54,
-                  height: 54,
-                  borderRadius: item.isFile ? 0 : 12,
+                  width: 66,
+                  height: 66,
+                  borderRadius: item.isFile ? 0 : 14,
                   backgroundColor: item.isFile ? 'transparent' : 'rgba(255,255,255,0.05)',
-                  border: item.isFile ? 'none' : '1px solid rgba(255,255,255,0.1)',
-                  boxShadow: item.isFile ? 'none' : '0 4px 12px rgba(0,0,0,0.2)',
+                  border: item.isFile ? 'none' : '1px solid rgba(255,255,255,0.12)',
+                  boxShadow: item.isFile ? 'none' : '0 4px 16px rgba(0,0,0,0.25)',
                   backdropFilter: item.isFile ? 'none' : 'blur(10px)',
                   display: 'flex',
                   alignItems: 'center',
@@ -116,17 +119,17 @@ export default function MobileHomeScreen() {
                 }}
               >
                 {item.isFile ? (
-                  <FileText size={40} color="white" strokeWidth={1.5} />
+                  <FileText size={48} color="white" strokeWidth={1.5} />
                 ) : (
                   <img
                     src="/assets/icons/mac/folder.svg"
                     alt={item.label}
-                    style={{ width: 40, height: 40, objectFit: 'contain' }}
+                    style={{ width: 48, height: 48, objectFit: 'contain' }}
                   />
                 )}
               </div>
 
-              {/* Label — same style as DesktopIcons */}
+              {/* Label */}
               <span style={{
                 color: 'white',
                 fontSize: 10,
@@ -147,7 +150,7 @@ export default function MobileHomeScreen() {
         ))}
       </div>
 
-      {/* Same MacDock as desktop — positioned at bottom */}
+      {/* MacDock at the bottom — same as desktop */}
       <MacDock />
     </motion.div>
   )
