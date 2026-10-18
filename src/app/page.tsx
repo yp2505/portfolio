@@ -4,8 +4,7 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 import WelcomeScreen from '@/components/WelcomeScreen'
-import MacDock from '@/components/ui/MacDock'
-import DesktopIcons from '@/components/ui/DesktopIcons'
+import PortfolioDesktop from '@/components/PortfolioDesktop'
 import MobileHomeScreen from '@/components/ui/MobileHomeScreen'
 import { hasPlayedIntro, setIntroPlayed } from '@/lib/introState'
 import { useIsDevice } from '@/lib/useIsDevice'
@@ -93,12 +92,19 @@ export default function Home() {
   useEffect(() => {
     if (!isReady) return          // wait until device is known
 
+    let active = true
+    const resolveWelcome = (value: boolean) => {
+      queueMicrotask(() => {
+        if (active) setShowWelcome(value)
+      })
+    }
+
     const currentHash = window.location.hash
     const pathname = window.location.pathname
 
     if (currentHash === '#portfolio') {
-      setShowWelcome(false)
-      return
+      resolveWelcome(false)
+      return () => { active = false }
     }
 
     const navEntries = performance.getEntriesByType('navigation')
@@ -118,13 +124,15 @@ export default function Home() {
       }
 
       window.scrollTo({ top: 0, behavior: 'instant' })
-      setShowWelcome(true)
-      return
+      resolveWelcome(true)
+      return () => { active = false }
     }
 
     // If introPlayed is set (first visit dismissed or coming back via nav),
     // skip the welcome screen entirely.
-    setShowWelcome(!hasPlayedIntro())
+    resolveWelcome(!hasPlayedIntro())
+
+    return () => { active = false }
   }, [isReady])
 
   const handleUnlock = () => {
@@ -144,14 +152,12 @@ export default function Home() {
           {!showWelcome && <MobileHomeScreen />}
         </AnimatePresence>
       ) : (
-        /* ─── macOS Desktop UI ─── */
-        <div style={{ position: 'fixed', inset: 0 }}>
-          <DesktopIcons />
-          <MacDock />
+        /* ─── macOS-style web desktop, powered by wmkit ─── */
+        <PortfolioDesktop>
           <AnimatePresence>
             {!showWelcome && <DesktopWelcomeHero />}
           </AnimatePresence>
-        </div>
+        </PortfolioDesktop>
       )}
 
       {/* Lock screen — shown on BOTH, adapts to device */}

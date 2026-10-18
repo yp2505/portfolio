@@ -6,15 +6,26 @@ import Link from 'next/link'
 import { FileText } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 
-const desktopIcons = [
+interface DesktopIcon {
+  label: string
+  href: string
+  isFile?: boolean
+  windowId?: string
+}
+
+const desktopIcons: DesktopIcon[] = [
   { label: 'Yug_Resume.pdf', href: '#', isFile: true },
-  { label: 'About Me', href: '/about' },
-  { label: 'Projects', href: '/portfolio' },
-  { label: 'Portfolio OS', href: '/os', isOS: true },  // ← OS.js desktop
-  { label: 'Contact', href: '/contact' },
+  { label: 'About Me', href: '/about', windowId: 'about' },
+  { label: 'Projects', href: '/portfolio', windowId: 'projects' },
+  { label: 'Portfolio OS', href: '/os', windowId: 'portfolio' },
+  { label: 'Contact', href: '/contact', windowId: 'contact' },
 ]
 
-export default function DesktopIcons() {
+interface DesktopIconsProps {
+  onOpenWindow?: (windowId: string) => void
+}
+
+export default function DesktopIcons({ onOpenWindow }: DesktopIconsProps) {
   const pathname = usePathname()
   const [isMobile, setIsMobile] = useState(false)
 
@@ -51,9 +62,8 @@ export default function DesktopIcons() {
       {desktopIcons.map((item) => {
         const isFolder = !item.isFile
 
-        return (
-          <Link key={item.label} href={item.href} style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center' }}>
-            <motion.div
+        const icon = (
+          <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               style={{
@@ -105,7 +115,26 @@ export default function DesktopIcons() {
               >
                 {item.label}
               </span>
-            </motion.div>
+          </motion.div>
+        )
+
+        if (item.windowId && onOpenWindow) {
+          return (
+            <button
+              key={item.label}
+              type="button"
+              onClick={() => onOpenWindow(item.windowId!)}
+              style={{ appearance: 'none', border: 0, padding: 0, background: 'transparent', display: 'flex', justifyContent: 'center' }}
+              aria-label={`Open ${item.label}`}
+            >
+              {icon}
+            </button>
+          )
+        }
+
+        return (
+          <Link key={item.label} href={item.href} style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center' }}>
+            {icon}
           </Link>
         )
       })}
