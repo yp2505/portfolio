@@ -143,12 +143,12 @@ export default function MobileHomeScreen() {
           }}
         >
           <p style={{
-            fontSize: 'clamp(1.8rem, 7.5vw, 2.8rem)',
+            fontSize: 'clamp(1.6rem, 7vw, 2.6rem)',
             fontWeight: 700,
             color: 'white',
             fontFamily: "var(--font-dancing), 'Dancing Script', cursive",
             textAlign: 'center',
-            marginBottom: 8,
+            marginBottom: 6,
             textShadow: '0 2px 16px rgba(0,0,0,0.45), 0 0 40px rgba(0,0,0,0.2)',
             lineHeight: 1.15,
             letterSpacing: '0.01em',
@@ -156,7 +156,7 @@ export default function MobileHomeScreen() {
             Welcome to my portfolio
           </p>
           <h1 style={{
-            fontSize: 'clamp(2.2rem, 9vw, 3rem)',
+            fontSize: 'clamp(2.3rem, 9.5vw, 3.4rem)',
             fontWeight: 700,
             letterSpacing: '-0.035em',
             lineHeight: 1.05,
@@ -167,6 +167,17 @@ export default function MobileHomeScreen() {
           }}>
             Yug Patel
           </h1>
+          <p style={{
+            marginTop: 8,
+            fontSize: 'clamp(0.85rem, 3.2vw, 1.05rem)',
+            fontWeight: 400,
+            color: 'rgba(255,255,255,0.45)',
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            textAlign: 'center',
+          }}>
+            AI &amp; ML Developer
+          </p>
         </motion.div>
       </div>
 

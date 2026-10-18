@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { setIntroPlayed } from '@/lib/introState'
 import AIChatModal from './AIChatModal'
 
 const navItems = [
@@ -167,7 +168,13 @@ export default function MacDock() {
                 </motion.div>
               </div>
             ) : (
-              <Link href={item.href} style={{ textDecoration: 'none', display: 'block' }}>
+              <Link
+                href={item.href}
+                style={{ textDecoration: 'none', display: 'block' }}
+                onClick={() => {
+                  if (item.href === '/') setIntroPlayed()
+                }}
+              >
                 <motion.div
                   onHoverStart={() => setHoveredIndex(index)}
                   onHoverEnd={() => setHoveredIndex(null)}

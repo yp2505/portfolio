@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { setIntroPlayed } from '@/lib/introState'
 
 /**
  * iOS-style top status strip — sits at the same level as the pill nav.
@@ -53,7 +54,11 @@ export default function MobileStatusBar() {
       }}
     >
       {/* Left: yug.dev → home */}
-      <Link href="/" style={{ textDecoration: 'none', pointerEvents: 'auto' }}>
+      <Link
+        href="/"
+        style={{ textDecoration: 'none', pointerEvents: 'auto' }}
+        onClick={() => setIntroPlayed()}
+      >
         <motion.span
           whileTap={{ opacity: 0.5 }}
           style={{ ...textStyle, display: 'block', touchAction: 'manipulation' }}

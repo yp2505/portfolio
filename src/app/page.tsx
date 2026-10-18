@@ -21,65 +21,94 @@ function DesktopWelcomeHero() {
       transition={{ duration: 0.9, ease: EASE_OUT, delay: 0.2 }}
       style={{
         position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
+        // Responsive bounds: bounded between top menu (28px) and bottom dock (110px)
+        // Flexbox centering calculates the precise geometric & optical center of available space
+        top: 28,
+        bottom: 110,
+        left: 0,
+        right: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
         textAlign: 'center',
         color: 'white',
         fontFamily: "'Inter', system-ui, sans-serif",
         pointerEvents: 'none',
         zIndex: 5,
         userSelect: 'none',
+        // Symmetric responsive horizontal padding ensures it never collides with DesktopIcons on the left
+        paddingLeft: 'clamp(20px, 8vw, 130px)',
+        paddingRight: 'clamp(20px, 8vw, 130px)',
+        boxSizing: 'border-box',
       }}
     >
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.35 }}
+      <div
         style={{
-          fontSize: 'clamp(1.6rem, 3vw, 2.5rem)',
-          fontWeight: 700,
-          color: 'white',
-          fontFamily: "var(--font-dancing), 'Dancing Script', cursive",
-          marginBottom: 14,
-          letterSpacing: '0.01em',
-          lineHeight: 1.2,
-          textShadow: '0 2px 20px rgba(0,0,0,0.35)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          maxWidth: 960,
+          margin: '0 auto',
         }}
       >
-        Welcome to my portfolio
-      </motion.p>
-      <motion.h1
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: EASE_OUT, delay: 0.5 }}
-        style={{
-          fontSize: 'clamp(2.4rem, 5vw, 4.5rem)',
-          fontWeight: 700,
-          letterSpacing: '-0.035em',
-          lineHeight: 1.05,
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.55) 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-        }}
-      >
-        Yug Patel
-      </motion.h1>
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.75 }}
-        style={{
-          marginTop: 12,
-          fontSize: '1rem',
-          fontWeight: 400,
-          color: 'rgba(255,255,255,0.38)',
-          letterSpacing: '0.02em',
-        }}
-      >
-        AI &amp; ML Developer
-      </motion.p>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.35 }}
+          style={{
+            fontSize: 'clamp(1.4rem, 3.4vw, 2.75rem)',
+            fontWeight: 700,
+            color: 'white',
+            fontFamily: "var(--font-dancing), 'Dancing Script', cursive",
+            marginBottom: 'clamp(6px, 1.4vh, 16px)',
+            letterSpacing: '0.01em',
+            lineHeight: 1.2,
+            textShadow: '0 2px 24px rgba(0,0,0,0.45)',
+            textAlign: 'center',
+            width: '100%',
+          }}
+        >
+          Welcome to my portfolio
+        </motion.p>
+        <motion.h1
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: EASE_OUT, delay: 0.5 }}
+          style={{
+            fontSize: 'clamp(2.5rem, 6.8vw, 5.2rem)',
+            fontWeight: 700,
+            letterSpacing: '-0.035em',
+            lineHeight: 1.05,
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.58) 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            textAlign: 'center',
+            width: '100%',
+          }}
+        >
+          Yug Patel
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.75 }}
+          style={{
+            marginTop: 'clamp(8px, 1.4vh, 16px)',
+            fontSize: 'clamp(0.85rem, 1.6vw, 1.15rem)',
+            fontWeight: 400,
+            color: 'rgba(255,255,255,0.42)',
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            textAlign: 'center',
+          }}
+        >
+          AI &amp; ML Developer
+        </motion.p>
+      </div>
     </motion.div>
   )
 }
@@ -102,7 +131,8 @@ export default function Home() {
     const currentHash = window.location.hash
     const pathname = window.location.pathname
 
-    if (currentHash === '#portfolio') {
+    if (currentHash === '#portfolio' || currentHash === '#desktop' || currentHash === '#home') {
+      setIntroPlayed()
       resolveWelcome(false)
       return () => { active = false }
     }

@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePathname, useRouter } from 'next/navigation'
+import { setIntroPlayed } from '@/lib/introState'
 
 const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1]
 
@@ -9,6 +10,11 @@ export default function MobileBackButton() {
   const pathname = usePathname()
   const router = useRouter()
   const isSubPage = pathname !== '/'
+
+  const handleGoHome = () => {
+    setIntroPlayed()
+    router.push('/')
+  }
 
   return (
     <AnimatePresence>
@@ -20,7 +26,7 @@ export default function MobileBackButton() {
           exit={{ opacity: 0, scale: 0.8, x: -10 }}
           transition={{ type: 'spring', bounce: 0, duration: 0.35, delay: 0.1 }}
           whileTap={{ scale: 0.88, transition: { type: 'spring', bounce: 0, duration: 0.2 } }}
-          onClick={() => router.push('/')}
+          onClick={handleGoHome}
           style={{
             position: 'fixed',
             top: 'calc(env(safe-area-inset-top, 0px) + 70px)',

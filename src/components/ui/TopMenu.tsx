@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import { useRouter, usePathname } from 'next/navigation'
 import { format } from 'date-fns'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, ChevronLeft } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { setIntroPlayed } from '@/lib/introState'
 
 const navLinks = [
   { label: 'Home', href: '/' },
@@ -14,11 +16,28 @@ const navLinks = [
 ]
 
 export default function TopMenu() {
+  const router = useRouter()
+  const pathname = usePathname()
   const [time, setTime] = useState<string>('')
   const [date, setDate] = useState<string>('')
   const [isMobile, setIsMobile] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  const isSubPage = pathname !== '/'
+
+  // Ensure intro is marked played when visiting subpages so returning to Home bypasses lock screen
+  useEffect(() => {
+    if (isSubPage) {
+      setIntroPlayed()
+    }
+  }, [isSubPage])
+
+  const handleGoHome = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault()
+    setIntroPlayed()
+    router.push('/')
+  }
 
   useEffect(() => {
     const updateTime = () => {
@@ -101,7 +120,15 @@ export default function TopMenu() {
                     }}
                   >
                     {navLinks.map((link) => (
-                      <Link key={link.href} href={link.href} style={{ textDecoration: 'none' }} onClick={() => setMenuOpen(false)}>
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        style={{ textDecoration: 'none' }}
+                        onClick={() => {
+                          if (link.href === '/') setIntroPlayed()
+                          setMenuOpen(false)
+                        }}
+                      >
                         <div
                           style={{
                             padding: '10px 20px',
@@ -119,12 +146,79 @@ export default function TopMenu() {
               </AnimatePresence>
             </div>
           ) : (
-            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 16, textDecoration: 'none', color: 'white' }}>
-              <svg viewBox="0 0 384 512" style={{ width: 14, height: 14, fill: 'currentColor', marginBottom: 2 }}>
-                <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
-              </svg>
-              <span style={{ fontWeight: 600 }}>Landing Page</span>
-            </Link>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <button
+                type="button"
+                onClick={handleGoHome}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  margin: 0,
+                  cursor: 'pointer',
+                  color: 'white',
+                  transition: 'opacity 0.15s ease',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8' }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
+                title="Apple Menu - Go to Home"
+              >
+                <svg viewBox="0 0 384 512" style={{ width: 14, height: 14, fill: 'currentColor' }}>
+                  <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+                </svg>
+              </button>
+
+              {isSubPage ? (
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.04, backgroundColor: 'rgba(255, 255, 255, 0.16)' }}
+                  whileTap={{ scale: 0.94 }}
+                  transition={{ type: 'spring', bounce: 0, duration: 0.2 }}
+                  onClick={handleGoHome}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 5,
+                    padding: '2px 9px',
+                    borderRadius: 6,
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(255, 255, 255, 0.16)',
+                    color: 'white',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+                    letterSpacing: '-0.01em',
+                  }}
+                  title="Back to Home Desktop"
+                >
+                  <ChevronLeft size={13} strokeWidth={2.5} style={{ marginLeft: -2 }} />
+                  <span>Home</span>
+                </motion.button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleGoHome}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    margin: 0,
+                    color: 'white',
+                    cursor: 'pointer',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    letterSpacing: '-0.01em',
+                  }}
+                >
+                  Home
+                </button>
+              )}
+            </div>
           )}
         </div>
 
@@ -134,13 +228,24 @@ export default function TopMenu() {
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', width: isMobile ? 80 : 100, justifyContent: 'flex-end' }}>
-          {isMobile ? (
-            <Link href="/" style={{ textDecoration: 'none', color: 'white' }}>
-              <span>yug.dev</span>
-            </Link>
-          ) : (
-            <span>yug.dev</span>
-          )}
+          <button
+            type="button"
+            onClick={handleGoHome}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              margin: 0,
+              color: 'white',
+              cursor: 'pointer',
+              fontSize: 13,
+              fontWeight: 500,
+              opacity: 0.9,
+            }}
+            title="Go to Home"
+          >
+            yug.dev
+          </button>
         </div>
       </div>
     </>

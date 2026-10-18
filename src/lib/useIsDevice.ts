@@ -23,8 +23,8 @@ export function useIsDevice() {
       const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches
       const isNarrow = window.innerWidth < 768
 
-      // True mobile = UA says mobile OR (touch pointer AND narrow screen)
-      const mobile = isUaMobile || (isCoarsePointer && isNarrow)
+      // True mobile or narrow screen = UA mobile OR screen width < 768px OR coarse pointer on narrow screen
+      const mobile = isUaMobile || isNarrow || (isCoarsePointer && isNarrow)
       setIsMobile(mobile)
       setIsReady(true)
     }
