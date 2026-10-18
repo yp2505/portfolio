@@ -17,7 +17,6 @@ const desktopIcons: DesktopIcon[] = [
   { label: 'Yug_Resume.pdf', href: '#', isFile: true },
   { label: 'About Me', href: '/about', windowId: 'about' },
   { label: 'Projects', href: '/portfolio', windowId: 'projects' },
-  { label: 'Portfolio OS', href: '/os', windowId: 'portfolio' },
   { label: 'Contact', href: '/contact', windowId: 'contact' },
 ]
 

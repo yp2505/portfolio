@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, type ReactNode } from 'react'
-import { ExternalLink, FolderKanban, GitFork, Mail, MonitorCog, UserRound } from 'lucide-react'
+import { ExternalLink, FolderKanban, GitFork, Mail, UserRound } from 'lucide-react'
 import type { WindowState } from '@surdeddd/wmkit'
 import { useDesktop, useWindowManager, useWmState, useWmWindowRef } from '@surdeddd/wmkit/react'
 import DesktopIcons from '@/components/ui/DesktopIcons'
@@ -9,10 +9,9 @@ import MacDock from '@/components/ui/MacDock'
 import usePortfolio from '@/hooks/usePortfolio'
 import styles from './PortfolioDesktop.module.css'
 
-type WindowId = 'portfolio' | 'about' | 'projects' | 'contact'
+type WindowId = 'about' | 'projects' | 'contact'
 
 const windowDefinitions: Record<WindowId, { title: string; width: number; height: number; x: number; y: number }> = {
-  portfolio: { title: 'Portfolio OS', width: 540, height: 360, x: 164, y: 104 },
   about: { title: 'About Yug Patel', width: 570, height: 410, x: 200, y: 94 },
   projects: { title: 'Projects', width: 760, height: 560, x: 150, y: 76 },
   contact: { title: 'Contact', width: 480, height: 350, x: 244, y: 130 },
@@ -65,7 +64,7 @@ function isWindowId(id: string): id is WindowId {
 
 function PortfolioWindow({ binder, win }: { binder: ReturnType<typeof useDesktop>['binder']; win: WindowState }) {
   const ref = useWmWindowRef(binder, win.id)
-  const kind = isWindowId(win.id) ? win.id : 'portfolio'
+  const kind = isWindowId(win.id) ? win.id : null
 
   return (
     <section ref={ref} className={styles.window}>
@@ -78,26 +77,11 @@ function PortfolioWindow({ binder, win }: { binder: ReturnType<typeof useDesktop
         </span>
       </header>
       <div data-wm-content className={styles.windowContent}>
-        {kind === 'portfolio' && <PortfolioOverview />}
         {kind === 'about' && <AboutContent />}
         {kind === 'projects' && <ProjectsContent />}
         {kind === 'contact' && <ContactContent />}
       </div>
     </section>
-  )
-}
-
-function PortfolioOverview() {
-  return (
-    <div className={styles.overview}>
-      <div className={styles.overviewIcon}><MonitorCog size={26} /></div>
-      <div>
-        <p className={styles.eyebrow}>WEB DESKTOP</p>
-        <h2>Yug&apos;s Portfolio OS</h2>
-        <p>This is the portfolio desktop. Open folders to explore Yug&apos;s background, work, and contact details in movable windows.</p>
-      </div>
-      <p className={styles.hint}>Drag a title bar to move a window. Drop it at an edge to snap it.</p>
-    </div>
   )
 }
 

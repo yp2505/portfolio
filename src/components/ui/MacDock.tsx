@@ -24,13 +24,6 @@ const navItems = [
     iconUrl: '/assets/icons/mac/safari.svg',
     windowId: 'projects',
   },
-  {
-    // Opens the desktop introduction window on the home screen.
-    label: 'Portfolio OS',
-    href: '/os',
-    iconUrl: '/assets/icons/mac/folder.svg',
-    windowId: 'portfolio',
-  },
   { 
     label: 'Ask Me', 
     href: '/contact', 

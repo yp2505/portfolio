@@ -23,6 +23,6 @@ Run `npm run build` before deploying. Configure the following environment variab
 
 Copy `.env.example` to `.env.local` for local development. Do not commit `.env.local` or production secrets.
 
-The interactive Portfolio OS is the desktop experience on `/`, powered by WmKit in the browser. It runs in the same Next.js/Vercel deployment and does not need a separate server or API key. The legacy `/os` address redirects to `/`.
+The interactive desktop experience on `/` is powered by WmKit in the browser. It runs in the same Next.js/Vercel deployment and does not need a separate server or API key.
 
 Deploy the repository in Vercel with the framework preset set to Next.js. The build command is `npm run build`.
