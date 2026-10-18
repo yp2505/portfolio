@@ -7,12 +7,12 @@ import MacDock from './MacDock'
 
 const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1]
 
-// Same icons/links as DesktopIcons
+// Same icons/links as DesktopIcons with authentic macOS Sonoma icons
 const mobileIcons = [
-  { label: 'Yug_Resume.pdf', href: '#',          isFile: true },
-  { label: 'About Me',       href: '/about',     isFile: false },
-  { label: 'Projects',       href: '/portfolio', isFile: false },
-  { label: 'Contact',        href: '/contact',   isFile: false },
+  { label: 'Yug_Resume.pdf', href: '/assets/Yug_Patel_Resume.md', isFile: true, iconUrl: '/assets/icons/mac/document-pdf.svg' },
+  { label: 'About Me',       href: '/about',                     isFile: false, iconUrl: '/assets/icons/mac/contacts.svg' },
+  { label: 'Projects',       href: '/portfolio',                 isFile: false, iconUrl: '/assets/icons/mac/terminal.svg' },
+  { label: 'Contact',        href: '/contact',                   isFile: false, iconUrl: '/assets/icons/mac/messages.svg' },
 ]
 
 export default function MobileHomeScreen() {
@@ -71,30 +71,26 @@ export default function MobileHomeScreen() {
                 maxWidth: 76,
               }}
             >
-              {/* Icon — same glass style as desktop, bigger */}
+              {/* Icon */}
               <div
                 style={{
                   width: 66,
                   height: 66,
-                  borderRadius: item.isFile ? 0 : 14,
-                  backgroundColor: item.isFile ? 'transparent' : 'rgba(255,255,255,0.05)',
-                  border: item.isFile ? 'none' : '1px solid rgba(255,255,255,0.12)',
-                  boxShadow: item.isFile ? 'none' : '0 4px 16px rgba(0,0,0,0.25)',
-                  backdropFilter: item.isFile ? 'none' : 'blur(10px)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                {item.isFile ? (
-                  <FileText size={48} color="white" strokeWidth={1.5} />
-                ) : (
-                  <img
-                    src="/assets/icons/mac/folder.svg"
-                    alt={item.label}
-                    style={{ width: 48, height: 48, objectFit: 'contain' }}
-                  />
-                )}
+                <img
+                  src={item.iconUrl}
+                  alt={item.label}
+                  style={{
+                    width: 58,
+                    height: 58,
+                    objectFit: 'contain',
+                    filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.35))',
+                  }}
+                />
               </div>
 
               {/* Label */}

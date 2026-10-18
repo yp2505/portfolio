@@ -129,7 +129,6 @@ export default function Home() {
     }
 
     const currentHash = window.location.hash
-    const pathname = window.location.pathname
 
     if (currentHash === '#portfolio' || currentHash === '#desktop' || currentHash === '#home') {
       setIntroPlayed()
@@ -137,30 +136,15 @@ export default function Home() {
       return () => { active = false }
     }
 
-    const navEntries = performance.getEntriesByType('navigation')
-    const navigationType =
-      navEntries.length > 0
-        ? (navEntries[0] as PerformanceNavigationTiming).type
-        : null
-
-    const isReload = navigationType === 'reload'
-
-    if (isReload && pathname === '/') {
-      sessionStorage.removeItem('introPlayed')
-      sessionStorage.removeItem('heroPlayed')
-
-      if (window.location.hash) {
-        history.replaceState(null, '', '/')
-      }
-
-      window.scrollTo({ top: 0, behavior: 'instant' })
-      resolveWelcome(true)
+    // If introPlayed is set (user unlocked once or navigated from subpage),
+    // NEVER show the lock screen again in this session.
+    if (hasPlayedIntro()) {
+      resolveWelcome(false)
       return () => { active = false }
     }
 
-    // If introPlayed is set (first visit dismissed or coming back via nav),
-    // skip the welcome screen entirely.
-    resolveWelcome(!hasPlayedIntro())
+    // Only show welcome screen on the very first fresh visit before unlocking
+    resolveWelcome(true)
 
     return () => { active = false }
   }, [isReady])

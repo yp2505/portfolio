@@ -9,15 +9,16 @@ import { usePathname } from 'next/navigation'
 interface DesktopIcon {
   label: string
   href: string
+  iconUrl: string
   isFile?: boolean
   openInNewTab?: boolean
 }
 
 const desktopIcons: DesktopIcon[] = [
-  { label: 'Yug_Resume.pdf', href: '/assets/Yug_Patel_Resume.md', isFile: true, openInNewTab: true },
-  { label: 'About Me', href: '/about' },
-  { label: 'Projects', href: '/portfolio' },
-  { label: 'Contact', href: '/contact' },
+  { label: 'Yug_Resume.pdf', href: '/assets/Yug_Patel_Resume.md', isFile: true, openInNewTab: true, iconUrl: '/assets/icons/mac/document-pdf.svg' },
+  { label: 'About Me', href: '/about', iconUrl: '/assets/icons/mac/contacts.svg' },
+  { label: 'Projects', href: '/portfolio', iconUrl: '/assets/icons/mac/terminal.svg' },
+  { label: 'Contact', href: '/contact', iconUrl: '/assets/icons/mac/messages.svg' },
 ]
 
 export default function DesktopIcons() {
@@ -75,21 +76,21 @@ export default function DesktopIcons() {
                 style={{
                   width: isMobile ? 54 : 60,
                   height: isMobile ? 54 : 60,
-                  backgroundColor: isFolder ? 'rgba(255,255,255,0.05)' : 'transparent',
-                  borderRadius: isFolder ? (isMobile ? 14 : 12) : 0,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  border: isFolder ? '1px solid rgba(255,255,255,0.1)' : 'none',
-                  boxShadow: isFolder ? '0 4px 12px rgba(0,0,0,0.2)' : 'none',
-                  backdropFilter: isFolder ? 'blur(10px)' : 'none',
                 }}
               >
-                {isFolder ? (
-                  <img src="/assets/icons/mac/folder.svg" alt={item.label} style={{ width: isMobile ? 40 : 44, height: isMobile ? 40 : 44, objectFit: 'contain' }} />
-                ) : (
-                  <FileText size={isMobile ? 38 : 42} color="white" strokeWidth={1.5} />
-                )}
+                <img
+                  src={item.iconUrl}
+                  alt={item.label}
+                  style={{
+                    width: isMobile ? 48 : 54,
+                    height: isMobile ? 48 : 54,
+                    objectFit: 'contain',
+                    filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.35))',
+                  }}
+                />
               </div>
               <span
                 style={{
