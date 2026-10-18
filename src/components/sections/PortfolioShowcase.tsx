@@ -11,7 +11,7 @@ import ProjectDetailModal from './ProjectDetailModal'
 const smoothEase: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
 export default function PortfolioShowcase() {
-  const { projects, loading } = usePortfolio()
+  const { projects, techStacks, loading } = usePortfolio()
   const [activeTab, setActiveTab] = useState('projects')
   const [showAllProjects, setShowAllProjects] = useState(false)
   const [selected, setSelected] = useState<Project | null>(null)
