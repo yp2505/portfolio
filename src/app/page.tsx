@@ -86,15 +86,18 @@ function DesktopWelcomeHero() {
 }
 
 export default function Home() {
-  const [showWelcome, setShowWelcome] = useState(true)
+  // null = not yet determined; true = show welcome; false = skip welcome
+  const [showWelcome, setShowWelcome] = useState<boolean | null>(null)
   const { isMobile, isReady } = useIsDevice()
 
   useEffect(() => {
+    if (!isReady) return          // wait until device is known
+
     const currentHash = window.location.hash
     const pathname = window.location.pathname
 
     if (currentHash === '#portfolio') {
-      setTimeout(() => setShowWelcome(false), 0)
+      setShowWelcome(false)
       return
     }
 
@@ -115,22 +118,23 @@ export default function Home() {
       }
 
       window.scrollTo({ top: 0, behavior: 'instant' })
+      setShowWelcome(true)
+      return
     }
 
-    if (!hasPlayedIntro()) {
-      setShowWelcome(true)
-    } else {
-      setShowWelcome(false)
-    }
-  }, [])
+    // If introPlayed is set (first visit dismissed or coming back via nav),
+    // skip the welcome screen entirely.
+    setShowWelcome(!hasPlayedIntro())
+  }, [isReady])
 
   const handleUnlock = () => {
     setShowWelcome(false)
     setIntroPlayed()
   }
 
-  // Don't flash wrong UI before device detection finishes
-  if (!isReady) return null
+  // Block render until both device detection AND welcome state are resolved.
+  // This prevents the lock screen from flashing when navigating back to home.
+  if (!isReady || showWelcome === null) return null
 
   return (
     <>
