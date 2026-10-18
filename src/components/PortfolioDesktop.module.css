@@ -5,53 +5,6 @@
   isolation: isolate;
 }
 
-.window {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border: 1px solid rgba(210, 239, 255, 0.18);
-  border-radius: 15px;
-  background: rgba(5, 14, 25, 0.9);
-  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.42), inset 0 1px rgba(255, 255, 255, 0.08);
-  color: #eef8ff;
-}
-
-.window[data-wm-focused] {
-  border-color: rgba(103, 232, 249, 0.52);
-  box-shadow: 0 26px 64px rgba(0, 0, 0, 0.52), 0 0 0 1px rgba(14, 165, 233, 0.13), inset 0 1px rgba(255, 255, 255, 0.1);
-}
-
-.titlebar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 38px;
-  padding: 0 12px;
-  border-bottom: 1px solid rgba(210, 239, 255, 0.1);
-  background: rgba(255, 255, 255, 0.045);
-  cursor: grab;
-  touch-action: none;
-}
-
-.titlebar:active { cursor: grabbing; }
-.titlebar [data-wm-title] { overflow: hidden; color: rgba(245, 252, 255, 0.88); font: 600 12px/1 var(--font-inter), sans-serif; text-overflow: ellipsis; white-space: nowrap; }
-.controls { display: flex; gap: 7px; margin-left: auto; }
-.controls button { width: 12px; height: 12px; border: 0; border-radius: 50%; padding: 0; cursor: pointer; }
-.controls [data-wm-close] { background: #fb7185; }.controls [data-wm-minimize] { background: #fbbf24; }.controls [data-wm-maximize] { background: #4ade80; }
-
-.windowContent {
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-  overscroll-behavior: contain;
-  background: rgba(2, 4, 8, 0.36);
-}
-
-.shelf { position: fixed; z-index: 2000; right: 18px; bottom: 104px; display: flex; max-width: min(500px, calc(100vw - 36px)); gap: 6px; padding: 6px; overflow-x: auto; border: 1px solid rgba(255, 255, 255, 0.13); border-radius: 11px; background: rgba(5, 14, 25, 0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }.shelf button { flex: 0 0 auto; max-width: 136px; overflow: hidden; border: 1px solid transparent; border-radius: 7px; padding: 7px 9px; background: transparent; color: rgba(239, 249, 255, 0.62); font: 500 11px/1 var(--font-inter), sans-serif; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }.shelf button[aria-pressed="true"] { border-color: rgba(103, 232, 249, 0.25); background: rgba(14, 165, 233, 0.15); color: #eafaff; }
-
-@media (hover: hover) and (pointer: fine) { .controls button:hover { filter: brightness(1.16); }.shelf button:hover { background: rgba(255, 255, 255, 0.08); color: #f5fbff; } }
-
 @media (max-width: 767px) {
   .desktop {
     display: none;

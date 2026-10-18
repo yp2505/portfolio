@@ -16,13 +16,11 @@ const navItems = [
     label: 'About', 
     href: '/about', 
     iconUrl: '/assets/icons/mac/photos.svg',
-    windowId: 'about',
   },
   { 
     label: 'Portfolio', 
     href: '/portfolio', 
     iconUrl: '/assets/icons/mac/safari.svg',
-    windowId: 'projects',
   },
   { 
     label: 'Ask Me', 
@@ -31,11 +29,7 @@ const navItems = [
   },
 ]
 
-interface MacDockProps {
-  onOpenWindow?: (windowId: string) => void
-}
-
-export default function MacDock({ onOpenWindow }: MacDockProps) {
+export default function MacDock() {
   const pathname = usePathname()
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const [isMobile, setIsMobile] = useState(false)
@@ -81,7 +75,6 @@ export default function MacDock({ onOpenWindow }: MacDockProps) {
         const isActive = pathname === item.href
         const isHovered = hoveredIndex === index
         const isNeighbor = hoveredIndex !== null && Math.abs(hoveredIndex - index) === 1
-        const launchesWindow = Boolean(item.windowId && onOpenWindow)
 
         let scale = 1
         let y = 0
@@ -174,15 +167,7 @@ export default function MacDock({ onOpenWindow }: MacDockProps) {
                 </motion.div>
               </div>
             ) : (
-              <Link
-                href={item.href}
-                onClick={(event) => {
-                  if (!launchesWindow) return
-                  event.preventDefault()
-                  onOpenWindow?.(item.windowId!)
-                }}
-                style={{ textDecoration: 'none', display: 'block' }}
-              >
+              <Link href={item.href} style={{ textDecoration: 'none', display: 'block' }}>
                 <motion.div
                   onHoverStart={() => setHoveredIndex(index)}
                   onHoverEnd={() => setHoveredIndex(null)}

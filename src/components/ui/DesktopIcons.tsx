@@ -10,21 +10,16 @@ interface DesktopIcon {
   label: string
   href: string
   isFile?: boolean
-  windowId?: string
 }
 
 const desktopIcons: DesktopIcon[] = [
   { label: 'Yug_Resume.pdf', href: '#', isFile: true },
-  { label: 'About Me', href: '/about', windowId: 'about' },
-  { label: 'Projects', href: '/portfolio', windowId: 'projects' },
-  { label: 'Contact', href: '/contact', windowId: 'contact' },
+  { label: 'About Me', href: '/about' },
+  { label: 'Projects', href: '/portfolio' },
+  { label: 'Contact', href: '/contact' },
 ]
 
-interface DesktopIconsProps {
-  onOpenWindow?: (windowId: string) => void
-}
-
-export default function DesktopIcons({ onOpenWindow }: DesktopIconsProps) {
+export default function DesktopIcons() {
   const pathname = usePathname()
   const [isMobile, setIsMobile] = useState(false)
 
@@ -116,20 +111,6 @@ export default function DesktopIcons({ onOpenWindow }: DesktopIconsProps) {
               </span>
           </motion.div>
         )
-
-        if (item.windowId && onOpenWindow) {
-          return (
-            <button
-              key={item.label}
-              type="button"
-              onClick={() => onOpenWindow(item.windowId!)}
-              style={{ appearance: 'none', border: 0, padding: 0, background: 'transparent', display: 'flex', justifyContent: 'center' }}
-              aria-label={`Open ${item.label}`}
-            >
-              {icon}
-            </button>
-          )
-        }
 
         return (
           <Link key={item.label} href={item.href} style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center' }}>
