@@ -4,9 +4,12 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { format } from 'date-fns'
-import { Menu, X, ChevronLeft } from 'lucide-react'
+import { Menu, X, ChevronLeft, Wifi, WifiOff, Volume2, VolumeX } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { setIntroPlayed } from '@/lib/introState'
+import { useControlCenter } from '@/components/control-center/useControlCenter'
+import ControlCenter from '@/components/control-center/ControlCenter'
+import DesktopCalendarPopover from '@/components/control-center/DesktopCalendarPopover'
 
 const navLinks = [
   { label: 'Home', href: '/' },
@@ -23,6 +26,17 @@ export default function TopMenu() {
   const [isMobile, setIsMobile] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  const {
+    isDesktopControlCenterOpen,
+    setDesktopControlCenterOpen,
+    isCalendarModalOpen,
+    setCalendarModalOpen,
+    isRealOnline,
+    isSimulatedOffline,
+    volume,
+    isMuted,
+  } = useControlCenter()
 
   const isSubPage = pathname !== '/'
 
@@ -222,12 +236,8 @@ export default function TopMenu() {
           )}
         </div>
 
-        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 12, fontWeight: isMobile ? 600 : 500 }}>
-          {!isMobile && <span>{date}</span>}
-          <span>{time}</span>
-        </div>
-        
-        <div style={{ display: 'flex', alignItems: 'center', width: isMobile ? 80 : 100, justifyContent: 'flex-end' }}>
+        {/* Center: yug.dev */}
+        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center' }}>
           <button
             type="button"
             onClick={handleGoHome}
@@ -239,7 +249,8 @@ export default function TopMenu() {
               color: 'white',
               cursor: 'pointer',
               fontSize: 13,
-              fontWeight: 500,
+              fontWeight: 600,
+              letterSpacing: '-0.01em',
               opacity: 0.9,
             }}
             title="Go to Home"
@@ -247,7 +258,128 @@ export default function TopMenu() {
             yug.dev
           </button>
         </div>
+
+        {/* Right: macOS status icons and Control Center trigger */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* Wi-Fi Status Tile */}
+          <button
+            type="button"
+            data-control-center-trigger="true"
+            onClick={() => setDesktopControlCenterOpen((prev) => !prev)}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: '2px 4px',
+              color: isSimulatedOffline ? '#f59e0b' : 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              opacity: 0.9,
+            }}
+            title={isSimulatedOffline ? 'Wi-Fi: Simulated Offline' : 'Wi-Fi: Connected'}
+            aria-label="Wi-Fi status"
+          >
+            {isSimulatedOffline || !isRealOnline ? (
+              <WifiOff size={14} strokeWidth={2.2} />
+            ) : (
+              <Wifi size={14} strokeWidth={2.2} />
+            )}
+          </button>
+
+          {/* Sound / Volume */}
+          <button
+            type="button"
+            data-control-center-trigger="true"
+            onClick={() => setDesktopControlCenterOpen((prev) => !prev)}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: '2px 4px',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              opacity: 0.9,
+            }}
+            title={`Sound: ${isMuted || volume === 0 ? 'Muted' : `${volume}%`}`}
+            aria-label="Sound volume"
+          >
+            {isMuted || volume === 0 ? (
+              <VolumeX size={14} strokeWidth={2.2} />
+            ) : (
+              <Volume2 size={14} strokeWidth={2.2} />
+            )}
+          </button>
+
+          {/* Control Center Toggle Button (macOS dual capsule switches) */}
+          <button
+            type="button"
+            data-control-center-trigger="true"
+            onClick={() => {
+              setCalendarModalOpen(false)
+              setDesktopControlCenterOpen((prev) => !prev)
+            }}
+            style={{
+              background: isDesktopControlCenterOpen ? 'rgba(255, 255, 255, 0.22)' : 'none',
+              border: 'none',
+              borderRadius: 5,
+              padding: '3px 5px',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'background-color 0.15s ease',
+            }}
+            title="Control Center"
+            aria-label="Open Control Center"
+          >
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor">
+              <rect x="1" y="2.5" width="14" height="4.5" rx="2.25" fill="none" stroke="currentColor" strokeWidth="1.2" />
+              <circle cx="5" cy="4.75" r="1.5" fill="currentColor" />
+              <rect x="1" y="8.75" width="14" height="4.5" rx="2.25" fill="none" stroke="currentColor" strokeWidth="1.2" />
+              <circle cx="11" cy="11" r="1.5" fill="currentColor" />
+            </svg>
+          </button>
+
+          {/* Date & Time Button — clicking toggles Calendar Card popover */}
+          <button
+            type="button"
+            data-calendar-trigger="true"
+            onClick={() => {
+              setDesktopControlCenterOpen(false)
+              setCalendarModalOpen((prev) => !prev)
+            }}
+            style={{
+              background: isCalendarModalOpen ? 'rgba(255, 255, 255, 0.18)' : 'none',
+              border: 'none',
+              borderRadius: 5,
+              padding: '2px 6px',
+              color: 'white',
+              cursor: 'pointer',
+              fontSize: 13,
+              fontWeight: 500,
+              fontFamily: "'Inter', system-ui, sans-serif",
+              letterSpacing: '-0.01em',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              transition: 'background-color 0.15s ease',
+            }}
+            title="Date & Time — Click to open Calendar & Notes"
+            aria-label="Date and time - Open Calendar"
+          >
+            {!isMobile && <span>{date}</span>}
+            <span>{time}</span>
+          </button>
+        </div>
       </div>
+
+      {/* macOS Desktop Control Center Panel */}
+      <ControlCenter />
+
+      {/* macOS Standalone Calendar & Notes Popover */}
+      <DesktopCalendarPopover />
     </>
   )
 }

@@ -67,6 +67,10 @@ export const viewport: Viewport = {
 import BackgroundWrapper from "@/components/BackgroundWrapper";
 import TopMenu from "@/components/ui/TopMenu";
 import MobilePillNavWrapper from "@/components/ui/MobilePillNavWrapper";
+import { ControlCenterProvider } from "@/components/control-center/useControlCenter";
+import BrightnessOverlay from "@/components/control-center/BrightnessOverlay";
+import SimulatedOfflineBanner from "@/components/control-center/SimulatedOfflineBanner";
+import MobileControlCenter from "@/components/control-center/MobileControlCenter";
 
 export default function RootLayout({
   children,
@@ -79,19 +83,24 @@ export default function RootLayout({
         className={`${inter.variable} ${jetbrainsMono.variable} ${dancingScript.variable} antialiased bg-black text-white overflow-x-hidden`}
       >
         <ThemeProvider>
-        <BackgroundWrapper />
+          <ControlCenterProvider>
+            <BackgroundWrapper />
+            <BrightnessOverlay />
+            <SimulatedOfflineBanner />
+            <MobileControlCenter />
 
-        <div className="relative z-10 w-full min-h-screen">
-          {/* TopMenu — hidden on mobile via CSS */}
-          <TopMenu />
+            <div className="relative z-10 w-full min-h-screen">
+              {/* TopMenu — hidden on mobile via CSS */}
+              <TopMenu />
 
-          {/* Mobile pill nav + back button — hidden on desktop via CSS */}
-          <MobilePillNavWrapper />
+              {/* Mobile pill nav + back button — hidden on desktop via CSS */}
+              <MobilePillNavWrapper />
 
-          <main className="w-full min-h-screen pt-7">
-            {children}
-          </main>
-        </div>
+              <main className="w-full min-h-screen pt-7">
+                {children}
+              </main>
+            </div>
+          </ControlCenterProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -4,14 +4,16 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { setIntroPlayed } from '@/lib/introState'
+import { useControlCenter } from '@/components/control-center/useControlCenter'
 
 /**
  * iOS-style top status strip — sits at the same level as the pill nav.
  * Left: yug.dev (tappable → home)
- * Right: live clock
+ * Right: live clock (tappable → opens iOS Control Center)
  * The pill nav stays centered independently between them.
  */
 export default function MobileStatusBar() {
+  const { setMobileControlCenterOpen } = useControlCenter()
   const [timeStr, setTimeStr] = useState('')
 
   useEffect(() => {
@@ -67,10 +69,29 @@ export default function MobileStatusBar() {
         </motion.span>
       </Link>
 
-      {/* Right: live clock */}
-      <span style={{ ...textStyle, pointerEvents: 'none' }}>
-        {timeStr}
-      </span>
+      {/* Right: live clock - opens iOS Control Center */}
+      <motion.button
+        type="button"
+        whileTap={{ scale: 0.9, opacity: 0.6 }}
+        onClick={() => setMobileControlCenterOpen(true)}
+        style={{
+          ...textStyle,
+          background: 'none',
+          border: 'none',
+          padding: '4px 6px',
+          margin: '-4px -6px',
+          cursor: 'pointer',
+          pointerEvents: 'auto',
+          touchAction: 'manipulation',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 4,
+        }}
+        title="Open Control Center (or swipe down from top-right)"
+        aria-label="Open Control Center"
+      >
+        <span>{timeStr}</span>
+      </motion.button>
     </div>
   )
 }

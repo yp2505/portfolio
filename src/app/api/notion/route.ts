@@ -20,21 +20,26 @@ export async function GET() {
     });
 
     const projects = response.results.map((page: unknown, index: number) => {
-      const props = (page as any).properties;
+      const pageObj = page as { properties?: Record<string, Record<string, unknown>> }
+      const props = pageObj.properties || {}
 
-      const titleProp = props.Title || props.title || props.Name || props.name;
-      const descProp = props.Description || props.description;
-      const githubProp = props.GitHub || props.github || props.Link || props.link;
-      const techProp = props.Tech || props.tech;
-      const statusProp = props.Status || props.status;
-      const imageProp = props.Image || props.image;
+      const titleProp = (props.Title || props.title || props.Name || props.name) as Record<string, unknown> | undefined
+      const descProp = (props.Description || props.description) as Record<string, unknown> | undefined
+      const githubProp = (props.GitHub || props.github || props.Link || props.link) as Record<string, unknown> | undefined
+      const techProp = (props.Tech || props.tech) as Record<string, unknown> | undefined
+      const statusProp = (props.Status || props.status) as Record<string, unknown> | undefined
+      const imageProp = (props.Image || props.image) as Record<string, unknown> | undefined
 
-      const titleText = titleProp?.title?.[0]?.plain_text || 'Untitled Project';
-      const descText = descProp?.rich_text?.[0]?.plain_text || '';
-      const githubUrl = githubProp?.url || 'https://github.com/yp2505';
-      const techList = techProp?.multi_select?.map((t: { name: string }) => t.name) || ['ML', 'Python'];
-      const statusVal = statusProp?.select?.name?.toLowerCase() === 'completed' ? 'completed' : 'in-progress';
-      const imageUrl = imageProp?.url || '';
+      const titleText = ((titleProp?.title as Array<{ plain_text?: string }>) || [])[0]?.plain_text || 'Untitled Project'
+      const descText = ((descProp?.rich_text as Array<{ plain_text?: string }>) || [])[0]?.plain_text || ''
+      const githubUrl = (githubProp?.url as string) || 'https://github.com/yp2505'
+      const techList =
+        (techProp?.multi_select as Array<{ name: string }>)?.map((t) => t.name) || ['ML', 'Python']
+      const statusVal =
+        ((statusProp?.select as { name?: string })?.name || '').toLowerCase() === 'completed'
+          ? 'completed'
+          : 'in-progress'
+      const imageUrl = (imageProp?.url as string) || ''
 
       return {
         id: index + 1,
@@ -44,15 +49,15 @@ export async function GET() {
         tech: techList,
         status: statusVal,
         image_url: imageUrl,
-      };
-    });
+      }
+    })
 
-    return NextResponse.json({ success: true, projects });
-  } catch (error: any) {
+    return NextResponse.json({ success: true, projects })
+  } catch (error: unknown) {
     return NextResponse.json({
       success: false,
-      error: error.message,
+      error: error instanceof Error ? error.message : 'Unknown error',
       projects: [],
-    });
+    })
   }
 }

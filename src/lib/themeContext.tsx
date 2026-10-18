@@ -19,9 +19,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // Persist theme across navigation
   useEffect(() => {
-    const saved = localStorage.getItem('homeWallpaper') as Theme | null
-    if (saved === 'dark' || saved === 'light') {
-      setHomeTheme(saved)
+    try {
+      const saved = localStorage.getItem('homeWallpaper') as Theme | null
+      if (saved === 'dark' || saved === 'light') {
+        const timer = setTimeout(() => setHomeTheme(saved), 0)
+        return () => clearTimeout(timer)
+      }
+    } catch {
+      // localStorage security error or disabled
     }
   }, [])
 
