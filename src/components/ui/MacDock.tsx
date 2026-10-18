@@ -22,6 +22,12 @@ const navItems = [
     href: '/portfolio', 
     iconUrl: '/assets/icons/mac/safari.svg',
   },
+  {
+    // Portfolio OS — launches the OS.js web desktop at /os
+    label: 'Portfolio OS',
+    href: '/os',
+    iconUrl: '/assets/icons/mac/folder.svg',
+  },
   { 
     label: 'Ask Me', 
     href: '/contact', 

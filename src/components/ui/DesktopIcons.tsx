@@ -10,6 +10,7 @@ const desktopIcons = [
   { label: 'Yug_Resume.pdf', href: '#', isFile: true },
   { label: 'About Me', href: '/about' },
   { label: 'Projects', href: '/portfolio' },
+  { label: 'Portfolio OS', href: '/os', isOS: true },  // ← OS.js desktop
   { label: 'Contact', href: '/contact' },
 ]
 
