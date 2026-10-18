@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Play, Pause, SkipBack, SkipForward, Music, ExternalLink } from 'lucide-react'
-import { useControlCenter, SPOTIFY_PROFILE_URL } from './useControlCenter'
+import { Play, Pause, SkipBack, SkipForward, ExternalLink, LogIn, Disc3 } from 'lucide-react'
+import { useControlCenter } from './useControlCenter'
 
 interface NowPlayingProps {
   compact?: boolean
@@ -26,8 +26,158 @@ export default function NowPlaying({ compact = false }: NowPlayingProps) {
     nextTrack,
     prevTrack,
     seekTrack,
+    isSpotifyConnected,
+    spotifyAuthType,
+    spotifyEmbedUrl,
+    setSpotifyModalOpen,
   } = useControlCenter()
 
+  // 1. DISCONNECTED STATE: User must authenticate first (no preconfigured songs)
+  if (!isSpotifyConnected) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 10,
+          width: '100%',
+          padding: compact ? '8px 4px' : '12px 6px',
+          textAlign: 'center',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            width: '100%',
+          }}
+        >
+          {/* Spotify Logo Avatar */}
+          <div
+            style={{
+              width: compact ? 42 : 48,
+              height: compact ? 42 : 48,
+              borderRadius: 12,
+              backgroundColor: 'rgba(30, 215, 96, 0.14)',
+              border: '1px solid rgba(30, 215, 96, 0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#1db954',
+              flexShrink: 0,
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
+            </svg>
+          </div>
+
+          {/* Description */}
+          <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#ffffff' }}>
+              Spotify Music
+            </div>
+            <div
+              style={{
+                fontSize: 11,
+                color: 'rgba(255, 255, 255, 0.6)',
+                marginTop: 2,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              Authenticate to play songs here
+            </div>
+          </div>
+        </div>
+
+        {/* Connect Button */}
+        <motion.button
+          type="button"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.96 }}
+          onClick={() => setSpotifyModalOpen(true)}
+          style={{
+            width: '100%',
+            padding: '8px 14px',
+            borderRadius: 10,
+            backgroundColor: '#1db954',
+            border: 'none',
+            color: '#000000',
+            fontSize: 12,
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 7,
+            boxShadow: '0 3px 12px rgba(30, 215, 96, 0.3)',
+          }}
+        >
+          <LogIn size={14} strokeWidth={2.5} />
+          <span>Connect Your Spotify</span>
+        </motion.button>
+      </div>
+    )
+  }
+
+  // 2. CONNECTED VIA EMBED PLAYER
+  if (spotifyAuthType === 'embed') {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                backgroundColor: '#1db954',
+                boxShadow: '0 0 8px #1db954',
+              }}
+            />
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#1db954' }}>
+              Spotify Connected
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSpotifyModalOpen(true)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'rgba(255,255,255,0.6)',
+              fontSize: 11,
+              cursor: 'pointer',
+              padding: '2px 4px',
+            }}
+          >
+            Change
+          </button>
+        </div>
+
+        <iframe
+          src={
+            spotifyEmbedUrl ||
+            'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator&theme=0'
+          }
+          width="100%"
+          height={compact ? '80' : '152'}
+          frameBorder="0"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+          style={{ borderRadius: 12 }}
+          title="Spotify Web Player"
+        />
+      </div>
+    )
+  }
+
+  // 3. CONNECTED VIA SPOTIFY OAUTH
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0
 
   const handleProgressBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -62,14 +212,14 @@ export default function NowPlaying({ compact = false }: NowPlayingProps) {
             boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
           }}
         >
-          {currentTrack.coverUrl ? (
+          {currentTrack?.coverUrl ? (
             <img
               src={currentTrack.coverUrl}
               alt={currentTrack.title}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           ) : (
-            <Music size={22} color="rgba(255,255,255,0.7)" />
+            <Disc3 size={22} color="#1db954" />
           )}
         </div>
 
@@ -86,7 +236,7 @@ export default function NowPlaying({ compact = false }: NowPlayingProps) {
               letterSpacing: '-0.01em',
             }}
           >
-            {currentTrack.title}
+            {currentTrack?.title || 'No Track Active'}
           </div>
           <div
             style={{
@@ -99,16 +249,14 @@ export default function NowPlaying({ compact = false }: NowPlayingProps) {
               marginTop: 2,
             }}
           >
-            {currentTrack.artist}
+            {currentTrack?.artist || 'Play a track on your Spotify app'}
           </div>
         </div>
 
-        {/* Spotify Link Button */}
-        <a
-          href={SPOTIFY_PROFILE_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Open Spotify"
+        {/* Status / Link Button */}
+        <button
+          type="button"
+          onClick={() => setSpotifyModalOpen(true)}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -118,16 +266,16 @@ export default function NowPlaying({ compact = false }: NowPlayingProps) {
             backgroundColor: 'rgba(30, 215, 96, 0.15)',
             border: '1px solid rgba(30, 215, 96, 0.3)',
             color: '#1ed760',
-            textDecoration: 'none',
             fontSize: 11,
             fontWeight: 600,
+            cursor: 'pointer',
             flexShrink: 0,
-            transition: 'all 0.15s ease',
           }}
+          title="Spotify Account Settings"
         >
           <span>Spotify</span>
           <ExternalLink size={10} strokeWidth={2.5} />
-        </a>
+        </button>
       </div>
 
       {/* Progress Bar */}
@@ -146,24 +294,23 @@ export default function NowPlaying({ compact = false }: NowPlayingProps) {
         >
           <div
             style={{
-              position: 'absolute',
-              top: 0,
-              bottom: 0,
-              left: 0,
               width: `${progressPercent}%`,
-              backgroundColor: '#ffffff',
+              height: '100%',
+              backgroundColor: '#1db954',
               borderRadius: 2,
-              transition: 'width 0.15s linear',
+              transition: 'width 0.2s linear',
             }}
           />
         </div>
+
+        {/* Timestamps */}
         <div
           style={{
             display: 'flex',
             justifyContent: 'space-between',
             fontSize: 10,
             color: 'rgba(255, 255, 255, 0.45)',
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFeatureSettings: '"tnum"',
           }}
         >
           <span>{formatTime(currentTime)}</span>
@@ -180,28 +327,28 @@ export default function NowPlaying({ compact = false }: NowPlayingProps) {
           gap: 20,
         }}
       >
-        <motion.button
+        <button
           type="button"
-          whileTap={{ scale: 0.85 }}
           onClick={prevTrack}
           style={{
             background: 'none',
             border: 'none',
-            padding: 4,
+            color: 'rgba(255, 255, 255, 0.8)',
             cursor: 'pointer',
-            color: 'rgba(255,255,255,0.75)',
+            padding: 6,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
           }}
-          aria-label="Previous track"
+          aria-label="Previous Track"
         >
-          <SkipBack size={18} fill="currentColor" />
-        </motion.button>
+          <SkipBack size={16} />
+        </button>
 
         <motion.button
           type="button"
-          whileTap={{ scale: 0.88 }}
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.94 }}
           onClick={togglePlayPause}
           style={{
             width: 38,
@@ -209,40 +356,39 @@ export default function NowPlaying({ compact = false }: NowPlayingProps) {
             borderRadius: '50%',
             backgroundColor: '#ffffff',
             border: 'none',
-            color: '#1c1c1e',
+            color: '#000000',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
           }}
           aria-label={isPlaying ? 'Pause' : 'Play'}
         >
           {isPlaying ? (
-            <Pause size={17} fill="currentColor" />
+            <Pause size={18} fill="#000000" />
           ) : (
-            <Play size={17} fill="currentColor" style={{ marginLeft: 2 }} />
+            <Play size={18} fill="#000000" style={{ marginLeft: 2 }} />
           )}
         </motion.button>
 
-        <motion.button
+        <button
           type="button"
-          whileTap={{ scale: 0.85 }}
           onClick={nextTrack}
           style={{
             background: 'none',
             border: 'none',
-            padding: 4,
+            color: 'rgba(255, 255, 255, 0.8)',
             cursor: 'pointer',
-            color: 'rgba(255,255,255,0.75)',
+            padding: 6,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
           }}
-          aria-label="Next track"
+          aria-label="Next Track"
         >
-          <SkipForward size={18} fill="currentColor" />
-        </motion.button>
+          <SkipForward size={16} />
+        </button>
       </div>
     </div>
   )

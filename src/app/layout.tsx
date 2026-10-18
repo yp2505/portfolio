@@ -71,6 +71,7 @@ import { ControlCenterProvider } from "@/components/control-center/useControlCen
 import BrightnessOverlay from "@/components/control-center/BrightnessOverlay";
 import SimulatedOfflineBanner from "@/components/control-center/SimulatedOfflineBanner";
 import MobileControlCenter from "@/components/control-center/MobileControlCenter";
+import SpotifyConnectModal from "@/components/control-center/SpotifyConnectModal";
 
 export default function RootLayout({
   children,
@@ -88,6 +89,7 @@ export default function RootLayout({
             <BrightnessOverlay />
             <SimulatedOfflineBanner />
             <MobileControlCenter />
+            <SpotifyConnectModal />
 
             <div className="relative z-10 w-full min-h-screen">
               {/* TopMenu — hidden on mobile via CSS */}

@@ -236,30 +236,40 @@ export default function TopMenu() {
           )}
         </div>
 
-        {/* Center: yug.dev */}
+        {/* Center: Calendar / Date & Time button */}
         <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center' }}>
           <button
             type="button"
-            onClick={handleGoHome}
+            data-calendar-trigger="true"
+            onClick={() => {
+              setDesktopControlCenterOpen(false)
+              setCalendarModalOpen((prev) => !prev)
+            }}
             style={{
-              background: 'none',
+              background: isCalendarModalOpen ? 'rgba(255, 255, 255, 0.18)' : 'none',
               border: 'none',
-              padding: 0,
-              margin: 0,
+              borderRadius: 6,
+              padding: '2px 8px',
               color: 'white',
               cursor: 'pointer',
               fontSize: 13,
-              fontWeight: 600,
+              fontWeight: 500,
+              fontFamily: "'Inter', system-ui, sans-serif",
               letterSpacing: '-0.01em',
-              opacity: 0.9,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              transition: 'background-color 0.15s ease',
             }}
-            title="Go to Home"
+            title="Date & Time — Click to open Calendar & Notes"
+            aria-label="Date and time - Open Calendar"
           >
-            yug.dev
+            {!isMobile && <span>{date}</span>}
+            <span>{time}</span>
           </button>
         </div>
 
-        {/* Right: macOS status icons and Control Center trigger */}
+        {/* Right: macOS status icons, Control Center toggle, and yug.dev */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {/* Wi-Fi Status Tile */}
           <button
@@ -342,35 +352,30 @@ export default function TopMenu() {
             </svg>
           </button>
 
-          {/* Date & Time Button — clicking toggles Calendar Card popover */}
+          {/* Right corner: yug.dev */}
           <button
             type="button"
-            data-calendar-trigger="true"
-            onClick={() => {
-              setDesktopControlCenterOpen(false)
-              setCalendarModalOpen((prev) => !prev)
-            }}
+            onClick={handleGoHome}
             style={{
-              background: isCalendarModalOpen ? 'rgba(255, 255, 255, 0.18)' : 'none',
+              background: 'none',
               border: 'none',
-              borderRadius: 5,
-              padding: '2px 6px',
+              padding: '2px 4px',
+              margin: 0,
               color: 'white',
               cursor: 'pointer',
               fontSize: 13,
-              fontWeight: 500,
+              fontWeight: 600,
               fontFamily: "'Inter', system-ui, sans-serif",
               letterSpacing: '-0.01em',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              transition: 'background-color 0.15s ease',
+              opacity: 0.95,
+              transition: 'opacity 0.15s ease',
             }}
-            title="Date & Time — Click to open Calendar & Notes"
-            aria-label="Date and time - Open Calendar"
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.75' }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.95' }}
+            title="Go to Home Desktop"
+            aria-label="Go to Home Desktop"
           >
-            {!isMobile && <span>{date}</span>}
-            <span>{time}</span>
+            yug.dev
           </button>
         </div>
       </div>

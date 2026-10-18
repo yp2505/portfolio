@@ -5,7 +5,6 @@ import React, {
   useContext,
   useState,
   useEffect,
-  useRef,
   useCallback,
   useSyncExternalStore,
   ReactNode,
@@ -19,28 +18,18 @@ export interface Track {
   title: string
   artist: string
   album: string
-  src: string
   coverUrl?: string
+  spotifyUrl?: string
+  durationMs?: number
 }
 
-export const DEFAULT_TRACKS: Track[] = [
-  {
-    id: 'track-1',
-    title: 'Midnight Coding',
-    artist: 'Yug Patel',
-    album: 'Dev Beats Vol. 1',
-    src: '/audio/track1.mp3',
-    coverUrl: '/assets/profile_photo.png',
-  },
-  {
-    id: 'track-2',
-    title: 'Silicon Sunset',
-    artist: 'Lofi Horizon',
-    album: 'Deep Focus',
-    src: '/audio/track2.mp3',
-    coverUrl: '/assets/PP.png',
-  },
-]
+export interface SpotifyUser {
+  displayName?: string
+  email?: string
+  product?: string
+  profileUrl?: string
+  imageUrl?: string
+}
 
 interface ControlCenterContextType {
   // Panel states
@@ -50,6 +39,17 @@ interface ControlCenterContextType {
   setMobileControlCenterOpen: (open: boolean | ((prev: boolean) => boolean)) => void
   isCalendarModalOpen: boolean
   setCalendarModalOpen: (open: boolean | ((prev: boolean) => boolean)) => void
+
+  // Spotify Authentication & State
+  isSpotifyModalOpen: boolean
+  setSpotifyModalOpen: (open: boolean | ((prev: boolean) => boolean)) => void
+  isSpotifyConnected: boolean
+  spotifyAuthType: 'oauth' | 'embed' | null
+  spotifyUser: SpotifyUser | null
+  spotifyEmbedUrl: string | null
+  connectSpotifyOAuth: (clientId?: string) => Promise<void>
+  connectSpotifyEmbed: (urlOrUri: string) => void
+  disconnectSpotify: () => void
 
   // Connectivity
   isRealOnline: boolean
@@ -80,9 +80,7 @@ interface ControlCenterContextType {
   toggleHomeTheme: () => void
 
   // Audio / Music player
-  tracks: Track[]
-  currentTrackIndex: number
-  currentTrack: Track
+  currentTrack: Track | null
   isPlaying: boolean
   currentTime: number
   duration: number
@@ -115,6 +113,51 @@ function getServerOnlineSnapshot() {
   return true
 }
 
+// Helpers for Spotify OAuth PKCE Flow
+function generateRandomString(length: number): string {
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~'
+  const values = crypto.getRandomValues(new Uint8Array(length))
+  return Array.from(values)
+    .map((x) => possible[x % possible.length])
+    .join('')
+}
+
+async function sha256(plain: string): Promise<ArrayBuffer> {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(plain)
+  return window.crypto.subtle.digest('SHA-256', data)
+}
+
+function base64encode(input: ArrayBuffer): string {
+  return btoa(String.fromCharCode(...new Uint8Array(input)))
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+}
+
+// Parse Spotify URL to iframe embed URL
+function toSpotifyEmbedUrl(input: string): string {
+  const clean = input.trim()
+  if (clean.includes('/embed/')) return clean
+
+  // Handle open.spotify.com/playlist/ID, /album/ID, /track/ID
+  const match = clean.match(/open\.spotify\.com\/(track|playlist|album|artist)\/([a-zA-Z0-9]+)/)
+  if (match) {
+    const [, type, id] = match
+    return `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&theme=0`
+  }
+
+  // Handle spotify:playlist:ID etc
+  const uriMatch = clean.match(/spotify:(track|playlist|album|artist):([a-zA-Z0-9]+)/)
+  if (uriMatch) {
+    const [, type, id] = uriMatch
+    return `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&theme=0`
+  }
+
+  // Fallback to default Today's Top Hits playlist
+  return 'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator&theme=0'
+}
+
 const ControlCenterContext = createContext<ControlCenterContextType | null>(null)
 
 export function ControlCenterProvider({ children }: { children: ReactNode }) {
@@ -124,6 +167,14 @@ export function ControlCenterProvider({ children }: { children: ReactNode }) {
   const [isDesktopControlCenterOpen, setDesktopControlCenterOpen] = useState(false)
   const [isMobileControlCenterOpen, setMobileControlCenterOpen] = useState(false)
   const [isCalendarModalOpen, setCalendarModalOpen] = useState(false)
+  const [isSpotifyModalOpen, setSpotifyModalOpen] = useState(false)
+
+  // Spotify Authentication State
+  const [isSpotifyConnected, setIsSpotifyConnected] = useState(false)
+  const [spotifyAuthType, setSpotifyAuthType] = useState<'oauth' | 'embed' | null>(null)
+  const [spotifyAccessToken, setSpotifyAccessToken] = useState<string | null>(null)
+  const [spotifyUser, setSpotifyUser] = useState<SpotifyUser | null>(null)
+  const [spotifyEmbedUrl, setSpotifyEmbedUrl] = useState<string | null>(null)
 
   // Connectivity
   const isRealOnline = useSyncExternalStore(subscribeOnline, getOnlineSnapshot, getServerOnlineSnapshot)
@@ -140,23 +191,90 @@ export function ControlCenterProvider({ children }: { children: ReactNode }) {
   const [isFocusOn, setIsFocusOn] = useState(false)
   const [isFlashlightOn, setIsFlashlightOn] = useState(false)
 
-  // Music Player
-  const [tracks] = useState<Track[]>(DEFAULT_TRACKS)
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
+  // Music Player: NO hardcoded tracks by default!
+  const [currentTrack, setCurrentTrack] = useState<Track | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(180) // default 3:00 placeholder
-  const audioRef = useRef<HTMLAudioElement | null>(null)
-  const synthOscRef = useRef<OscillatorNode | null>(null)
-  const audioCtxRef = useRef<AudioContext | null>(null)
-  const nextTrackRef = useRef<() => void>(() => {})
+  const [duration, setDuration] = useState(180)
 
   // Calendar Notes: { 'YYYY-MM-DD': 'Note content' }
   const [calendarNotes, setCalendarNotes] = useState<Record<string, string>>({})
 
-  // Hydration-safe initial state loading via microtask/timeout to prevent cascading synchronous renders
+  // Spotify API Fetch Helper
+  const fetchSpotifyWithAuth = useCallback(
+    async (endpoint: string, method: string = 'GET', body?: unknown) => {
+      const token = spotifyAccessToken || (typeof window !== 'undefined' ? localStorage.getItem('spotify_access_token') : null)
+      if (!token) return null
+
+      try {
+        const res = await fetch(`https://api.spotify.com/v1${endpoint}`, {
+          method,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: body ? JSON.stringify(body) : undefined,
+        })
+
+        if (res.status === 204) return true
+        if (res.status === 401) {
+          // Token expired
+          setIsSpotifyConnected(false)
+          setSpotifyAccessToken(null)
+          try {
+            localStorage.removeItem('spotify_access_token')
+          } catch {}
+          return null
+        }
+        return await res.json()
+      } catch {
+        return null
+      }
+    },
+    [spotifyAccessToken]
+  )
+
+  // Fetch currently playing track from Spotify
+  const refreshSpotifyPlayback = useCallback(async () => {
+    const data = await fetchSpotifyWithAuth('/me/player/currently-playing')
+    if (data?.item) {
+      setCurrentTrack({
+        id: data.item.id,
+        title: data.item.name,
+        artist: data.item.artists?.map((a: { name: string }) => a.name).join(', ') || 'Unknown Artist',
+        album: data.item.album?.name || 'Spotify',
+        coverUrl: data.item.album?.images?.[0]?.url,
+        spotifyUrl: data.item.external_urls?.spotify,
+        durationMs: data.item.duration_ms,
+      })
+      setIsPlaying(data.is_playing || false)
+      if (data.progress_ms && data.item.duration_ms) {
+        setCurrentTime(Math.floor(data.progress_ms / 1000))
+        setDuration(Math.floor(data.item.duration_ms / 1000))
+      }
+    } else {
+      // Check recently played if nothing currently active
+      const recent = await fetchSpotifyWithAuth('/me/player/recently-played?limit=1')
+      if (recent?.items?.[0]?.track) {
+        const track = recent.items[0].track
+        setCurrentTrack({
+          id: track.id,
+          title: track.name,
+          artist: track.artists?.map((a: { name: string }) => a.name).join(', ') || 'Unknown Artist',
+          album: track.album?.name || 'Spotify',
+          coverUrl: track.album?.images?.[0]?.url,
+          spotifyUrl: track.external_urls?.spotify,
+          durationMs: track.duration_ms,
+        })
+        setDuration(Math.floor(track.duration_ms / 1000))
+        setIsPlaying(false)
+      }
+    }
+  }, [fetchSpotifyWithAuth])
+
+  // Hydration-safe initial state loading
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       try {
         const savedBrightness = localStorage.getItem('cc_brightness')
         if (savedBrightness !== null) {
@@ -184,66 +302,254 @@ export function ControlCenterProvider({ children }: { children: ReactNode }) {
           setCalendarNotes(JSON.parse(savedNotes))
         }
 
-        // Connection effectiveType where supported
+        // Connection effectiveType
         const nav = typeof navigator !== 'undefined' ? (navigator as unknown as { connection?: { effectiveType?: string } }) : null
         if (nav?.connection?.effectiveType) {
           setNetworkType(nav.connection.effectiveType.toUpperCase())
         }
+
+        // Restore Spotify State
+        const savedAuthType = localStorage.getItem('spotify_auth_type') as 'oauth' | 'embed' | null
+        const savedToken = localStorage.getItem('spotify_access_token')
+        const savedEmbed = localStorage.getItem('spotify_embed_url')
+
+        if (savedAuthType === 'embed' && savedEmbed) {
+          setIsSpotifyConnected(true)
+          setSpotifyAuthType('embed')
+          setSpotifyEmbedUrl(savedEmbed)
+        } else if (savedAuthType === 'oauth' && savedToken) {
+          setIsSpotifyConnected(true)
+          setSpotifyAuthType('oauth')
+          setSpotifyAccessToken(savedToken)
+
+          // Fetch Spotify user profile
+          const userRes = await fetch('https://api.spotify.com/v1/me', {
+            headers: { Authorization: `Bearer ${savedToken}` },
+          })
+          if (userRes.ok) {
+            const userData = await userRes.json()
+            setSpotifyUser({
+              displayName: userData.display_name,
+              email: userData.email,
+              product: userData.product,
+              profileUrl: userData.external_urls?.spotify,
+              imageUrl: userData.images?.[0]?.url,
+            })
+          }
+        }
       } catch {
-        // localStorage security error or disabled
+        // localStorage security or disabled
       }
     }, 0)
 
     return () => clearTimeout(timer)
   }, [])
 
-  // Audio initialization
+  // Handle Spotify OAuth Callback redirect (?code=...)
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    const audio = new Audio()
-    audio.preload = 'none'
-    audioRef.current = audio
+    const urlParams = new URLSearchParams(window.location.search)
+    const code = urlParams.get('code')
+    if (!code) return
 
-    const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime)
-    }
+    const exchangeSpotifyCode = async () => {
+      try {
+        const codeVerifier = localStorage.getItem('spotify_code_verifier') || ''
+        const clientId =
+          localStorage.getItem('spotify_client_id') ||
+          process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID ||
+          '74d2b27160754881a7b4512e09880858'
 
-    const handleLoadedMetadata = () => {
-      if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
-        setDuration(audio.duration)
+        const redirectUri = `${window.location.origin}${window.location.pathname}`
+
+        const body = new URLSearchParams({
+          client_id: clientId,
+          grant_type: 'authorization_code',
+          code: code,
+          redirect_uri: redirectUri,
+          code_verifier: codeVerifier,
+        })
+
+        const response = await fetch('https://accounts.spotify.com/api/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: body,
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to exchange Spotify authorization code')
+        }
+
+        const data = await response.json()
+        const token = data.access_token
+
+        localStorage.setItem('spotify_access_token', token)
+        localStorage.setItem('spotify_auth_type', 'oauth')
+        localStorage.setItem('spotify_connected', 'true')
+        if (data.refresh_token) {
+          localStorage.setItem('spotify_refresh_token', data.refresh_token)
+        }
+
+        // Clean the address bar
+        window.history.replaceState({}, document.title, window.location.pathname)
+
+        setSpotifyAccessToken(token)
+        setSpotifyAuthType('oauth')
+        setIsSpotifyConnected(true)
+
+        // Fetch User profile
+        const userRes = await fetch('https://api.spotify.com/v1/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (userRes.ok) {
+          const userData = await userRes.json()
+          setSpotifyUser({
+            displayName: userData.display_name,
+            email: userData.email,
+            product: userData.product,
+            profileUrl: userData.external_urls?.spotify,
+            imageUrl: userData.images?.[0]?.url,
+          })
+        }
+      } catch {
+        // Fallback gracefully
       }
     }
 
-    const handleEnded = () => {
-      nextTrackRef.current()
-    }
-
-    const handleError = () => {
-      setIsPlaying(false)
-    }
-
-    audio.addEventListener('timeupdate', handleTimeUpdate)
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata)
-    audio.addEventListener('ended', handleEnded)
-    audio.addEventListener('error', handleError)
-
-    return () => {
-      audio.pause()
-      audio.removeEventListener('timeupdate', handleTimeUpdate)
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata)
-      audio.removeEventListener('ended', handleEnded)
-      audio.removeEventListener('error', handleError)
-    }
+    exchangeSpotifyCode()
   }, [])
 
-  // Volume sync to audio element
+  // Poll Spotify playback when OAuth is active
   useEffect(() => {
-    if (audioRef.current) {
-      const effectiveVolume = isMuted ? 0 : volume / 100
-      audioRef.current.volume = effectiveVolume
+    if (!isSpotifyConnected || spotifyAuthType !== 'oauth') return
+
+    const timer = setTimeout(() => {
+      refreshSpotifyPlayback()
+    }, 0)
+    const interval = setInterval(refreshSpotifyPlayback, 6000)
+    return () => {
+      clearTimeout(timer)
+      clearInterval(interval)
     }
-  }, [volume, isMuted])
+  }, [isSpotifyConnected, spotifyAuthType, refreshSpotifyPlayback])
+
+  // Connect via Spotify OAuth (PKCE)
+  const connectSpotifyOAuth = async (customClientId?: string) => {
+    const clientId =
+      customClientId?.trim() ||
+      process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID ||
+      '74d2b27160754881a7b4512e09880858'
+
+    if (!clientId) {
+      throw new Error('Please enter a Spotify Client ID')
+    }
+
+    try {
+      localStorage.setItem('spotify_client_id', clientId)
+    } catch {}
+
+    const codeVerifier = generateRandomString(64)
+    try {
+      localStorage.setItem('spotify_code_verifier', codeVerifier)
+    } catch {}
+
+    const hashed = await sha256(codeVerifier)
+    const codeChallenge = base64encode(hashed)
+
+    const redirectUri = `${window.location.origin}${window.location.pathname}`
+    const scope = [
+      'user-read-currently-playing',
+      'user-read-playback-state',
+      'user-modify-playback-state',
+      'user-read-recently-played',
+      'user-read-email',
+      'user-read-private',
+    ].join(' ')
+
+    const authUrl = new URL('https://accounts.spotify.com/authorize')
+    authUrl.search = new URLSearchParams({
+      response_type: 'code',
+      client_id: clientId,
+      scope: scope,
+      code_challenge_method: 'S256',
+      code_challenge: codeChallenge,
+      redirect_uri: redirectUri,
+    }).toString()
+
+    window.location.href = authUrl.toString()
+  }
+
+  // Connect via Spotify Embed / Playlist URL
+  const connectSpotifyEmbed = (urlOrUri: string) => {
+    const embedUrl = toSpotifyEmbedUrl(urlOrUri)
+    setIsSpotifyConnected(true)
+    setSpotifyAuthType('embed')
+    setSpotifyEmbedUrl(embedUrl)
+
+    try {
+      localStorage.setItem('spotify_connected', 'true')
+      localStorage.setItem('spotify_auth_type', 'embed')
+      localStorage.setItem('spotify_embed_url', embedUrl)
+    } catch {}
+  }
+
+  // Disconnect Spotify
+  const disconnectSpotify = () => {
+    setIsSpotifyConnected(false)
+    setSpotifyAuthType(null)
+    setSpotifyAccessToken(null)
+    setSpotifyUser(null)
+    setSpotifyEmbedUrl(null)
+    setCurrentTrack(null)
+    setIsPlaying(false)
+
+    try {
+      localStorage.removeItem('spotify_connected')
+      localStorage.removeItem('spotify_auth_type')
+      localStorage.removeItem('spotify_access_token')
+      localStorage.removeItem('spotify_refresh_token')
+      localStorage.removeItem('spotify_embed_url')
+    } catch {}
+  }
+
+  // Player controls
+  const togglePlayPause = async () => {
+    if (spotifyAuthType === 'oauth') {
+      if (isPlaying) {
+        await fetchSpotifyWithAuth('/me/player/pause', 'PUT')
+        setIsPlaying(false)
+      } else {
+        await fetchSpotifyWithAuth('/me/player/play', 'PUT')
+        setIsPlaying(true)
+      }
+    } else {
+      setIsPlaying((prev) => !prev)
+    }
+  }
+
+  const nextTrack = async () => {
+    if (spotifyAuthType === 'oauth') {
+      await fetchSpotifyWithAuth('/me/player/next', 'POST')
+      setTimeout(refreshSpotifyPlayback, 500)
+    }
+  }
+
+  const prevTrack = async () => {
+    if (spotifyAuthType === 'oauth') {
+      await fetchSpotifyWithAuth('/me/player/previous', 'POST')
+      setTimeout(refreshSpotifyPlayback, 500)
+    }
+  }
+
+  const seekTrack = async (timeInSeconds: number) => {
+    setCurrentTime(timeInSeconds)
+    if (spotifyAuthType === 'oauth') {
+      await fetchSpotifyWithAuth(`/me/player/seek?position_ms=${Math.floor(timeInSeconds * 1000)}`, 'PUT')
+    }
+  }
 
   // Brightness setter with bounds
   const setBrightness = (val: number) => {
@@ -251,9 +557,7 @@ export function ControlCenterProvider({ children }: { children: ReactNode }) {
     setBrightnessState(clamped)
     try {
       localStorage.setItem('cc_brightness', clamped.toString())
-    } catch {
-      // Ignored
-    }
+    } catch {}
   }
 
   // Volume setter
@@ -264,15 +568,11 @@ export function ControlCenterProvider({ children }: { children: ReactNode }) {
       setIsMuted(false)
       try {
         localStorage.setItem('cc_muted', 'false')
-      } catch {
-        // Ignored
-      }
+      } catch {}
     }
     try {
       localStorage.setItem('cc_volume', clamped.toString())
-    } catch {
-      // Ignored
-    }
+    } catch {}
   }
 
   const toggleMute = () => {
@@ -280,9 +580,7 @@ export function ControlCenterProvider({ children }: { children: ReactNode }) {
       const next = !prev
       try {
         localStorage.setItem('cc_muted', next.toString())
-      } catch {
-        // Ignored
-      }
+      } catch {}
       return next
     })
   }
@@ -293,9 +591,7 @@ export function ControlCenterProvider({ children }: { children: ReactNode }) {
       const next = !prev
       try {
         localStorage.setItem('cc_sim_offline', next.toString())
-      } catch {
-        // Ignored
-      }
+      } catch {}
       return next
     })
   }
@@ -306,9 +602,7 @@ export function ControlCenterProvider({ children }: { children: ReactNode }) {
       const next = !prev
       try {
         localStorage.setItem('cc_focus', next.toString())
-      } catch {
-        // Ignored
-      }
+      } catch {}
       return next
     })
   }
@@ -319,112 +613,13 @@ export function ControlCenterProvider({ children }: { children: ReactNode }) {
   const toggleCellular = () => setIsCellularOn((prev) => !prev)
   const toggleFlashlight = () => setIsFlashlightOn((prev) => !prev)
 
-  // Music controls (Web Audio ambient synth fallback if MP3 not found)
-  const playSynthesizerFallback = useCallback(() => {
-    try {
-      if (!audioCtxRef.current) {
-        const AudioContextClass =
-          window.AudioContext ||
-          (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-        audioCtxRef.current = new AudioContextClass()
-      }
-      const ctx = audioCtxRef.current
-      if (ctx.state === 'suspended') {
-        ctx.resume()
-      }
-      if (synthOscRef.current) {
-        synthOscRef.current.stop()
-        synthOscRef.current.disconnect()
-      }
-      const osc = ctx.createOscillator()
-      const gain = ctx.createGain()
-      osc.type = 'sine'
-      // Pleasant ambient F# major chord tone
-      osc.frequency.setValueAtTime(220, ctx.currentTime)
-      gain.gain.setValueAtTime((volume / 100) * 0.08, ctx.currentTime)
-      osc.connect(gain)
-      gain.connect(ctx.destination)
-      osc.start()
-      synthOscRef.current = osc
-    } catch {
-      // AudioContext disallowed before user interaction
-    }
-  }, [volume])
-
-  const stopSynthesizerFallback = useCallback(() => {
-    try {
-      if (synthOscRef.current) {
-        synthOscRef.current.stop()
-        synthOscRef.current.disconnect()
-        synthOscRef.current = null
-      }
-    } catch {
-      // Ignored
-    }
-  }, [])
-
-  const currentTrack = tracks[currentTrackIndex] || tracks[0]
-
-  const togglePlayPause = () => {
-    if (!audioRef.current) return
-
-    if (isPlaying) {
-      audioRef.current.pause()
-      stopSynthesizerFallback()
-      setIsPlaying(false)
-    } else {
-      audioRef.current.src = currentTrack.src
-      audioRef.current
-        .play()
-        .then(() => {
-          setIsPlaying(true)
-        })
-        .catch(() => {
-          // Local mp3 file not found in /public/audio, use relaxing synth fallback
-          playSynthesizerFallback()
-          setIsPlaying(true)
-        })
-    }
-  }
-
-  const nextTrack = useCallback(() => {
-    setCurrentTrackIndex((prev) => (prev + 1) % tracks.length)
-  }, [tracks.length])
-
-  const prevTrack = useCallback(() => {
-    setCurrentTrackIndex((prev) => (prev - 1 + tracks.length) % tracks.length)
-  }, [tracks.length])
-
-  useEffect(() => {
-    nextTrackRef.current = nextTrack
-  }, [nextTrack])
-
-  // Track change sync effect
-  useEffect(() => {
-    if (!audioRef.current) return
-    const track = tracks[currentTrackIndex] || tracks[0]
-    audioRef.current.src = track.src
-    if (isPlaying) {
-      audioRef.current.play().catch(() => playSynthesizerFallback())
-    }
-  }, [currentTrackIndex, isPlaying, tracks, playSynthesizerFallback])
-
-  const seekTrack = (time: number) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = time
-      setCurrentTime(time)
-    }
-  }
-
   // Calendar Notes
   const saveCalendarNote = (dateKey: string, note: string) => {
     setCalendarNotes((prev) => {
       const updated = { ...prev, [dateKey]: note }
       try {
         localStorage.setItem('cc_calendar_notes', JSON.stringify(updated))
-      } catch {
-        // Ignored
-      }
+      } catch {}
       return updated
     })
   }
@@ -435,9 +630,7 @@ export function ControlCenterProvider({ children }: { children: ReactNode }) {
       delete updated[dateKey]
       try {
         localStorage.setItem('cc_calendar_notes', JSON.stringify(updated))
-      } catch {
-        // Ignored
-      }
+      } catch {}
       return updated
     })
   }
@@ -451,6 +644,16 @@ export function ControlCenterProvider({ children }: { children: ReactNode }) {
         setMobileControlCenterOpen,
         isCalendarModalOpen,
         setCalendarModalOpen,
+
+        isSpotifyModalOpen,
+        setSpotifyModalOpen,
+        isSpotifyConnected,
+        spotifyAuthType,
+        spotifyUser,
+        spotifyEmbedUrl,
+        connectSpotifyOAuth,
+        connectSpotifyEmbed,
+        disconnectSpotify,
 
         isRealOnline,
         isSimulatedOffline,
@@ -477,8 +680,6 @@ export function ControlCenterProvider({ children }: { children: ReactNode }) {
         homeTheme,
         toggleHomeTheme,
 
-        tracks,
-        currentTrackIndex,
         currentTrack,
         isPlaying,
         currentTime,

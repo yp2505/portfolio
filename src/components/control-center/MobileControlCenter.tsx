@@ -16,13 +16,13 @@ import {
   Zap,
   Smartphone,
   X,
-  ExternalLink,
   ChevronDown,
   Info,
 } from 'lucide-react'
-import { useControlCenter, SPOTIFY_PROFILE_URL } from './useControlCenter'
+import { useControlCenter } from './useControlCenter'
 import Slider from './Slider'
 import CalendarCard from './CalendarCard'
+import NowPlaying from './NowPlaying'
 
 export default function MobileControlCenter() {
   const {
@@ -48,13 +48,6 @@ export default function MobileControlCenter() {
     toggleFlashlight,
     homeTheme,
     toggleHomeTheme,
-    currentTrack,
-    isPlaying,
-    togglePlayPause,
-    nextTrack,
-    prevTrack,
-    currentTime,
-    duration,
   } = useControlCenter()
 
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
@@ -69,14 +62,6 @@ export default function MobileControlCenter() {
     if (isMuted || volume === 0) return <VolumeX size={20} />
     if (volume < 40) return <Volume1 size={20} />
     return <Volume2 size={20} />
-  }
-
-  // Format mm:ss
-  const formatTime = (secs: number) => {
-    if (isNaN(secs) || secs < 0) return '0:00'
-    const m = Math.floor(secs / 60)
-    const s = Math.floor(secs % 60)
-    return `${m}:${s < 10 ? '0' : ''}${s}`
   }
 
   // Global touch gesture handler for swiping down from top-right corner to open
@@ -474,188 +459,14 @@ export default function MobileControlCenter() {
                     padding: 12,
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'space-between',
+                    justifyContent: 'center',
                     aspectRatio: '1 / 1',
                     boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
                     position: 'relative',
                     overflow: 'hidden',
                   }}
                 >
-                  {/* Top info */}
-                  <div>
-                    <div
-                      style={{
-                        fontSize: 10,
-                        fontWeight: 700,
-                        letterSpacing: '0.04em',
-                        textTransform: 'uppercase',
-                        color: 'rgba(255, 255, 255, 0.6)',
-                        marginBottom: 4,
-                      }}
-                    >
-                      Now Playing
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 13,
-                        fontWeight: 700,
-                        color: '#ffffff',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      }}
-                    >
-                      {currentTrack.title}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 11,
-                        color: 'rgba(255, 255, 255, 0.7)',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      }}
-                    >
-                      {currentTrack.artist}
-                    </div>
-                  </div>
-
-                  {/* Scrubber line */}
-                  <div style={{ width: '100%', margin: '4px 0' }}>
-                    <div
-                      style={{
-                        width: '100%',
-                        height: 3,
-                        borderRadius: 2,
-                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%`,
-                          height: '100%',
-                          backgroundColor: '#ffffff',
-                          borderRadius: 2,
-                        }}
-                      />
-                    </div>
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        fontSize: 9,
-                        color: 'rgba(255, 255, 255, 0.5)',
-                        marginTop: 2,
-                      }}
-                    >
-                      <span>{formatTime(currentTime)}</span>
-                      <span>{formatTime(duration)}</span>
-                    </div>
-                  </div>
-
-                  {/* Controls */}
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-around',
-                    }}
-                  >
-                    <button
-                      type="button"
-                      onClick={prevTrack}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: '#ffffff',
-                        cursor: 'pointer',
-                        padding: 6,
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                      aria-label="Previous track"
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
-                      </svg>
-                    </button>
-
-                    <motion.button
-                      type="button"
-                      whileTap={{ scale: 0.9 }}
-                      onClick={togglePlayPause}
-                      style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: '50%',
-                        backgroundColor: '#ffffff',
-                        border: 'none',
-                        color: '#000000',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                      }}
-                      aria-label={isPlaying ? 'Pause' : 'Play'}
-                    >
-                      {isPlaying ? (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-                        </svg>
-                      ) : (
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          style={{ marginLeft: 2 }}
-                        >
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
-                      )}
-                    </motion.button>
-
-                    <button
-                      type="button"
-                      onClick={nextTrack}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: '#ffffff',
-                        cursor: 'pointer',
-                        padding: 6,
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                      aria-label="Next track"
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  {/* Open Spotify link */}
-                  <a
-                    href={SPOTIFY_PROFILE_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      position: 'absolute',
-                      top: 8,
-                      right: 8,
-                      color: 'rgba(255, 255, 255, 0.6)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      padding: 4,
-                      textDecoration: 'none',
-                    }}
-                    title="Open Spotify Profile"
-                    aria-label="Open Spotify Profile"
-                  >
-                    <ExternalLink size={12} />
-                  </a>
+                  <NowPlaying compact />
                 </div>
               </div>
 

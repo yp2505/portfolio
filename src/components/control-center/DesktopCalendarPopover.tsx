@@ -43,18 +43,19 @@ export default function DesktopCalendarPopover() {
       {isCalendarModalOpen && (
         <motion.div
           ref={popoverRef}
-          initial={{ opacity: 0, scale: 0.94, y: -6 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.94, y: -6 }}
+          initial={{ opacity: 0, scale: 0.94, y: -6, x: '-50%' }}
+          animate={{ opacity: 1, scale: 1, y: 0, x: '-50%' }}
+          exit={{ opacity: 0, scale: 0.94, y: -6, x: '-50%' }}
           transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
           style={{
             position: 'fixed',
             top: 34,
-            right: 12,
+            left: '50%',
+            transformOrigin: 'top center',
             width: 330,
             zIndex: 1000,
             borderRadius: 20,
-            backgroundColor: 'rgba(28, 28, 30, 0.82)',
+            backgroundColor: 'rgba(28, 28, 30, 0.88)',
             backdropFilter: 'blur(30px) saturate(190%)',
             WebkitBackdropFilter: 'blur(30px) saturate(190%)',
             border: '1px solid rgba(255, 255, 255, 0.18)',
