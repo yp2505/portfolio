@@ -13,6 +13,7 @@ type Props = {
   github_url?: string
   tech?: string[]
   status?: 'completed' | 'in-progress'
+  onOpen: () => void
 }
 
 export default function PortfolioCard({
@@ -23,12 +24,8 @@ export default function PortfolioCard({
   github_url,
   tech = [],
   status = 'completed',
+  onOpen,
 }: Props) {
-
-  const handleGithubClick = () => {
-    if (github_url) window.open(github_url, '_blank')
-  }
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 40, scale: 0.96 }}
@@ -47,10 +44,20 @@ export default function PortfolioCard({
         display: 'flex',
         flexDirection: 'column',
         minHeight: 260,
-        cursor: 'default',
+        cursor: 'pointer',
         overflow: 'hidden',
         transition: 'border-color 0.3s ease',
       }}
+      onClick={onOpen}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          onOpen()
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={`Open details for ${title}`}
       onHoverStart={(e) => {
         const el = e.target as HTMLElement
         const card = el.closest('[data-card]') as HTMLElement
@@ -203,8 +210,11 @@ export default function PortfolioCard({
       )}
 
       {/* GitHub Button */}
-      <button
-        onClick={handleGithubClick}
+      <a
+        href={github_url}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={(event) => event.stopPropagation()}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -220,21 +230,13 @@ export default function PortfolioCard({
           fontWeight: 600,
           cursor: 'pointer',
           fontFamily: "'Inter', sans-serif",
-          transition: 'all 0.2s ease',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = 'rgba(14,165,233,0.14)'
-          e.currentTarget.style.borderColor = 'rgba(14,165,233,0.5)'
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = 'rgba(14,165,233,0.07)'
-          e.currentTarget.style.borderColor = 'rgba(14,165,233,0.25)'
+          textDecoration: 'none',
         }}
       >
         <FaGithub style={{ fontSize: 14 }} />
         View on GitHub
         <ArrowUpRight size={13} />
-      </button>
+      </a>
     </motion.div>
   )
 }

@@ -20,6 +20,7 @@ Run `npm run build` before deploying. Configure the following environment variab
 | `GEMINI_API_KEY` | AI chat | Keep private. |
 | `NOTION_API_KEY` | Dynamic projects | Keep private. |
 | `NOTION_DATABASE_ID` | Dynamic projects | Keep private. |
+| `NEXT_PUBLIC_SITE_URL` | SEO and social sharing | Set to your real deployed site URL. |
 
 Copy `.env.example` to `.env.local` for local development. Do not commit `.env.local` or production secrets.
 

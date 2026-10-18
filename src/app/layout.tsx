@@ -23,8 +23,31 @@ const dancingScript = Dancing_Script({
 });
 
 export const metadata: Metadata = {
-  title: "Yug Patel | AI Developer",
-  description: "Portfolio of Yug Patel, an AI & ML Developer",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://yugpatel.dev"),
+  title: {
+    default: "Yug Patel — Portfolio",
+    template: "%s · Yug Patel",
+  },
+  description: "Portfolio of Yug Patel — AI and machine learning developer.",
+  keywords: ["Yug Patel", "portfolio", "AI developer", "machine learning", "data engineering"],
+  authors: [{ name: "Yug Patel" }],
+  creator: "Yug Patel",
+  robots: { index: true, follow: true },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "/",
+    siteName: "Yug Patel — Portfolio",
+    title: "Yug Patel — Portfolio",
+    description: "Portfolio of Yug Patel — AI and machine learning developer.",
+    images: [{ url: "/assets/yug.png", width: 1200, height: 630, alt: "Yug Patel" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Yug Patel — Portfolio",
+    description: "Portfolio of Yug Patel — AI and machine learning developer.",
+    images: ["/assets/yug.png"],
+  },
 };
 
 // mobile-native skill: theme-color per color scheme

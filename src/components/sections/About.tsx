@@ -214,7 +214,7 @@ export default function About() {
               style={{ display: "flex", gap: 16, marginTop: 28, flexWrap: "wrap" }}
             >
               <a
-                href="#"
+                href="/assets/Yug_Patel_Resume.md"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ textDecoration: "none" }}

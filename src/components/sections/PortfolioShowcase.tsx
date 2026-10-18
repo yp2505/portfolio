@@ -4,14 +4,17 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, ChevronUp, Award, Lock } from 'lucide-react'
 import usePortfolio from '@/hooks/usePortfolio'
+import type { Project } from '@/lib/portfolioService'
 import PortfolioCard from './PortfolioCard'
+import ProjectDetailModal from './ProjectDetailModal'
 
 const smoothEase: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
 export default function PortfolioShowcase() {
-  const { projects, techStacks, loading } = usePortfolio()
+  const { projects, loading } = usePortfolio()
   const [activeTab, setActiveTab] = useState('projects')
   const [showAllProjects, setShowAllProjects] = useState(false)
+  const [selected, setSelected] = useState<Project | null>(null)
 
   const displayedProjects = showAllProjects ? projects : projects.slice(0, 6)
 
@@ -164,6 +167,7 @@ export default function PortfolioShowcase() {
                           github_url={item.github_url}
                           tech={item.tech}
                           status={item.status}
+                          onOpen={() => setSelected(item)}
                         />
                       </motion.div>
                     ))}
@@ -363,6 +367,7 @@ export default function PortfolioShowcase() {
           </div>
         </div>
       </section>
+      <ProjectDetailModal project={selected} onClose={() => setSelected(null)} />
     </>
   )
 }
