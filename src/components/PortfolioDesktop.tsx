@@ -1,20 +1,21 @@
 'use client'
 
 import { useCallback, type ReactNode } from 'react'
-import { ExternalLink, FolderKanban, GitFork, Mail, UserRound } from 'lucide-react'
 import type { WindowState } from '@surdeddd/wmkit'
 import { useDesktop, useWindowManager, useWmState, useWmWindowRef } from '@surdeddd/wmkit/react'
 import DesktopIcons from '@/components/ui/DesktopIcons'
 import MacDock from '@/components/ui/MacDock'
-import usePortfolio from '@/hooks/usePortfolio'
+import About from '@/components/sections/About'
+import PortfolioShowcase from '@/components/sections/PortfolioShowcase'
+import ContactSection from '@/components/sections/contact/ContactSection'
 import styles from './PortfolioDesktop.module.css'
 
 type WindowId = 'about' | 'projects' | 'contact'
 
 const windowDefinitions: Record<WindowId, { title: string; width: number; height: number; x: number; y: number }> = {
-  about: { title: 'About Yug Patel', width: 570, height: 410, x: 200, y: 94 },
-  projects: { title: 'Projects', width: 760, height: 560, x: 150, y: 76 },
-  contact: { title: 'Contact', width: 480, height: 350, x: 244, y: 130 },
+  about: { title: 'About Yug Patel', width: 860, height: 620, x: 146, y: 60 },
+  projects: { title: 'Projects', width: 980, height: 650, x: 110, y: 48 },
+  contact: { title: 'Contact', width: 980, height: 650, x: 132, y: 52 },
 }
 
 interface PortfolioDesktopProps {
@@ -39,7 +40,7 @@ export default function PortfolioDesktop({ children }: PortfolioDesktopProps) {
     }
 
     const config = windowDefinitions[id]
-    wm.open({ id, ...config, minWidth: 300, minHeight: 220, meta: { kind: id } })
+    wm.open({ id, ...config, minWidth: 420, minHeight: 320, meta: { kind: id } })
   }, [wm])
 
   return (
@@ -77,62 +78,19 @@ function PortfolioWindow({ binder, win }: { binder: ReturnType<typeof useDesktop
         </span>
       </header>
       <div data-wm-content className={styles.windowContent}>
-        {kind === 'about' && <AboutContent />}
-        {kind === 'projects' && <ProjectsContent />}
-        {kind === 'contact' && <ContactContent />}
+        {kind === 'about' && <About />}
+        {kind === 'projects' && <PortfolioShowcase />}
+        {kind === 'contact' && <ContactSection />}
       </div>
     </section>
   )
 }
 
-function AboutContent() {
-  return (
-    <div className={styles.about}>
-      <div className={styles.aboutIcon}><UserRound size={27} /></div>
-      <div>
-        <p className={styles.eyebrow}>DATA & MACHINE LEARNING</p>
-        <h2>Yug Patel</h2>
-        <p>Data and machine learning engineer focused on building reliable pipelines, intelligent systems, and practical edge-AI products.</p>
-        <div className={styles.tags}>{['Python', 'SQL', 'Spark', 'PyTorch', 'TensorFlow', 'Next.js'].map((skill) => <span key={skill}>{skill}</span>)}</div>
-      </div>
-    </div>
-  )
-}
-
-function ProjectsContent() {
-  const { projects, loading } = usePortfolio()
-
-  if (loading) return <p className={styles.loading}>Loading projects…</p>
-
-  return (
-    <div className={styles.projects}>
-      {projects.map((project) => (
-        <article key={project.id} className={styles.project}>
-          <div><FolderKanban size={17} /><h2>{project.title}</h2></div>
-          <p>{project.description}</p>
-          <div className={styles.tags}>{project.tech.slice(0, 4).map((tech) => <span key={tech}>{tech}</span>)}</div>
-          <a href={project.github_url} target="_blank" rel="noreferrer"><GitFork size={14} />View source <ExternalLink size={12} /></a>
-        </article>
-      ))}
-    </div>
-  )
-}
-
-function ContactContent() {
-  return (
-    <div className={styles.contact}>
-      <Mail size={28} />
-      <p className={styles.eyebrow}>LET&apos;S BUILD SOMETHING USEFUL</p>
-      <h2>Get in touch</h2>
-      <p>Interested in an ML collaboration, data project, or practical AI work? Let&apos;s talk.</p>
-      <a href="mailto:yugpatel2505@gmail.com"><Mail size={16} />Email Yug</a>
-      <a href="https://github.com/yp2505" target="_blank" rel="noreferrer"><GitFork size={16} />GitHub <ExternalLink size={13} /></a>
-    </div>
-  )
-}
-
 function WindowShelf({ state, onFocus }: { state: ReturnType<typeof useWmState>; onFocus: (id: string) => void }) {
-  const windows = state.order.map((id) => state.windows[id]).filter(Boolean)
+  const windows = state.order.flatMap((id) => {
+    const win = state.windows[id]
+    return win ? [win] : []
+  })
   if (windows.length === 0) return null
 
   return (
